@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    //id "com.github.breadmoirai.github-release" version "2.2.12"
+    id "com.github.breadmoirai.github-release" version "2.4.1"
 }
 
 repositories {
@@ -35,14 +35,12 @@ dependencies {
 version = "0.1.0"
 group = "org.neo4j.chains"
 
-/*
 githubRelease {
     token getProperty("github_token") // from ~/.gradle/gradle.properties
     owner 'sarmbruster'
-    //dryRun true
-    //draft true
+    dryRun true
+    draft true
     body changelog()
     FilenameFilter filter = { dir, filename -> filename.contains(project.version) }
     releaseAssets = jar.destinationDir.listFiles filter
 }
-*/
