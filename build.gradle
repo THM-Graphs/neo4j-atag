@@ -7,11 +7,11 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility=JavaVersion.VERSION_17
-targetCompatibility=JavaVersion.VERSION_17
+sourceCompatibility=JavaVersion.VERSION_11
+targetCompatibility=JavaVersion.VERSION_11
 
 ext {
-    neo4jVersion = "5.3.0"
+    neo4jVersion = "4.4.16"
     junitJupiterVersion = "5.9.2"
 }
 
@@ -32,13 +32,13 @@ dependencies {
 //    testCompile group: 'org.neo4j.community', name: 'it-test-support', version: neo4jVersion
 }
 
-version = "0.1.0"
+version = "0.1.1"
 group = "org.neo4j.chains"
 
 githubRelease {
     token getProperty("github_token") // from ~/.gradle/gradle.properties
     owner 'sarmbruster'
-    dryRun true
+    dryRun false
     draft true
     body changelog()
     FilenameFilter filter = { dir, filename -> filename.contains(project.version) }
