@@ -50,7 +50,7 @@ public class ChainsProcedure {
     }
 
     private Path tokenChainInternal(String text) {
-        return chainInternal(text, "((?<=\\s)|(?=\\s))", "Token", REL_NEXT_TOKEN.name(), true);
+        return chainInternal(text, "((?<=\\W)|(?=\\W))", "Token", REL_NEXT_TOKEN.name(), true);
     }
 
     @Procedure(mode= Mode.WRITE)

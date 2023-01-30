@@ -91,4 +91,21 @@ public class ChainsProcedureTest {
         });
     }
 
+    @Test
+    public void testTokenChain(GraphDatabaseService db) {
+
+        String text = "here's a comma, in this text";
+        db.executeTransactionally("CALL thm.tokenChain($text) YIELD path RETURN path", Map.of( "text", text), result -> {
+//        db.executeTransactionally("CALL thm.chain($text, '', 'Character', 'NEXT_CHARACTER', true) YIELD path RETURN path", Map.of( "text", text), result -> {
+
+            Map<String, Object> map = Iterators.single(result);
+            Path path = (Path) map.get("path");
+
+            /*for (Node node : path.nodes()) {
+                System.out.println(node.getProperty("text"));
+            }*/
+            assertEquals(13, path.length());
+            return true;
+        });
+    }
 }
