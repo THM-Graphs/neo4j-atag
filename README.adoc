@@ -1,0 +1,91 @@
+# neo4j-chains
+
+A collections of https://neo4j.com[neo4j] stored procedures to build character and/or token chains.
+
+## available procedures
+
+### thm.characterChain
+
+.Parameters thm.characterChain
+|===
+| name | type | description | default value
+
+| text | String | string to be used for building a chain of nodes |
+| | | |
+| return value | Path | a path holding the created chain |
+|===
+
+#### example
+
+----
+CALL thm.characterChain('what a nice text') YIELD path RETURN path
+----
+
+### thm.tokenChain
+
+Uses regex `((?<=\W)|(?=\W))` for identifying tokens.
+
+.Parameters thm.tokenChain
+|===
+| name | type | description | default value
+
+| text | String | string to be used for building a chain of nodes |
+| | | |
+| return value | Path | a path holding the created chain |
+|===
+
+#### example
+
+----
+CALL thm.tokenChain('what a nice text') YIELD path RETURN path
+----
+
+### thm.fullChain
+
+The most complete procedure, creates both token and character chain.
+Delegates internally to `thm.tokenChain` and `thm.characterChain`.
+Interconnects the two chains appropriately.
+
+.Parameters thm.fullChain
+|===
+| name | type | description | default value
+
+| start | Node | start node holding the text in a property |
+| propertyKey | string | property key |
+| | | |
+| return value | void ||
+|===
+
+#### example
+
+----
+CREATE (s:Text{text:'What a nice text'})
+WITH s
+CALL thm.fullChain(s, 'text')
+RETURN s
+----
+
+### thm.chain
+
+A very generic procedure to build a chain of nodes.
+
+.Parameters thm.chain
+|===
+| name | type | description | default value
+
+| text | string | string to be used for building a chain of nodes |
+| regex | string | separator regex pattern |
+| label | string | label for new nodes |
+| relType | string | relationship type used for the chain |
+| applyIndexProperties | boolean | whether to add startIndex/endIndex properties |
+| | | |
+| return value | Path | a path holding the created chain |
+|===
+
+NOTE: the regex parameter uses lookahead/lookbehind notation, see https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/regex/Pattern.html
+
+#### example
+
+----
+CALL thm.chain('what a nice text', '((?<=\\s)|(?=\\s))', 'Character', 'NEXT_CHARACTER', false) YIELD path RETURN path
+----
