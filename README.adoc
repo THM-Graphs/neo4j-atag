@@ -23,7 +23,7 @@ CALL thm.characterChain('what a nice text') YIELD path RETURN path;
 match (t:Text) 
 where t.text is not null
 with t
-call thm.tokenChain(t.text) yield path return path;
+call thm.characterChain(t.text) yield path return path;
 
 ----
 
