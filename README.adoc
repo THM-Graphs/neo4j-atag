@@ -95,3 +95,27 @@ NOTE: the regex parameter uses lookahead/lookbehind notation, see https://docs.o
 ----
 CALL thm.chain('what a nice text', '((?<=\\s)|(?=\\s))', 'Character', 'NEXT_CHARACTER', false) YIELD path RETURN path
 ----
+
+#### create example
+
+----
+match (n) detach delete n;
+create (t1:Text {text:'Müde macht uns die Arbeit, die wir liegen lassen, nicht die, die wir tun.', textEn:'It is the work we leave undone that makes us tired, not the work we do.', url:'https://klebeheld.de/wandtattoos/zitate/arbeit/wandtattoo-muede-macht-uns-die-arbeit-die-wir-liegen-lassen-nicht-die-die-wir-tun.-no.1-ebner-e/542'})
+create (t2:Text {text:'Müde macht uns nicht die Arbeit die wir tun sondern die, die wir liegen lassen.', textEn:'It is not the work we do that makes us tired, but the work we leave undone.', url:'https://www.mak-uk.de/wir-ueber-uns-pd.html'});
+// Create uuids für Character-Nodes
+:auto MATCH (r:Character)
+WHERE r.uuid is null
+CALL {
+WITH r
+SET r.uuid = apoc.create.uuid()
+} IN TRANSACTIONS OF 1000 ROWS
+RETURN count(*);
+// Create uuids für Token-Nodes
+:auto MATCH (r:Token)
+WHERE r.uuid is null
+CALL {
+WITH r
+SET r.uuid = apoc.create.uuid()
+} IN TRANSACTIONS OF 1000 ROWS
+RETURN count(*);
+----
