@@ -2,6 +2,10 @@ package thm;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -12,6 +16,7 @@ import org.neo4j.internal.helpers.collection.Iterators;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -91,21 +96,20 @@ public class ChainsProcedureTest {
         });
     }
 
-    @Test
-    public void testTokenChain(GraphDatabaseService db) {
+    @ParameterizedTest
+    @MethodSource
+    public void testTokenChain(String text, int expected, GraphDatabaseService db) {
+        int pathLength = db.executeTransactionally("CALL thm.tokenChain($text) YIELD path RETURN path",
+                Map.of("text", text),
+                result -> ((Path) Iterators.single(result).get("path")).length()
+        );
+        assertEquals(expected, pathLength);
+    }
 
-        String text = "here's a comma, in this text";
-        db.executeTransactionally("CALL thm.tokenChain($text) YIELD path RETURN path", Map.of( "text", text), result -> {
-//        db.executeTransactionally("CALL thm.chain($text, '', 'Character', 'NEXT_CHARACTER', true) YIELD path RETURN path", Map.of( "text", text), result -> {
-
-            Map<String, Object> map = Iterators.single(result);
-            Path path = (Path) map.get("path");
-
-            /*for (Node node : path.nodes()) {
-                System.out.println(node.getProperty("text"));
-            }*/
-            assertEquals(13, path.length());
-            return true;
-        });
+    public static Stream<Arguments> testTokenChain() {
+        return Stream.of(
+                Arguments.of("here's a comma, in this text", 13),
+                Arguments.of("Ümlaute für den Spaß!", 7)
+        );
     }
 }
