@@ -7,8 +7,9 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility=JavaVersion.VERSION_17
-targetCompatibility=JavaVersion.VERSION_17
+// build artifact should be compatible with Neo4j 4.4 as well (JDK 11 here)
+sourceCompatibility=JavaVersion.VERSION_11
+targetCompatibility=JavaVersion.VERSION_11
 
 ext {
     neo4jVersion = "5.8.0"
