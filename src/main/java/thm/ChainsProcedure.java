@@ -33,34 +33,37 @@ public class ChainsProcedure {
 
     @Procedure(mode= Mode.WRITE)
     public Stream<PathResult> characterChain(
-            @Name("string to be used for building a chain of nodes") String text) {
-        Path chain = characterChainInternal(text);
+            @Name("string to be used for building a chain of nodes") String text,
+            @Name(value = "whether to add startIndex/endIndex properties", defaultValue = "false") boolean applyIndexProperties) {
+        Path chain = characterChainInternal(text, applyIndexProperties);
         return asPathResult(chain);
     }
 
-    private Path characterChainInternal(String text) {
-        return chainInternal(text, "", "Character", REL_NEXT_CHARACTER.name(), false);
+    private Path characterChainInternal(String text, boolean applyIndexProperties) {
+        return chainInternal(text, "", "Character", REL_NEXT_CHARACTER.name(), applyIndexProperties);
     }
 
     @Procedure(mode= Mode.WRITE)
     public Stream<PathResult> tokenChain(
-            @Name("string to be used for building a chain of nodes") String text) {
-        Path chain = tokenChainInternal(text);
+            @Name("string to be used for building a chain of nodes") String text,
+            @Name(value = "whether to add startIndex/endIndex properties", defaultValue = "true") boolean applyIndexProperties) {
+        Path chain = tokenChainInternal(text, applyIndexProperties);
         return asPathResult(chain);
     }
 
-    private Path tokenChainInternal(String text) {
-        return chainInternal(text, "(?U)((?<=\\W)|(?=\\W))", "Token", REL_NEXT_TOKEN.name(), true);
+    private Path tokenChainInternal(String text, boolean applyIndexProperties) {
+        return chainInternal(text, "(?U)((?<=\\W)|(?=\\W))", "Token", REL_NEXT_TOKEN.name(), applyIndexProperties);
     }
 
     @Procedure(mode= Mode.WRITE)
     public void fullChain(
             @Name("start node holding the text in a property") Node start,
-            @Name("property key") String propertyKey) {
+            @Name("property key") String propertyKey,
+            @Name(value = "whether to add startIndex/endIndex properties to character nodes", defaultValue = "false") boolean applyIndexProperties) {
 
         String text = (String) start.getProperty(propertyKey);
-        List<Node> characterChain = Iterables.asList(characterChainInternal(text).nodes());
-        Iterable<Node> tokenChain = tokenChainInternal(text).nodes();
+        List<Node> characterChain = Iterables.asList(characterChainInternal(text, applyIndexProperties).nodes());
+        Iterable<Node> tokenChain = tokenChainInternal(text, true).nodes();
 
         start.createRelationshipTo(characterChain.get(0), REL_NEXT_CHARACTER);
 

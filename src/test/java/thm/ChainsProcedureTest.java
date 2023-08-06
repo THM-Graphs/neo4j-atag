@@ -19,7 +19,9 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class ChainsProcedureTest {
     @RegisterExtension
@@ -64,11 +66,8 @@ public class ChainsProcedureTest {
 
     @Test
     public void testCharacterChain(GraphDatabaseService db) {
-
         String text = "what a nice text";
         db.executeTransactionally("CALL thm.characterChain($text) YIELD path RETURN path", Map.of( "text", text), result -> {
-//        db.executeTransactionally("CALL thm.chain($text, '', 'Character', 'NEXT_CHARACTER', true) YIELD path RETURN path", Map.of( "text", text), result -> {
-
             Map<String, Object> map = Iterators.single(result);
             Path path = (Path) map.get("path");
 
@@ -76,6 +75,27 @@ public class ChainsProcedureTest {
             List<Node> nodes = Iterables.asList(path.nodes());
             assertEquals("w", nodes.get(0).getProperty("text"));
             assertEquals("t", nodes.get(nodes.size()-1).getProperty("text"));
+            assertFalse(nodes.get(0).hasProperty(ChainsProcedure.PROPERTY_START_INDEX));
+            assertFalse(nodes.get(0).hasProperty(ChainsProcedure.PROPERTY_END_INDEX));
+            return true;
+        });
+    }
+
+    @Test
+    public void testCharacterChainWithIndex(GraphDatabaseService db) {
+        String text = "what a nice text";
+        db.executeTransactionally("CALL thm.characterChain($text, true) YIELD path RETURN path", Map.of( "text", text), result -> {
+            Map<String, Object> map = Iterators.single(result);
+            Path path = (Path) map.get("path");
+
+            assertEquals(15, path.length());
+            List<Node> nodes = Iterables.asList(path.nodes());
+            assertEquals("w", nodes.get(0).getProperty("text"));
+            assertEquals("t", nodes.get(nodes.size()-1).getProperty("text"));
+            for (int i = 0; i < nodes.size(); i++) {
+                assertEquals(i, nodes.get(i).getProperty(ChainsProcedure.PROPERTY_START_INDEX));
+                assertEquals(i, nodes.get(i).getProperty(ChainsProcedure.PROPERTY_END_INDEX));
+            }
             return true;
         });
     }
