@@ -11,6 +11,7 @@ A collections of https://neo4j.com[neo4j] stored procedures to build character a
 | name | type | description | default value
 
 | text | String | string to be used for building a chain of nodes |
+| applyIndexes | boolean | if true, `startIndex/endIndex` properties are added | `false`
 | | | |
 | return value | Path | a path holding the created chain |
 |===
@@ -36,6 +37,7 @@ Uses regex `((?<=\W)|(?=\W))` for identifying tokens.
 | name | type | description | default value
 
 | text | String | string to be used for building a chain of nodes |
+| applyIndexes | boolean | if true, `startIndex/endIndex` properties are added | `true`
 | | | |
 | return value | Path | a path holding the created chain |
 |===
@@ -65,6 +67,7 @@ Interconnects the two chains appropriately.
 
 | start | Node | start node holding the text in a property |
 | propertyKey | string | property key |
+| applyIndexes | boolean | if true, `startIndex/endIndex` properties are added to character nodes | `false`
 | | | |
 | return value | void ||
 |===
