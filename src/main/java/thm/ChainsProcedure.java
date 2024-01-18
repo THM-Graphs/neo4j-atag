@@ -34,7 +34,7 @@ public class ChainsProcedure {
     @Procedure(mode= Mode.WRITE)
     public Stream<PathResult> characterChain(
             @Name("string to be used for building a chain of nodes") String text,
-            @Name(value = "whether to add startIndex/endIndex properties", defaultValue = "false") boolean applyIndexProperties) {
+            @Name(value = "whether to add startIndex/endIndex properties", defaultValue = "true") boolean applyIndexProperties) {
         Path chain = characterChainInternal(text, applyIndexProperties);
         return asPathResult(chain);
     }
@@ -59,7 +59,7 @@ public class ChainsProcedure {
     public void fullChain(
             @Name("start node holding the text in a property") Node start,
             @Name("property key") String propertyKey,
-            @Name(value = "whether to add startIndex/endIndex properties to character nodes", defaultValue = "false") boolean applyIndexProperties) {
+            @Name(value = "whether to add startIndex/endIndex properties to character nodes", defaultValue = "true") boolean applyIndexProperties) {
 
         String text = (String) start.getProperty(propertyKey);
         List<Node> characterChain = Iterables.asList(characterChainInternal(text, applyIndexProperties).nodes());
