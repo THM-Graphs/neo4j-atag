@@ -12,8 +12,8 @@ sourceCompatibility=JavaVersion.VERSION_11
 targetCompatibility=JavaVersion.VERSION_11
 
 ext {
-    neo4jVersion = "5.8.0"
-    junitJupiterVersion = "5.9.2"
+    neo4jVersion = "5.15.0"
+    junitJupiterVersion = "5.10.1"
 }
 
 dependencies {
@@ -35,7 +35,7 @@ dependencies {
 //    testCompile group: 'org.neo4j.community', name: 'it-test-support', version: neo4jVersion
 }
 
-version = "0.1.6"
+version = "0.1.7"
 group = "org.neo4j.chains"
 
 githubRelease {
@@ -45,5 +45,5 @@ githubRelease {
     draft false
     body changelog()
     FilenameFilter filter = { dir, filename -> filename.contains(project.version) }
-    releaseAssets = jar.destinationDir.listFiles filter
+    releaseAssets = jar.destinationDirectory.files filter
 }
