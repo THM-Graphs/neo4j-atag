@@ -1,4 +1,4 @@
-package thm;
+package atag.chains;
 
 import org.neo4j.graphalgo.impl.util.PathImpl;
 import org.neo4j.graphdb.Label;
@@ -31,7 +31,7 @@ public class ChainsProcedure {
     @Context
     public Log log;
 
-    @Procedure(mode= Mode.WRITE)
+    @Procedure(mode = Mode.WRITE)
     public Stream<PathResult> characterChain(
             @Name("string to be used for building a chain of nodes") String text,
             @Name(value = "whether to add startIndex/endIndex properties", defaultValue = "true") boolean applyIndexProperties) {
@@ -43,7 +43,7 @@ public class ChainsProcedure {
         return chainInternal(text, "", "Character", REL_NEXT_CHARACTER.name(), applyIndexProperties);
     }
 
-    @Procedure(mode= Mode.WRITE)
+    @Procedure(mode = Mode.WRITE)
     public Stream<PathResult> tokenChain(
             @Name("string to be used for building a chain of nodes") String text,
             @Name(value = "whether to add startIndex/endIndex properties", defaultValue = "true") boolean applyIndexProperties) {
@@ -55,7 +55,7 @@ public class ChainsProcedure {
         return chainInternal(text, "(?U)((?<=\\W)|(?=\\W))", "Token", REL_NEXT_TOKEN.name(), applyIndexProperties);
     }
 
-    @Procedure(mode= Mode.WRITE)
+    @Procedure(mode = Mode.WRITE)
     public void fullChain(
             @Name("start node holding the text in a property") Node start,
             @Name("property key") String propertyKey,

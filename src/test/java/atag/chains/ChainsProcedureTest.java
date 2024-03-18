@@ -1,10 +1,9 @@
-package thm;
+package atag.chains;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -18,10 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ChainsProcedureTest {
     @RegisterExtension
@@ -50,8 +46,8 @@ public class ChainsProcedureTest {
     public void testChain(GraphDatabaseService db) {
 
         String text = "what a nice text";
-        db.executeTransactionally("CALL thm.chain($text, '((?<=\\\\s)|(?=\\\\s))', 'Character', 'NEXT_CHARACTER', false) YIELD path RETURN path", Map.of( "text", text), result -> {
-//        db.executeTransactionally("CALL thm.chain($text, '', 'Character', 'NEXT_CHARACTER', true) YIELD path RETURN path", Map.of( "text", text), result -> {
+        db.executeTransactionally("CALL atag.chains.chain($text, '((?<=\\\\s)|(?=\\\\s))', 'Character', 'NEXT_CHARACTER', false) YIELD path RETURN path", Map.of( "text", text), result -> {
+//        db.executeTransactionally("CALL atag.chains.chain($text, '', 'Character', 'NEXT_CHARACTER', true) YIELD path RETURN path", Map.of( "text", text), result -> {
 
             Map<String, Object> map = Iterators.single(result);
             Path path = (Path) map.get("path");
@@ -67,16 +63,18 @@ public class ChainsProcedureTest {
     @Test
     public void testCharacterChain(GraphDatabaseService db) {
         String text = "what a nice text";
-        db.executeTransactionally("CALL thm.characterChain($text) YIELD path RETURN path", Map.of( "text", text), result -> {
+        db.executeTransactionally("CALL atag.chains.characterChain($text) YIELD path RETURN path", Map.of( "text", text), result -> {
             Map<String, Object> map = Iterators.single(result);
             Path path = (Path) map.get("path");
 
             assertEquals(15, path.length());
             List<Node> nodes = Iterables.asList(path.nodes());
-            assertEquals("w", nodes.get(0).getProperty("text"));
-            assertEquals("t", nodes.get(nodes.size()-1).getProperty("text"));
-            assertFalse(nodes.get(0).hasProperty(ChainsProcedure.PROPERTY_START_INDEX));
-            assertFalse(nodes.get(0).hasProperty(ChainsProcedure.PROPERTY_END_INDEX));
+
+            for (int index=0; index<text.length(); index++) {
+                assertEquals(Character.toString(text.charAt(index)), nodes.get(index).getProperty("text"));
+                assertTrue(nodes.get(index).hasProperty(ChainsProcedure.PROPERTY_START_INDEX));
+                assertTrue(nodes.get(index).hasProperty(ChainsProcedure.PROPERTY_START_INDEX));
+            }
             return true;
         });
     }
@@ -84,7 +82,7 @@ public class ChainsProcedureTest {
     @Test
     public void testCharacterChainWithIndex(GraphDatabaseService db) {
         String text = "what a nice text";
-        db.executeTransactionally("CALL thm.characterChain($text, true) YIELD path RETURN path", Map.of( "text", text), result -> {
+        db.executeTransactionally("CALL atag.chains.characterChain($text, true) YIELD path RETURN path", Map.of( "text", text), result -> {
             Map<String, Object> map = Iterators.single(result);
             Path path = (Path) map.get("path");
 
@@ -104,7 +102,7 @@ public class ChainsProcedureTest {
     public void testFullChain(GraphDatabaseService db) {
 
         String text = "what a nice text";
-        db.executeTransactionally("CREATE (s:Text{text:$text}) WITH s CALL thm.fullChain(s, 'text') RETURN s", Map.of( "text", text), result -> {
+        db.executeTransactionally("CREATE (s:Text{text:$text}) WITH s CALL atag.chains.fullChain(s, 'text') RETURN s", Map.of( "text", text), result -> {
 
             Map<String, Object> map = Iterators.single(result);
             Node startNode = (Node) map.get("s");
@@ -119,7 +117,7 @@ public class ChainsProcedureTest {
     @ParameterizedTest
     @MethodSource
     public void testTokenChain(String text, int expected, GraphDatabaseService db) {
-        int pathLength = db.executeTransactionally("CALL thm.tokenChain($text) YIELD path RETURN path",
+        int pathLength = db.executeTransactionally("CALL atag.chains.tokenChain($text) YIELD path RETURN path",
                 Map.of("text", text),
                 result -> ((Path) Iterators.single(result).get("path")).length()
         );

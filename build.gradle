@@ -35,14 +35,14 @@ dependencies {
 //    testCompile group: 'org.neo4j.community', name: 'it-test-support', version: neo4jVersion
 }
 
-version = "0.1.7"
-group = "org.neo4j.chains"
+version = "0.2.0"
+group = "de.thm.atag"
 
 githubRelease {
     token getProperty("github_token") // from ~/.gradle/gradle.properties
     owner 'sarmbruster'
     dryRun false
-    draft false
+    draft true
     body changelog()
     FilenameFilter filter = { dir, filename -> filename.contains(project.version) }
     releaseAssets = jar.destinationDirectory.files()
