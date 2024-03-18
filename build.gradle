@@ -45,5 +45,6 @@ githubRelease {
     draft false
     body changelog()
     FilenameFilter filter = { dir, filename -> filename.contains(project.version) }
-    releaseAssets = jar.destinationDirectory.files filter
+    releaseAssets = jar.destinationDirectory.files()
+    //releaseAssets = jar.destinationDirectory.get().files filter
 }
