@@ -1,10 +1,11 @@
-# neo4j-chains
+# neo4j-atag
 
-A collections of https://neo4j.com[neo4j] stored procedures to build character and/or token chains.
+A collections of https://neo4j.com[neo4j] stored procedures to support the applied text as graph (ATAG) concept.
+
 
 ## available procedures
 
-### thm.characterChain
+### atag.chains.characterChain
 
 .Parameters thm.characterChain
 |===
@@ -19,16 +20,16 @@ A collections of https://neo4j.com[neo4j] stored procedures to build character a
 #### example
 
 ----
-CALL thm.characterChain('what a nice text') YIELD path RETURN path;
+CALL atag.chains.characterChain('what a nice text') YIELD path RETURN path;
 
 match (t:Text) 
 where t.text is not null
 with t
-call thm.characterChain(t.text) yield path return path;
+CALL atag.chains.characterChain(t.text) yield path return path;
 
 ----
 
-### thm.tokenChain
+### atag.chains.tokenChain
 
 Uses regex `((?<=\W)|(?=\W))` for identifying tokens.
 
@@ -45,17 +46,17 @@ Uses regex `((?<=\W)|(?=\W))` for identifying tokens.
 #### examples
 
 ----
-CALL thm.tokenChain('what a nice text') YIELD path RETURN path;
+CALL atag.chains.tokenChain('what a nice text') YIELD path RETURN path;
 ----
 
 ----
 match (t:Text)
 where t.text is not null
 with t
-call thm.tokenChain(t.text) yield path return path;
+CALL atag.chains.tokenChain(t.text) yield path return path;
 ----
 
-### thm.fullChain
+### atag.chains.fullChain
 
 The most complete procedure, creates both token and character chain.
 Delegates internally to `thm.tokenChain` and `thm.characterChain`.
@@ -77,11 +78,11 @@ Interconnects the two chains appropriately.
 ----
 CREATE (s:Text{text:'What a nice text'})
 WITH s
-CALL thm.fullChain(s, 'text')
+CALL atag.chains.fullChain(s, 'text')
 RETURN s
 ----
 
-### thm.chain
+### atag.chains.chain
 
 A very generic procedure to build a chain of nodes.
 
@@ -103,7 +104,7 @@ NOTE: the regex parameter uses lookahead/lookbehind notation, see https://docs.o
 #### example
 
 ----
-CALL thm.chain('what a nice text', '((?<=\\s)|(?=\\s))', 'Character', 'NEXT_CHARACTER', false) YIELD path RETURN path
+CALL atag.chains.chain('what a nice text', '((?<=\\s)|(?=\\s))', 'Character', 'NEXT_CHARACTER', false) YIELD path RETURN path
 ----
 
 #### create example
