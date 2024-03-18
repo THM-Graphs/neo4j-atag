@@ -7,9 +7,8 @@ repositories {
     mavenCentral()
 }
 
-// build artifact should be compatible with Neo4j 4.4 as well (JDK 11 here)
-sourceCompatibility=JavaVersion.VERSION_11
-targetCompatibility=JavaVersion.VERSION_11
+sourceCompatibility=JavaVersion.VERSION_21
+targetCompatibility=JavaVersion.VERSION_21
 
 ext {
     neo4jVersion = "5.15.0"
@@ -40,11 +39,12 @@ group = "de.thm.atag"
 
 githubRelease {
     token getProperty("github_token") // from ~/.gradle/gradle.properties
-    owner 'sarmbruster'
+    owner 'THM-Graphs'
     dryRun false
     draft true
     body changelog()
     FilenameFilter filter = { dir, filename -> filename.contains(project.version) }
-    releaseAssets = jar.destinationDirectory.files()
+    releaseAssets jar.archiveFile
+    //releaseAssets = jar.destinationDirectory.files()
     //releaseAssets = jar.destinationDirectory.get().files filter
 }

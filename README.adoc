@@ -3,7 +3,7 @@
 A collections of https://neo4j.com[neo4j] stored procedures to support the applied text as graph (ATAG) concept.
 
 
-## available procedures
+## available procedures / functions
 
 ### atag.chains.characterChain
 
@@ -129,4 +129,21 @@ WITH r
 SET r.uuid = apoc.create.uuid()
 } IN TRANSACTIONS OF 1000 ROWS
 RETURN count(*);
+----
+
+### atag.text.load
+
+A function that loads the contents of a given URI into a string. This runs a HTTP get command.
+
+.Parameters atag.text.load
+|===
+| name | type | description | default value
+| | | |
+| return value | String | contents of that file |
+|===
+
+#### example
+
+----
+RETURN atag.text.load('http://www.regesta-imperii.de/id/1316-05-14_1_0_8_0_0_1_a')
 ----
