@@ -1,6 +1,6 @@
 # neo4j-atag
 
-A collections of https://neo4j.com[neo4j] stored procedures to support the [applied text as graph](https://git.thm.de/aksz15/atag) (ATAG) concept.
+A collections of https://neo4j.com[neo4j] stored procedures to support the https://git.thm.de/aksz15/atag[applied text as graph] (ATAG) concept.
 
 
 ## available procedures / functions
