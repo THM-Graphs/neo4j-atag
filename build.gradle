@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id "com.github.breadmoirai.github-release" version "2.4.1"
+//    id "com.github.breadmoirai.github-release" version "2.4.1"
     id 'com.github.johnrengelman.shadow' version '8.1.1'
 //    id 'maven-publish'
 }
@@ -43,7 +43,7 @@ dependencies {
 version = "0.2.1"
 group = "de.thm.atag"
 
-githubRelease {
+/*githubRelease {
     token getProperty("github_token") // from ~/.gradle/gradle.properties
     owner 'THM-Graphs'
     dryRun false
@@ -51,6 +51,6 @@ githubRelease {
     body changelog()
     overwrite true
     releaseAssets jar.archiveFile
-}
+}*/
 
 
