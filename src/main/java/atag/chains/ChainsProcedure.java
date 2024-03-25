@@ -1,5 +1,6 @@
 package atag.chains;
 
+import atag.util.ResultTypes;
 import org.neo4j.graphalgo.impl.util.PathImpl;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
@@ -32,7 +33,7 @@ public class ChainsProcedure {
     public Log log;
 
     @Procedure(mode = Mode.WRITE)
-    public Stream<PathResult> characterChain(
+    public Stream<ResultTypes.PathResult> characterChain(
             @Name("string to be used for building a chain of nodes") String text,
             @Name(value = "whether to add startIndex/endIndex properties", defaultValue = "true") boolean applyIndexProperties) {
         Path chain = characterChainInternal(text, applyIndexProperties);
@@ -44,7 +45,7 @@ public class ChainsProcedure {
     }
 
     @Procedure(mode = Mode.WRITE)
-    public Stream<PathResult> tokenChain(
+    public Stream<ResultTypes.PathResult> tokenChain(
             @Name("string to be used for building a chain of nodes") String text,
             @Name(value = "whether to add startIndex/endIndex properties", defaultValue = "true") boolean applyIndexProperties) {
         Path chain = tokenChainInternal(text, applyIndexProperties);
@@ -83,7 +84,7 @@ public class ChainsProcedure {
     }
 
     @Procedure(mode = Mode.WRITE)
-    public Stream<PathResult> chain(
+    public Stream<ResultTypes.PathResult> chain(
             @Name("string to be used for building a chain of nodes") String text,
             @Name("separator regex pattern") String regex,
             @Name("label for new nodes") String labelString,
@@ -124,16 +125,8 @@ public class ChainsProcedure {
         return build;
     }
 
-    private static Stream<PathResult> asPathResult(Path build) {
-        return Stream.of(new PathResult(build));
-    }
-
-    public static class PathResult {
-        public final Path path;
-
-        public PathResult(Path path) {
-            this.path = path;
-        }
+    private static Stream<ResultTypes.PathResult> asPathResult(Path build) {
+        return Stream.of(new ResultTypes.PathResult(build));
     }
 
 }

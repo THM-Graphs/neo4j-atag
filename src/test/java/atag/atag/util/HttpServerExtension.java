@@ -5,16 +5,21 @@ import com.sun.net.httpserver.SimpleFileServer;
 import org.junit.jupiter.api.extension.*;
 
 import java.io.IOException;
-import java.net.*;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class HttpServerExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
     public static final ExtensionContext.Namespace NAMESPACE = ExtensionContext.Namespace.create(HttpServerExtension.class);
+    public static final String HTTP_SERVER_INFO = "httpServerInfo";
     private HttpServer server;
 
+    /**
+     * used for parameter resolution
+     */
     public static class HttpServerInfo {
         private final InetSocketAddress address;
 
@@ -37,13 +42,13 @@ public class HttpServerExtension implements BeforeEachCallback, AfterEachCallbac
 
     @Override
     public void beforeEach(ExtensionContext context) throws IOException {
-        int port =  findAvailablePort();
+        int port = findAvailablePort();
         server = SimpleFileServer.createFileServer(new InetSocketAddress(port),
                 FileSystems.getDefault().getPath("src/test/resources").toAbsolutePath(),
-                SimpleFileServer.OutputLevel.VERBOSE
+                SimpleFileServer.OutputLevel.INFO
         );
         server.start();
-        context.getStore(NAMESPACE).put("httpServerInfo", new HttpServerInfo(server.getAddress()));
+        context.getStore(NAMESPACE).put(HTTP_SERVER_INFO, new HttpServerInfo(server.getAddress()));
     }
 
     private int findAvailablePort() {
@@ -54,27 +59,9 @@ public class HttpServerExtension implements BeforeEachCallback, AfterEachCallbac
         }
     }
 
-    public Path getPathFromResource(String resourceName) {
-        try {
-            URL resourceUrl = getClass().getResource(resourceName);
-            if (resourceUrl != null) {
-                URI resourceUri = resourceUrl.toURI();
-                return Paths.get(resourceUri);
-            } else {
-                throw new IllegalArgumentException("Resource not found: " + resourceName);
-            }
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("Failed to get path from resource: " + resourceName, e);
-        }
-    }
-
     @Override
     public void afterEach(ExtensionContext context) {
         server.stop(0);
-    }
-
-    public HttpServer getServer() {
-        return server;
     }
 
     @Override
