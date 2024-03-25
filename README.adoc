@@ -138,6 +138,8 @@ A function that loads the contents of a given URI into a string. This runs a HTT
 .Parameters atag.text.load
 |===
 | name | type | description | default value
+
+| uri | String | URI to be loaded |
 | | | |
 | return value | String | contents of that file |
 |===
@@ -146,4 +148,33 @@ A function that loads the contents of a given URI into a string. This runs a HTT
 
 ----
 RETURN atag.text.load('http://www.regesta-imperii.de/id/1316-05-14_1_0_8_0_0_1_a')
+----
+
+### atag.text.import.html
+
+Generate annotation nodes out of HTML tags.
+
+.Parameters atag.text.import.html
+|===
+| name | type | description | default value
+
+| startNode | node | start node containing html text |
+| propertyKey | string | property name for html property | text
+| label | string | label for new annotation nodes | Annotation
+| relationshipType | string | relationship type between for annotation nodes | HAS_ANNOTATION
+
+| | | |
+| return value | node | new annotation nodes |
+|===
+
+> NOTE:
+> The procedure returns only the first level annotations.
+> Nested annotations need to be fetched by traversing out from the the first layer annotations.
+
+#### example
+
+----
+MATCH (t:Text{id:123})
+CALL atag.text.import.html(t, 'text', 'Annotation', 'HAS_ANNOTATION') YIELD node
+RETURN node
 ----
