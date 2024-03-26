@@ -1,3 +1,5 @@
+permissions: write-all
+
 name: release-to-maven-central
 on:
   workflow_dispatch:
