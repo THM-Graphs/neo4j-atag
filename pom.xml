@@ -27,7 +27,7 @@
         <repository>
             <id>github</id>
             <name>GitHub</name>
-            <url>https://maven.pkg.github.com/${repo.user}/${repo.name}</url>
+            <url>https://maven.pkg.github.com/THM-graphs/neo4j-atag</url>
         </repository>
     </distributionManagement>
 
