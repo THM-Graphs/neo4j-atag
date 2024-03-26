@@ -1,4 +1,4 @@
-name: create-github-release
+name: release-to-maven-central
 on:
   workflow_dispatch:
     inputs:
@@ -11,22 +11,45 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.releaseversion }}
-      - uses: actions/setup-java@v4
+
+      - name: Set up settings.xml for Maven Central Repository
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: '21'
-      - run: mvn --batch-mode verify
+          java-version: 21
+#          server-id: oss.sonatype.org
+#          server-username: MAVEN_USERNAME
+#          server-password: MAVEN_PASSWORD
+#          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+#          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+
+      - name: Set projects Maven version to GitHub Action GUI set version
+        run: mvn versions:set "-DnewVersion=${{ github.event.inputs.releaseversion }}" --no-transfer-progress
+
+      - name: Publish package
+        run: mvn --batch-mode clean deploy --no-transfer-progress -P central-deploy -DskipTests=true
+#        env:
+#          MAVEN_USERNAME: ${{ secrets.OSS_SONATYPE_USERNAME }}
+#          MAVEN_PASSWORD: ${{ secrets.OSS_SONATYPE_PASSWORD }}
+#          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+
       - name: Generate changelog
         id: changelog
         uses: metcalfc/changelog-generator@v4.3.1
         with:
           myToken: ${{ secrets.GITHUB_TOKEN }}
-      - uses: softprops/action-gh-release@v2
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          files: target/*.jar
-          token: ${{ secrets.GITHUB_TOKEN }}
-          release_name: ${{ inputs.releaseversion }}
-          body: ${{ steps.changelog.outputs.changelog }}
-          draft: true
+          tag_name: ${{ github.event.inputs.releaseversion }}
+          release_name: ${{ github.event.inputs.releaseversion }}
+          body: |
+
+            ### Things that changed in this release
+            ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
