@@ -104,6 +104,7 @@
                                     <include>de.thm.atag:*</include>
                                 </includes>
                             </artifactSet>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
                         </configuration>
                     </execution>
                 </executions>
