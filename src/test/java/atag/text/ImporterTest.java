@@ -29,8 +29,8 @@ public class ImporterTest {
         // validate direct annotations
         db.executeTransactionally("""
                         MATCH (t:Text{id: 1})
-                        CALL atag.text.import.html(t, 'text', 'Annotation') YIELD node
-                        RETURN node.startIndex as startIndex, node.endIndex as endIndex, node.tag as tag, node.text as text""",
+                        CALL atag.text.import.html(t, 'text', 'Annotation', 'myPlainText') YIELD node
+                        RETURN node.startIndex as startIndex, node.endIndex as endIndex, node.tag as tag, node.myPlainText as myPlainText""",
                 Collections.emptyMap(), result -> {
                     List<Map<String, Object>> list = Iterators.asList(result);
                     assertEquals(3, list.size());
@@ -39,31 +39,34 @@ public class ImporterTest {
                             hasEntry("startIndex", 5L),
                             hasEntry("endIndex", 7L),
                             hasEntry("tag", "em"),
-                            hasEntry("text", "is")
+                            hasEntry("myPlainText", "is")
                     ));
 
                     assertThat(list.get(1), Matchers.<Map<String, Object>>allOf(
                             hasEntry("startIndex", 10L),
                             hasEntry("endIndex", 37L),
                             hasEntry("tag", "em"),
-                            hasEntry("text", "emphasized test with a link")
+                            hasEntry("myPlainText", "emphasized test with a link")
                     ));
 
                     assertThat(list.get(2), Matchers.<Map<String, Object>>allOf(
                             hasEntry("startIndex", 54L),
                             hasEntry("endIndex", 54L),
                             hasEntry("tag", "br"),
-                            hasEntry("text", "")
+                            hasEntry("myPlainText", "")
                     ));
                     return list.size();
                 });
 
-        String plainText = db.executeTransactionally("MATCH (t:Text{id: 1}) RETURN t.plainText as plainText",
+        String plainText = db.executeTransactionally("MATCH (t:Text{id: 1}) RETURN t.myPlainText as plainText",
                 Collections.emptyMap(), result -> Iterators.single(result).get("plainText").toString());
         assertEquals("This is a emphasized test with a link. We also have a  line break.", plainText);
 
         // validate nested annotation
-        db.executeTransactionally("MATCH (t:Text{id: 1})-[:HAS_ANNOTATION]->(:Annotation{startIndex:10})-[:HAS_ANNOTATION]->(node:Annotation) RETURN node.startIndex as startIndex, node.endIndex as endIndex, node.tag as tag, node.text as text",
+        db.executeTransactionally("""
+                MATCH (t:Text{id: 1})-[:HAS_ANNOTATION]->(:Annotation{startIndex:10})-[:HAS_ANNOTATION]->(node:Annotation) 
+                RETURN node.startIndex as startIndex, node.endIndex as endIndex, node.tag as tag, node.myPlainText as myPlainText
+                """,
                 Collections.emptyMap(), result -> {
                     List<Map<String, Object>> list = Iterators.asList(result);
                     assertEquals(1, list.size());
@@ -71,7 +74,7 @@ public class ImporterTest {
                             hasEntry("startIndex", 33L),
                             hasEntry("endIndex", 37L),
                             hasEntry("tag", "a"),
-                            hasEntry("text", "link")
+                            hasEntry("myPlainText", "link")
                     ));
                     return null;
                 });

@@ -161,6 +161,7 @@ Generate annotation nodes out of HTML tags.
 | startNode | node | start node containing html text |
 | propertyKey | string | property name for html property | text
 | label | string | label for new annotation nodes | Annotation
+| plainTextProperty | string | property name for plain text | plainText
 | relationshipType | string | relationship type between for annotation nodes | HAS_ANNOTATION
 
 | | | |
