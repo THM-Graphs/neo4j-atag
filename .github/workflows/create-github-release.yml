@@ -1,13 +1,13 @@
 permissions: write-all
 
-name: release-to-maven-central
+name: create-new-github-release
 on:
   workflow_dispatch:
     inputs:
       releaseversion:
-        description: 'Release version'
+        description: 'Release version (prefix with "v")'
         required: true
-        default: '2.4.0'
+        default: 'v0.2.1'
 jobs:
   publish:
     runs-on: ubuntu-latest
