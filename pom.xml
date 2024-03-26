@@ -116,6 +116,33 @@
                     <tagNameFormat>v@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
+<!--
+            <plugin>
+                <groupId>com.ragedunicorn.tools.maven</groupId>
+                <artifactId>github-release-maven-plugin</artifactId>
+                <version>1.0.7</version>
+                <executions>
+                    <execution>
+                        <id>default-cli</id>
+                        <configuration>
+                            <owner>THM-graphs</owner>
+                            <repository>neo4j-atag</repository>
+                            <server>github</server>
+                            <tagName>v0.2.1</tagName>
+                            <name>example-release</name>
+                            <targetCommitish>master</targetCommitish>
+                            <body>release description overwritten by release notes</body>
+                            <releaseNotes>src/main/resources/release-notes-example.md</releaseNotes>
+                            <generateReleaseNotes>false</generateReleaseNotes>
+                            <assets>
+                                <asset>src/main/resources/asset-plain-text-example.txt</asset>
+                                <asset>src/main/resources/asset-zip-example.zip</asset>
+                            </assets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+-->
         </plugins>
     </build>
 </project>
