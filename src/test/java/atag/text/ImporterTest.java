@@ -33,7 +33,7 @@ public class ImporterTest {
                         RETURN node.startIndex as startIndex, node.endIndex as endIndex, node.tag as tag, node.myPlainText as myPlainText""",
                 Collections.emptyMap(), result -> {
                     List<Map<String, Object>> list = Iterators.asList(result);
-                    assertEquals(3, list.size());
+                    assertEquals(4, list.size());
 
                     assertThat(list.get(0), Matchers.<Map<String, Object>>allOf(
                             hasEntry("startIndex", 5L),
@@ -50,6 +50,13 @@ public class ImporterTest {
                     ));
 
                     assertThat(list.get(2), Matchers.<Map<String, Object>>allOf(
+                            hasEntry("startIndex", 33L),
+                            hasEntry("endIndex", 37L),
+                            hasEntry("tag", "a"),
+                            hasEntry("myPlainText", "link")
+                    ));
+
+                    assertThat(list.get(3), Matchers.<Map<String, Object>>allOf(
                             hasEntry("startIndex", 54L),
                             hasEntry("endIndex", 54L),
                             hasEntry("tag", "br"),
@@ -61,23 +68,5 @@ public class ImporterTest {
         String plainText = db.executeTransactionally("MATCH (t:Text{id: 1}) RETURN t.myPlainText as plainText",
                 Collections.emptyMap(), result -> Iterators.single(result).get("plainText").toString());
         assertEquals("This is a emphasized test with a link. We also have a  line break.", plainText);
-
-        // validate nested annotation
-        db.executeTransactionally("""
-                MATCH (t:Text{id: 1})-[:HAS_ANNOTATION]->(:Annotation{startIndex:10})-[:HAS_ANNOTATION]->(node:Annotation) 
-                RETURN node.startIndex as startIndex, node.endIndex as endIndex, node.tag as tag, node.myPlainText as myPlainText
-                """,
-                Collections.emptyMap(), result -> {
-                    List<Map<String, Object>> list = Iterators.asList(result);
-                    assertEquals(1, list.size());
-                    assertThat(list.get(0), Matchers.<Map<String, Object>>allOf(
-                            hasEntry("startIndex", 33L),
-                            hasEntry("endIndex", 37L),
-                            hasEntry("tag", "a"),
-                            hasEntry("myPlainText", "link")
-                    ));
-                    return null;
-                });
     }
-
 }

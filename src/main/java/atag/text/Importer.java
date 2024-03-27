@@ -50,12 +50,12 @@ public class Importer {
         switch (node) {
             case org.jsoup.nodes.Element element:
 
+                Node newNeo4jNode = null;
                 if (depth>0){
-                    Node newNeo4jNode = tx.createNode(label);
+                    newNeo4jNode = tx.createNode(label);
                     neo4jNode.createRelationshipTo(newNeo4jNode, relationshipType);
                     newNeo4jNode.setProperty("startIndex", index);
                     newNeo4jNode.setProperty("tag", element.nodeName());
-                    neo4jNode = newNeo4jNode;
                 }
 
                 log.debug(" ".repeat(depth) + "Depth: {}, Element: {}, index: {}", depth, element.nodeName(), index);
@@ -66,8 +66,8 @@ public class Importer {
                 }
 
                 if (depth>0){
-                    neo4jNode.setProperty("endIndex", index);
-                    neo4jNode.setProperty(plainTextProperty, localPlainTextBuilder.toString());
+                    newNeo4jNode.setProperty("endIndex", index);
+                    newNeo4jNode.setProperty(plainTextProperty, localPlainTextBuilder.toString());
                 }
                 plainTextBuilder.append(localPlainTextBuilder);
                 break;
