@@ -175,7 +175,11 @@ Generate annotation nodes out of HTML tags.
 #### example
 
 ----
-MATCH (t:Text{id:123})
-CALL atag.text.import.html(t, 'text', 'Annotation', 'HAS_ANNOTATION') YIELD node
-RETURN node
+CALL apoc.periodic.iterate('MATCH (n) RETURN n', 'DETACH DELETE n', {batchSize:1000});
+CALL apoc.schema.assert({},{},true) YIELD label, key
+RETURN *;
+create (r:Text {identifier:'[RI XIII] H. 15 n. 101', summary:'Kg. F. teilt Kammerer und Rat der Stadt Regensburg mit, daß er als Vormund des Königs (von Böhmen und Ungarn) Ladislaus (Postumus) einerseits sowie die Brüder Hans und Heinrich, Hzz. zu Lüben (<em>Löbin</em>)<sup>1</sup>, andererseits glauben, Ansprüche auf die Länder und Städte Liegnitz und Goldberg<sup>2</sup> zu haben. Deshalb habe er auf den <em>nechsten montag nach sant Veits schierstkunftigen</em> (Juni 21) einen Tag nach Breslau angesetzt und an mehrere Fürsten, Herren und Mannen geschrieben, diesen Tag zu besuchen<sup>3</sup>. <em>Als richter</em> in dieser Angelegenheit habe er den Bf. Peter (Nowag) von Breslau <em>geordnet</em><sup>4</sup>; er bittet sie, ebenfalls eine Botschaft zu schicken, um Reinprecht von Ebersdorf und anderen, die er dorthin senden werde, <em>rat und beystand ze tun</em>. Er (Kg. F.) habe auch den Breslauern befohlen, ihnen hierzu Sicherheit und Geleit zu erteilen<sup>5</sup>.'});
+MATCH (t:Text {identifier:'[RI XIII] H. 15 n. 101'})
+CALL atag.text.import.html(t, 'summary', 'Annotation', 'text', 'HAS_ANNOTATION') YIELD node
+RETURN node;
 ----
