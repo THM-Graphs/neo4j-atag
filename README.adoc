@@ -168,10 +168,6 @@ Generate annotation nodes out of HTML tags.
 | return value | node | new annotation nodes |
 |===
 
-> NOTE:
-> The procedure returns only the first level annotations.
-> Nested annotations need to be fetched by traversing out from the the first layer annotations.
-
 #### example
 
 ----
@@ -180,3 +176,20 @@ MATCH (t:Text {identifier:'[RI XIII] H. 15 n. 101'})
 CALL atag.text.import.html(t, 'summary', 'Annotation', 'text', 'HAS_ANNOTATION') YIELD node
 RETURN node;
 ----
+
+### atag.text.import.xml
+
+Generate annotations from a property containing a (TEI) XML document.
+
+.Parameters atag.text.import.xml
+|===
+| name | type | description | default value
+| startNode | node | start node containing html text |
+| propertyKey | string | property name for html property | text
+| label | string | label for new annotation nodes | Annotation
+| plainTextProperty | string | property name for plain text | plainText
+| relationshipType | string | relationship type between for annotation nodes | HAS_ANNOTATION
+
+| | | |
+| return value | node | new annotation nodes |
+|===

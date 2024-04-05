@@ -1,0 +1,34 @@
+<TEI>
+  <text>
+    <body>
+      <div xml:id="Ms_germ_fol_841" next="#Ms_germ_fol_842">
+        <div type="session" n="1">
+          <p><pb facs="#f0011" n="7."/>
+erblicken wir einen großen Unterschied zwi-<lb/>
+schen den entferntern u. nähern Planeten<lb/><note place="left"><hi rendition="#u">Zwei besondere Planeten-Systeme</hi><lb/></note>von der Sonne. <hi rendition="#u">Dies giebt zwei besondre<lb/>
+Sÿsteme</hi>. Die Scheide machen die kleinern<lb/>
+Körper die sich zwischen Mars u. Jupiter<lb/>
+bewegen, die ein ganz eignes System<lb/>
+bilden, von denen die Vesta als die<lb/><hi rendition="#u" hand="#pencil">größte</hi> <choice><sic>ungefahr</sic><corr resp="#CT">ungefähr</corr></choice> die <choice><abbr>Oberfl.</abbr><expan resp="#CT">Oberfläche</expan></choice> von Deutsch-<lb/>
+land hat. Sie haben eine translative Be-<lb/>
+wegung von Westen nach Osten, sind ihrer<lb/>
+Stellung nach ähnlich den <choice><sic>Comneten</sic><corr resp="#BF">Cometen</corr></choice>; obgleich<lb/>
+doch keine A<subst><del rendition="#ow"><gap reason="illegible" unit="chars" quantity="1"/></del><add place="across">e</add></subst>hnlichkeit anderweit zwischen<lb/>
+ihnen u. den <choice><abbr><choice><sic>Comm;et</sic><corr resp="#BF">Comet&amp;</corr></choice></abbr><expan resp="#BF"><choice><sic>Commeten</sic><corr resp="#BF">Cometen</corr></choice></expan></choice> ist, wie überhaupt<lb/>
+kein Uebergang zwischen Planeten u. Co-<lb/>
+meten gefunden wird u. keine positive<lb/><note place="left"><hi rendition="#u">Erstes System<lb/>
+characterist. Merkmale</hi><lb/></note>Aehnlichkeit. <hi rendition="#u">Jn diesem doppelten System<lb/>
+der Planeten gehören zusammen: Merkur,<lb/>
+Venus, Erde, Mars.</hi> Sie haben das<lb/>
+gemeinsame der besondern Dichtigkeit,<lb/>
+wie <hi rendition="#aq">Platina</hi>, Magnetstein u. dgl.; sie<lb/><subst><del rendition="#s">rotiren</del><add place="superlinear">bewegen sich</add></subst> viel geschwinder <add place="superlinear"><metamark/>um die Sonne</add>, sind mond-<lb/>
+armer |: bloß die Erde hat einen <choice><abbr>Trabant</abbr><expan resp="#BF">Trabanten</expan></choice> :|,<lb/>
+an den Polen abgeplattet. Anders<lb/>
+verhält es sich mit den Planeten auf der<lb/>
+Bahn jenseits der kleinen Planeten.</p><lb/>
+        </div>
+      </div>
+    </body>
+  </text>
+</TEI>
+

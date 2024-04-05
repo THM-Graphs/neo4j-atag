@@ -10,7 +10,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <neo4j.version>5.18.1</neo4j.version>
+        <neo4j.version>5.18.0</neo4j.version>
         <junitJupiter.version>5.10.1</junitJupiter.version>
         <jsoup.version>1.17.2</jsoup.version>
         <build-plugin.jacoco.version>0.8.11</build-plugin.jacoco.version>
@@ -61,6 +61,17 @@
             <artifactId>jsoup</artifactId>
             <version>${jsoup.version}</version>
         </dependency>
+<!--        <dependency>
+            <groupId>org.neo4j.procedure</groupId>
+            <artifactId>apoc-core</artifactId>
+            <version>${neo4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j.procedure</groupId>
+            <artifactId>apoc-common</artifactId>
+            <version>${neo4j.version}</version>
+        </dependency>-->
+
 
         <!-- test dependencies below -->
         <dependency>
@@ -87,6 +98,14 @@
                 </exclusion>
             </exclusions>
         </dependency>
+<!--
+        <dependency>
+            <groupId>uk.org.webcompere</groupId>
+            <artifactId>system-stubs-jupiter</artifactId>
+            <version>2.1.6</version>
+            <scope>test</scope>
+        </dependency>
+-->
 
     </dependencies>
 
