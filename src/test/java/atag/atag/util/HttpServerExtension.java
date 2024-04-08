@@ -1,15 +1,16 @@
 package atag.atag.util;
 
 import com.sun.net.httpserver.HttpServer;
-import com.sun.net.httpserver.SimpleFileServer;
 import org.junit.jupiter.api.extension.*;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class HttpServerExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
@@ -43,10 +44,25 @@ public class HttpServerExtension implements BeforeEachCallback, AfterEachCallbac
     @Override
     public void beforeEach(ExtensionContext context) throws IOException {
         int port = findAvailablePort();
+        server = HttpServer.create(new InetSocketAddress(port), 0);
+        server.createContext("/", exchange -> {
+            URI requestURI = exchange.getRequestURI();
+            Path path = Path.of("src/test/resources", requestURI.getPath());
+            byte[] response = Files.readAllBytes(path);
+            exchange.sendResponseHeaders(200, response.length);
+            OutputStream outputStream = exchange.getResponseBody();
+            outputStream.write(response);
+            outputStream.flush();
+            outputStream.close();
+            exchange.close();
+        });
+
+/*      once we move to JDK 21
         server = SimpleFileServer.createFileServer(new InetSocketAddress(port),
                 FileSystems.getDefault().getPath("src/test/resources").toAbsolutePath(),
                 SimpleFileServer.OutputLevel.INFO
         );
+*/
         server.start();
         context.getStore(NAMESPACE).put(HTTP_SERVER_INFO, new HttpServerInfo(server.getAddress()));
     }

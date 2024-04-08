@@ -23,10 +23,7 @@ import javax.xml.xpath.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class Importer {
@@ -59,42 +56,40 @@ public class Importer {
 
         return startNode.getRelationships(Direction.OUTGOING, relationshipType).stream()
                 .map(Relationship::getEndNode)
+                .sorted(Comparator.comparing(node -> (long) node.getProperty("startIndex")))
                 .map(ResultTypes.NodeResult::new);
     }
 
     private long traverse(int depth, org.jsoup.nodes.Node node, long index, StringBuilder plainTextBuilder,
                           Node neo4jNode, Label label, RelationshipType relationshipType, String plainTextProperty) {
-        switch (node) {
-            case org.jsoup.nodes.Element element:
+        if (node instanceof org.jsoup.nodes.Element element) {
+            Node newNeo4jNode = null;
+            if (depth>0){
+                newNeo4jNode = tx.createNode(label);
+                neo4jNode.createRelationshipTo(newNeo4jNode, relationshipType);
+                newNeo4jNode.setProperty("startIndex", index);
+                newNeo4jNode.setProperty("tag", element.nodeName());
+            }
 
-                Node newNeo4jNode = null;
-                if (depth>0){
-                    newNeo4jNode = tx.createNode(label);
-                    neo4jNode.createRelationshipTo(newNeo4jNode, relationshipType);
-                    newNeo4jNode.setProperty("startIndex", index);
-                    newNeo4jNode.setProperty("tag", element.nodeName());
-                }
+            log.debug(" ".repeat(depth) + "Depth: {}, Element: {}, index: {}", depth, element.nodeName(), index);
+            StringBuilder localPlainTextBuilder = new StringBuilder();
+            for (org.jsoup.nodes.Node child : element.childNodes()) {
+                index = traverse(depth+1, child, index, localPlainTextBuilder, neo4jNode, label,
+                        relationshipType, plainTextProperty);
+            }
 
-                log.debug(" ".repeat(depth) + "Depth: {}, Element: {}, index: {}", depth, element.nodeName(), index);
-                StringBuilder localPlainTextBuilder = new StringBuilder();
-                for (org.jsoup.nodes.Node child : element.childNodes()) {
-                    index = traverse(depth+1, child, index, localPlainTextBuilder, neo4jNode, label,
-                            relationshipType, plainTextProperty);
-                }
+            if (depth>0){
+                newNeo4jNode.setProperty("endIndex", index);
+                newNeo4jNode.setProperty(plainTextProperty, localPlainTextBuilder.toString());
+            }
+            plainTextBuilder.append(localPlainTextBuilder);
 
-                if (depth>0){
-                    newNeo4jNode.setProperty("endIndex", index);
-                    newNeo4jNode.setProperty(plainTextProperty, localPlainTextBuilder.toString());
-                }
-                plainTextBuilder.append(localPlainTextBuilder);
-                break;
-            case org.jsoup.nodes.TextNode textNode:
-                plainTextBuilder.append(textNode.text());
-                index += textNode.text().length();
-                log.debug("Text: {}, index: {}", textNode.text(), index);
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown node type: " + node);
+        } else if (node instanceof org.jsoup.nodes.TextNode textNode) {
+            plainTextBuilder.append(textNode.text());
+            index += textNode.text().length();
+            log.debug(" ".repeat(depth) + "Text: {}, index: {}", textNode.text(), index);
+        } else {
+            throw new IllegalArgumentException("Unknown node type: " + node);
         }
         return index;
     }
@@ -133,34 +128,32 @@ public class Importer {
             for (int i=0; i<nodeList.getLength(); i++) {
                 org.w3c.dom.Node item = nodeList.item(i);
 //                int depth = getDepth(item);
-                switch (item) {
-                    case org.w3c.dom.Element element:
-                        Node newNeo4jNode = tx.createNode(label);
-                        annotations.add(newNeo4jNode);
-                        String textContent = element.getTextContent();
-                        startNode.createRelationshipTo(newNeo4jNode, relationshipType);
-                        newNeo4jNode.setProperty("tag", element.getNodeName());
-                        newNeo4jNode.setProperty("startIndex", Integer.toUnsignedLong(plainTextBuilder.length()));
-                        newNeo4jNode.setProperty("endIndex", Integer.toUnsignedLong(plainTextBuilder.length()+textContent.length()));
-                        Map<String, Object> attributes = getAttributes(element);
-                        attributes.forEach(newNeo4jNode::setProperty);
-                        if (!textContent.isEmpty()) {
-                            newNeo4jNode.setProperty(plainTextProperty, textContent);
-                        }
-                        if (log.isDebugEnabled()) {
-                            log.debug("{} Element: {}, attributes: {}, startIndex: {}, stopIndex: {}",
-                                    ".".repeat(getDepth(item)), element.getNodeName(), attributes,
-                                    plainTextBuilder.length(), plainTextBuilder.length()+textContent.length());
-                        }
-                        break;
-                    case org.w3c.dom.Text text:
-                        if (log.isDebugEnabled()) {
-                            log.debug( "{} Text: {}",".".repeat(getDepth(item)), text.getTextContent());
-                        }
-                        plainTextBuilder.append(text.getTextContent());
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Unknown node type: " + item);
+
+                if (item instanceof Element element) {
+                    Node newNeo4jNode = tx.createNode(label);
+                    annotations.add(newNeo4jNode);
+                    String textContent = element.getTextContent();
+                    startNode.createRelationshipTo(newNeo4jNode, relationshipType);
+                    newNeo4jNode.setProperty("tag", element.getNodeName());
+                    newNeo4jNode.setProperty("startIndex", Integer.toUnsignedLong(plainTextBuilder.length()));
+                    newNeo4jNode.setProperty("endIndex", Integer.toUnsignedLong(plainTextBuilder.length()+textContent.length()));
+                    Map<String, Object> attributes = getAttributes(element);
+                    attributes.forEach(newNeo4jNode::setProperty);
+                    if (!textContent.isEmpty()) {
+                        newNeo4jNode.setProperty(plainTextProperty, textContent);
+                    }
+                    if (log.isDebugEnabled()) {
+                        log.debug("{} Element: {}, attributes: {}, startIndex: {}, stopIndex: {}",
+                                ".".repeat(getDepth(item)), element.getNodeName(), attributes,
+                                plainTextBuilder.length(), plainTextBuilder.length()+textContent.length());
+                    }
+                } else if (item instanceof org.w3c.dom.Text text) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("{} Text: {}", ".".repeat(getDepth(item)), text.getTextContent());
+                    }
+                    plainTextBuilder.append(text.getTextContent());
+                } else {
+                    throw new IllegalArgumentException("Unknown node type: " + item);
                 }
             }
             String plainText = plainTextBuilder.toString();

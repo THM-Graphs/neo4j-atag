@@ -18,7 +18,8 @@ public class Load {
      */
     @UserFunction
     public String load(@Name("uri") String uri) {
-        try (HttpClient client = HttpClient.newHttpClient()) {
+        try {
+            HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(uri))
                     .GET()

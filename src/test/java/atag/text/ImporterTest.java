@@ -66,6 +66,7 @@ public class ImporterTest {
                 Collections.emptyMap(), result -> {
                     List<Map<String, Object>> list = Iterators.asList(result);
                     assertEquals(4, list.size());
+                    list.forEach(System.out::println);
 
                     assertThat(list.get(0), Matchers.<Map<String, Object>>allOf(
                             hasEntry("startIndex", 5L),
