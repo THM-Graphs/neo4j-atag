@@ -27,6 +27,9 @@ jobs:
       - name: Set projects Maven version to GitHub Action GUI set version
         run: mvn versions:set "-DnewVersion=${{ github.event.inputs.releaseversion }}" --no-transfer-progress
 
+      - name: commit
+        run: mvn versions:commit
+
       - name: Publish package
         run: mvn --batch-mode clean deploy --no-transfer-progress -DskipTests=true
         env:
@@ -35,6 +38,13 @@ jobs:
 #          MAVEN_USERNAME: ${{ secrets.OSS_SONATYPE_USERNAME }}
 #          MAVEN_PASSWORD: ${{ secrets.OSS_SONATYPE_PASSWORD }}
 #          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+
+      - name: push
+        run: |
+          git config --global user.name 'THMGraph Bot'
+          git config --global user.email "thmgraph@users.noreply.github.com'
+          git commit -am "mvn version bump"
+          git push
 
       - name: Generate changelog
         id: changelog
