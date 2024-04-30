@@ -19,6 +19,9 @@
         <build-plugin.shade.version>3.5.2</build-plugin.shade.version>
         <build-plugin.release.version>3.0.1</build-plugin.release.version>
         <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
+        <maven-scm-publish-plugin.version>3.2.1</maven-scm-publish-plugin.version>
+        <maven-site-plugin.version>4.0.0-M13</maven-site-plugin.version>
+        <maven-project-info-reports-plugin.version>3.5.0</maven-project-info-reports-plugin.version>
     </properties>
 
     <scm>
@@ -187,10 +190,20 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-scm-publish-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>${maven-scm-publish-plugin.version}</version>
                 <configuration>
                     <scmBranch>gh-pages</scmBranch>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>${maven-site-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>${maven-project-info-reports-plugin.version}</version>
             </plugin>
 <!--
             <plugin>
