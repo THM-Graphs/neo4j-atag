@@ -1,0 +1,39 @@
+<project name="Applied-Text-As-Graph module for Neo4j">
+    <bannerLeft>
+        <name>Applied-Text-As-Graph module for Neo4j</name>
+    </bannerLeft>
+    <skin>
+        <groupId>org.apache.maven.skins</groupId>
+        <artifactId>maven-fluido-skin</artifactId>
+        <version>2.0.0-M8</version>
+    </skin>
+    <custom>
+        <fluidoSkin>
+            <topBarEnabled>true</topBarEnabled>
+            <sideBarEnabled>true</sideBarEnabled>
+            <gitHub>
+                <projectId>THM-Graphs/neo4j-atag</projectId>
+                <ribbonOrientation>right</ribbonOrientation>
+                <ribbonColor>gray</ribbonColor>
+            </gitHub>
+        </fluidoSkin>
+    </custom>
+
+    <body>
+        <menu name="Overview">
+            <item name="Introduction" href="index.html"/>
+            <item name="Installation" href="installation.html"/>
+        </menu>
+        <menu name="Procedures / Functions">
+            <item name="atag.chains.characterChain" href="atag.chains.characterChain.html"/>
+            <item name="atag.chains.tokenChain" href="atag.chains.tokenChain.html"/>
+            <item name="atag.chains.fullChain" href="atag.chains.fullChain.html"/>
+            <item name="atag.chains.chain" href="atag.chains.chain.html"/>
+            <item name="atag.text.load" href="atag.text.load.html"/>
+            <item name="atag.text.import.html" href="atag.text.import.html.html"/>
+            <item name="atag.text.import.xml" href="atag.text.import.xml.html"/>
+            <item name="atag.text.xslt" href="atag.text.xslt.html"/>
+        </menu>
+        <menu ref="reports" inherit="top"/>
+    </body>
+</project>
