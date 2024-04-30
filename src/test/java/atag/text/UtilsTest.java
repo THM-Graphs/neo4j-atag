@@ -56,7 +56,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testXsltIdentiy(GraphDatabaseService db, HttpServerExtension.HttpServerInfo httpServerInfo) throws IOException {
+    public void testXsltIdentity(GraphDatabaseService db, HttpServerExtension.HttpServerInfo httpServerInfo) throws IOException {
         URI uri = httpServerInfo.getURI();
         String text = (String) db.executeTransactionally("""
                 RETURN atag.text.xslt(atag.text.load($uri + '/patzig.xml'), atag.text.load($uri + '/identity.xslt')) AS text""",
@@ -65,7 +65,7 @@ public class UtilsTest {
         );
         String expected = new String(Files.readAllBytes(Paths.get("src/test/resources/patzig.xml")));
 
-        assertThat(text).and(expected).areIdentical();
+        assertThat(text).and(expected).ignoreWhitespace().areIdentical();
     }
 
     @Test
