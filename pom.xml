@@ -34,6 +34,10 @@
             <name>GitHub</name>
             <url>https://maven.pkg.github.com/THM-graphs/neo4j-atag</url>
         </repository>
+        <site>
+            <id>github</id>
+            <url>scm:git:git@github.com:THM-Graphs/neo4j-atag.git</url>
+        </site>
     </distributionManagement>
 
     <dependencies>
@@ -178,6 +182,14 @@
                 <version>${build-plugin.release.version}</version>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-scm-publish-plugin</artifactId>
+                <version>3.2.1</version>
+                <configuration>
+                    <scmBranch>gh-pages</scmBranch>
                 </configuration>
             </plugin>
 <!--
