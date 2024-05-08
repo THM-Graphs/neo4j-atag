@@ -1,13 +1,12 @@
 package atag.chains;
 
+import atag.util.EmptyPath;
 import atag.util.ResultTypes;
+import org.apache.commons.lang3.NotImplementedException;
 import org.neo4j.graphalgo.impl.util.PathImpl;
-import org.neo4j.graphdb.Label;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Path;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.RelationshipType;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.traversal.Evaluation;
+import org.neo4j.graphdb.traversal.Traverser;
 import org.neo4j.internal.helpers.collection.Iterables;
 import org.neo4j.logging.Log;
 import org.neo4j.procedure.Context;
@@ -15,7 +14,9 @@ import org.neo4j.procedure.Mode;
 import org.neo4j.procedure.Name;
 import org.neo4j.procedure.Procedure;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public class ChainsProcedure {
@@ -125,8 +126,106 @@ public class ChainsProcedure {
         return build;
     }
 
-    private static Stream<ResultTypes.PathResult> asPathResult(Path build) {
-        return Stream.of(new ResultTypes.PathResult(build));
+    @Procedure(mode = Mode.WRITE)
+    public Stream<ResultTypes.PathResult> update(
+            @Name("uuid of text node") String uuidText,
+            @Name("uuid of chain element before update") String uuidBefore,
+            @Name("uuid of chain element after update") String uuidAfter,
+            @Name("chain fragment to replace everything between uuidBefore and uuidAfter") List<Map<String, Object>> replacement,
+            @Name("configuration") Map<String, Object> config) {
+        String uuidProperty = "uuid";
+        Label textLabel = Label.label("Text");
+        Label characterLabel = Label.label("Token");
+        RelationshipType relationshipType = RelationshipType.withName("NEXT_TOKEN");
+        Node textNode = tx.findNode(textLabel, uuidProperty, uuidText);
+        Node beforeNode = tx.findNode(characterLabel, uuidProperty, uuidBefore);
+        Node afterNode = tx.findNode(characterLabel, uuidProperty, uuidAfter);
+
+        Traverser traverser = tx.traversalDescription()
+                .expand(PathExpanders.forTypeAndDirection(relationshipType, Direction.OUTGOING))
+                .evaluator(path -> {
+                    Node last = path.endNode();
+                    if (last.equals(afterNode)) {
+                        return Evaluation.INCLUDE_AND_PRUNE;
+                    } else {
+                        return Evaluation.EXCLUDE_AND_CONTINUE;
+                    }
+                }).traverse(beforeNode);
+        Path path = Iterables.single(traverser);
+
+        Map<String, Node> existingNodes = new HashMap<>();
+        for (Node node: path.nodes()) {
+            String uuidValue = (String) node.getProperty(uuidProperty);
+            if (!(uuidValue.equals(uuidBefore) || (uuidValue.equals(uuidAfter)))) {
+                existingNodes.put(uuidValue, node);
+            }
+        }
+
+        if (beforeNode == null) {
+            throw new NotImplementedException("cannot yet deal with non existing before node");
+        }
+        if (afterNode == null) {
+            throw new NotImplementedException("cannot yet deal with non existing after node");
+        }
+
+        Node currentNode = beforeNode;
+        PathImpl.Builder builder = null;
+        boolean isFirst = true;
+
+        for (Map<String, Object> data: replacement) {
+            String uuid = data.get("uuid").toString();
+
+            Node existingNode = existingNodes.remove(uuid);
+            Relationship currentRelationship = null;
+            if (existingNode == null) {
+                Node newNode = tx.createNode(characterLabel);
+                currentRelationship = currentNode.createRelationshipTo(newNode, relationshipType);
+                currentNode = newNode;
+            } else {
+                Relationship existingRelationship = existingNode.getSingleRelationship(relationshipType, Direction.INCOMING);
+                Node existingPrevious = existingRelationship.getStartNode();
+                if (existingPrevious.equals(currentNode)) {
+                    currentRelationship = existingRelationship;
+                } else {
+                    existingRelationship.delete();
+                    currentRelationship = currentNode.createRelationshipTo(existingNode, relationshipType);
+                }
+                currentNode = existingNode;
+            }
+            for (Map.Entry<String, Object> e: data.entrySet()) {
+                currentNode.setProperty(e.getKey(), e.getValue());
+            }
+
+            if (isFirst) {
+                builder = new PathImpl.Builder(currentNode);
+                isFirst = false;
+            } else {
+                builder = builder.push(currentRelationship);
+            }
+        }
+
+        // remove leftover nodes
+        for (Node n: existingNodes.values()) {
+            n.getRelationships().forEach(Relationship::delete);
+            n.delete();
+        }
+
+        // ensure last node is connected to afterNode
+        if (!currentNode.hasRelationship(Direction.OUTGOING, relationshipType)) {
+            Relationship r = afterNode.getSingleRelationship(relationshipType, Direction.INCOMING);
+            if (r!=null) {
+                r.delete();
+            }
+            currentNode.createRelationshipTo(afterNode, relationshipType);
+        }
+
+
+        return asPathResult(builder == null ? new EmptyPath() : builder.build());
     }
+
+    private static Stream<ResultTypes.PathResult> asPathResult(Path path) {
+        return Stream.of(new ResultTypes.PathResult(path));
+    }
+
 
 }

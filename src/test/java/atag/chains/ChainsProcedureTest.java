@@ -1,5 +1,6 @@
 package atag.chains;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -9,12 +10,15 @@ import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
+import org.neo4j.harness.Neo4j;
 import org.neo4j.harness.junit.extension.Neo4jExtension;
 import org.neo4j.internal.helpers.collection.Iterables;
 import org.neo4j.internal.helpers.collection.Iterators;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,6 +45,11 @@ public class ChainsProcedureTest {
                 }
             })*/
             .build();
+
+    @AfterEach
+    void cleanup(GraphDatabaseService db) {
+        db.executeTransactionally("MATCH (n) DETACH DELETE n");
+    }
 
     @Test
     public void testChain(GraphDatabaseService db) {
@@ -129,5 +138,172 @@ public class ChainsProcedureTest {
                 Arguments.of("here's a comma, in this text", 13),
                 Arguments.of("Ümlaute für den Spaß!", 7)
         );
+    }
+
+    @Test
+    public void testUpdateEmptyList(GraphDatabaseService db) {
+        String uuidText = UUID.randomUUID().toString();
+        String uuidStart = UUID.randomUUID().toString();
+        String uuidEnd = UUID.randomUUID().toString();
+        Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd);
+
+        // fixture
+        db.executeTransactionally("""
+                CREATE (t:Text{uuid:$uuidText})
+                CREATE (s:Token{uuid:$uuidStart})
+                CREATE (e:Token{uuid:$uuidEnd})
+                CREATE (t)-[:NEXT_TOKEN]->(s)
+                CREATE (s)-[:NEXT_TOKEN]->(e)
+                """, params);
+
+        // empty modification list
+        validatePathLength(db, """
+                CALL atag.chains.update($uuidText, $uuidStart, $uuidEnd, [], {}) YIELD path
+                RETURN path
+                """, params, 0);
+
+        validatePathLength(db, """
+                MATCH path=(:Token{uuid:$uuidStart})-[:NEXT_TOKEN*]->(:Token{uuid:$uuidEnd})
+                RETURN path
+                """, params, 1);
+    }
+
+    @Test
+    public void testUpdateAdd(GraphDatabaseService db) {
+        String uuidText = UUID.randomUUID().toString();
+        String uuidStart = UUID.randomUUID().toString();
+        String uuidEnd = UUID.randomUUID().toString();
+        Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd);
+
+        // fixture
+        db.executeTransactionally("""
+                CREATE (t:Text{uuid:$uuidText})
+                CREATE (s:Token{uuid:$uuidStart})
+                CREATE (e:Token{uuid:$uuidEnd})
+                CREATE (t)-[:NEXT_TOKEN]->(s)
+                CREATE (s)-[:NEXT_TOKEN]->(e)
+                """, params);
+
+        // insert two nodes
+        validatePathLength(db, """
+                CALL atag.chains.update($uuidText, $uuidStart, $uuidEnd, [
+                   {
+                        uuid: '0',
+                        tagName: 'a'
+                    },
+                    {
+                        uuid: '1',
+                        tagName: 'b'
+                    }
+                ], {}) YIELD path
+                RETURN path
+                """, params, 1);
+        validatePathLength(db, """
+                MATCH path=(:Token{uuid:$uuidStart})-[:NEXT_TOKEN*]->(:Token{uuid:$uuidEnd})
+                RETURN path
+                """, params, 3);
+    }
+
+    @Test
+    public void testUpdateModify(GraphDatabaseService db, Neo4j neo4j) {
+        System.out.println(neo4j.boltURI());
+        String uuidText = "uuidText";
+        String uuidStart = "uuidStart";
+        String uuidEnd = "uuidEnd";
+        String uuidMiddle1 = "uuidMiddle1";
+        String uuidMiddle2 = "uuidMiddle2";
+        Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd,
+                "uuidMiddle1", uuidMiddle1, "uuidMiddle2", uuidMiddle2);
+
+        // fixture
+        db.executeTransactionally("""
+                CREATE (t:Text{uuid:$uuidText})
+                CREATE (s:Token{uuid:$uuidStart})
+                CREATE (m1:Token{uuid:$uuidMiddle1, tagName:'a'})
+                CREATE (m2:Token{uuid:$uuidMiddle2, tagName:'b'})
+                CREATE (e:Token{uuid:$uuidEnd})
+                CREATE (t)-[:NEXT_TOKEN]->(s)
+                CREATE (s)-[:NEXT_TOKEN]->(m1)
+                CREATE (m1)-[:NEXT_TOKEN]->(m2)
+                CREATE (m2)-[:NEXT_TOKEN]->(e)
+                """, params);
+
+        // change one one
+        validatePathLength(db, """
+                CALL atag.chains.update($uuidText, $uuidStart, $uuidEnd, [
+                   {
+                        uuid: $uuidMiddle1,
+                        tagName: 'a'
+                    },
+                    {
+                        uuid:  $uuidMiddle2,
+                        tagName: 'c'
+                    }
+                ], {}) YIELD path
+                RETURN path
+                """, params, 1);
+        validatePathLength(db, """
+                MATCH path=(:Token{uuid:$uuidStart})-[:NEXT_TOKEN*]->(:Token{uuid:$uuidEnd})
+                RETURN path
+                """, params, 3, path -> {
+            assertEquals("c", path.lastRelationship().getStartNode().getProperty("tagName"));
+        });
+    }
+
+    @Test
+    public void testUpdateDelete(GraphDatabaseService db, Neo4j neo4j) {
+        System.out.println(neo4j.boltURI());
+        String uuidText = "uuidText";
+        String uuidStart = "uuidStart";
+        String uuidEnd = "uuidEnd";
+        String uuidMiddle1 = "uuidMiddle1";
+        String uuidMiddle2 = "uuidMiddle2";
+        Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd,
+                "uuidMiddle1", uuidMiddle1, "uuidMiddle2", uuidMiddle2);
+
+        // fixture
+        db.executeTransactionally("""
+                CREATE (t:Text{uuid:$uuidText})
+                CREATE (s:Token{uuid:$uuidStart})
+                CREATE (m1:Token{uuid:$uuidMiddle1, tagName:'a'})
+                CREATE (m2:Token{uuid:$uuidMiddle2, tagName:'b'})
+                CREATE (e:Token{uuid:$uuidEnd})
+                CREATE (t)-[:NEXT_TOKEN]->(s)
+                CREATE (s)-[:NEXT_TOKEN]->(m1)
+                CREATE (m1)-[:NEXT_TOKEN]->(m2)
+                CREATE (m2)-[:NEXT_TOKEN]->(e)
+                """, params);
+
+        // change one one
+        validatePathLength(db, """
+                CALL atag.chains.update($uuidText, $uuidStart, $uuidEnd, [
+                   {
+                        uuid: $uuidMiddle1,
+                        tagName: 'a'
+                    }
+                ], {}) YIELD path
+                RETURN path
+                """, params, 0);
+        validatePathLength(db, """
+                MATCH path=(:Token{uuid:$uuidStart})-[:NEXT_TOKEN*]->(:Token{uuid:$uuidEnd})
+                RETURN path
+                """, params, 2);
+    }
+
+    private static void validatePathLength(GraphDatabaseService db, String query, Map<String, Object> params,
+                                           int expectedPathLength) {
+        validatePathLength(db, query, params, expectedPathLength, (Path entities) -> {});
+    }
+
+    private static void validatePathLength(GraphDatabaseService db, String query, Map<String, Object> params,
+                                           int expectedPathLength, Consumer<Path> assertion) {
+        db.executeTransactionally(query,
+                params,
+                result -> {
+                    Path path = (Path) Iterators.single(result).get("path");
+                    assertEquals(expectedPathLength, path.length());
+                    assertion.accept(path);
+                    return true;
+                });
     }
 }
