@@ -46,6 +46,12 @@ public class ChainsProcedureTest {
             })*/
             .build();
 
+    static Map<String, Object> configuration = Map.of(
+            "textLabel", "Text",
+            "elementLabel", "Token",
+            "relationshipType", "NEXT_TOKEN"
+    );
+
     @AfterEach
     void cleanup(GraphDatabaseService db) {
         db.executeTransactionally("MATCH (n) DETACH DELETE n");
@@ -145,7 +151,8 @@ public class ChainsProcedureTest {
         String uuidText = UUID.randomUUID().toString();
         String uuidStart = UUID.randomUUID().toString();
         String uuidEnd = UUID.randomUUID().toString();
-        Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd);
+        Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd,
+        "config", configuration);
 
         // fixture
         db.executeTransactionally("""
@@ -158,7 +165,7 @@ public class ChainsProcedureTest {
 
         // empty modification list
         validatePathLength(db, """
-                CALL atag.chains.update($uuidText, $uuidStart, $uuidEnd, [], {}) YIELD path
+                CALL atag.chains.update($uuidText, $uuidStart, $uuidEnd, [], $config) YIELD path
                 RETURN path
                 """, params, 0);
 
@@ -173,7 +180,8 @@ public class ChainsProcedureTest {
         String uuidText = UUID.randomUUID().toString();
         String uuidStart = UUID.randomUUID().toString();
         String uuidEnd = UUID.randomUUID().toString();
-        Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd);
+        Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd,
+                "config", configuration);
 
         // fixture
         db.executeTransactionally("""
@@ -195,7 +203,7 @@ public class ChainsProcedureTest {
                         uuid: '1',
                         tagName: 'b'
                     }
-                ], {}) YIELD path
+                ], $config) YIELD path
                 RETURN path
                 """, params, 1);
         validatePathLength(db, """
@@ -206,14 +214,14 @@ public class ChainsProcedureTest {
 
     @Test
     public void testUpdateModify(GraphDatabaseService db, Neo4j neo4j) {
-        System.out.println(neo4j.boltURI());
+//        System.out.println(neo4j.boltURI());
         String uuidText = "uuidText";
         String uuidStart = "uuidStart";
         String uuidEnd = "uuidEnd";
         String uuidMiddle1 = "uuidMiddle1";
         String uuidMiddle2 = "uuidMiddle2";
         Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd,
-                "uuidMiddle1", uuidMiddle1, "uuidMiddle2", uuidMiddle2);
+                "uuidMiddle1", uuidMiddle1, "uuidMiddle2", uuidMiddle2, "config", configuration);
 
         // fixture
         db.executeTransactionally("""
@@ -239,7 +247,7 @@ public class ChainsProcedureTest {
                         uuid:  $uuidMiddle2,
                         tagName: 'c'
                     }
-                ], {}) YIELD path
+                ], $config) YIELD path
                 RETURN path
                 """, params, 1);
         validatePathLength(db, """
@@ -259,7 +267,7 @@ public class ChainsProcedureTest {
         String uuidMiddle1 = "uuidMiddle1";
         String uuidMiddle2 = "uuidMiddle2";
         Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd,
-                "uuidMiddle1", uuidMiddle1, "uuidMiddle2", uuidMiddle2);
+                "uuidMiddle1", uuidMiddle1, "uuidMiddle2", uuidMiddle2, "config", configuration);
 
         // fixture
         db.executeTransactionally("""
@@ -281,7 +289,7 @@ public class ChainsProcedureTest {
                         uuid: $uuidMiddle1,
                         tagName: 'a'
                     }
-                ], {}) YIELD path
+                ], $config) YIELD path
                 RETURN path
                 """, params, 0);
         validatePathLength(db, """

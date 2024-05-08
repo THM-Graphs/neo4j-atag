@@ -132,11 +132,11 @@ public class ChainsProcedure {
             @Name("uuid of chain element before update") String uuidBefore,
             @Name("uuid of chain element after update") String uuidAfter,
             @Name("chain fragment to replace everything between uuidBefore and uuidAfter") List<Map<String, Object>> replacement,
-            @Name("configuration") Map<String, Object> config) {
+            @Name(value = "configuration", defaultValue = "{}") Map<String, String> config) {
         String uuidProperty = "uuid";
-        Label textLabel = Label.label("Text");
-        Label characterLabel = Label.label("Token");
-        RelationshipType relationshipType = RelationshipType.withName("NEXT_TOKEN");
+        Label textLabel = Label.label(config.getOrDefault("textLabel", "Text"));
+        Label characterLabel = Label.label(config.getOrDefault("elementLabel", "Character"));
+        RelationshipType relationshipType = RelationshipType.withName(config.getOrDefault("relationshipType", "NEXT_CHARACTER"));
         Node textNode = tx.findNode(textLabel, uuidProperty, uuidText);
         Node beforeNode = tx.findNode(characterLabel, uuidProperty, uuidBefore);
         Node afterNode = tx.findNode(characterLabel, uuidProperty, uuidAfter);
