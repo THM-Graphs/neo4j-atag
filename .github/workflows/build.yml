@@ -12,7 +12,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
-      - run: mvn -B install --no-transfer-progress
+      - run: mvn -B verify --no-transfer-progress
 
 #  coverage:
 #    needs: build
