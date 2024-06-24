@@ -23,6 +23,7 @@
         <menu name="Overview">
             <item name="Introduction" href="index.html"/>
             <item name="Installation" href="installation.html"/>
+            <item name="Building" href="building.html"/>
         </menu>
         <menu name="Procedures / Functions">
             <item name="atag.chains.characterChain" href="atag.chains.characterChain.html"/>
