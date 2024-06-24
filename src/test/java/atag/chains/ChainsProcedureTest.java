@@ -15,6 +15,7 @@ import org.neo4j.harness.junit.extension.Neo4jExtension;
 import org.neo4j.internal.helpers.collection.Iterables;
 import org.neo4j.internal.helpers.collection.Iterators;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -51,6 +52,43 @@ public class ChainsProcedureTest {
             "elementLabel", "Token",
             "relationshipType", "NEXT_TOKEN"
     );
+
+    public static Stream<Arguments> testTokenChain() {
+        return Stream.of(
+                Arguments.of("here's a comma, in this text", 13),
+                Arguments.of("Ümlaute für den Spaß!", 7)
+        );
+    }
+
+    public static Stream<Arguments> testUpdateInitial() {
+        return Stream.of(
+                Arguments.of(Collections.emptyList(), 0, 0),
+                Arguments.of(List.of(Map.of("uuid", uuid())), 0, 1),
+//                Arguments.of(List.of(Map.of("uuidX", UUID.randomUUID().toString())), 0, 1),
+                Arguments.of(List.of(Map.of("uuid", uuid()), Map.of("uuid", uuid())), 1, 2)
+        );
+    }
+
+    private static String uuid() {
+        return UUID.randomUUID().toString();
+    }
+
+    private static void validatePathLength(GraphDatabaseService db, String query, Map<String, Object> params,
+                                           int expectedPathLength) {
+        validatePathLength(db, query, params, expectedPathLength, (Path entities) -> {});
+    }
+
+    private static void validatePathLength(GraphDatabaseService db, String query, Map<String, Object> params,
+                                           int expectedPathLength, Consumer<Path> assertion) {
+        db.executeTransactionally(query,
+                params,
+                result -> {
+                    Path path = (Path) Iterators.single(result).get("path");
+                    assertEquals(expectedPathLength, path.length());
+                    assertion.accept(path);
+                    return true;
+                });
+    }
 
     @AfterEach
     void cleanup(GraphDatabaseService db) {
@@ -139,18 +177,37 @@ public class ChainsProcedureTest {
         assertEquals(expected, pathLength);
     }
 
-    public static Stream<Arguments> testTokenChain() {
-        return Stream.of(
-                Arguments.of("here's a comma, in this text", 13),
-                Arguments.of("Ümlaute für den Spaß!", 7)
-        );
+    @ParameterizedTest
+    @MethodSource
+    public void testUpdateInitial(List<Map<String, Object>> characterList, int expectedLength, int expectedQueryLength, GraphDatabaseService db) {
+        String uuidText = uuid();
+        Map<String, Object> params = Map.of("uuidText", uuidText, "config", configuration,
+                "characterList", characterList);
+
+        // fixture
+        db.executeTransactionally("""
+                CREATE (dummy1:Text)-[:NEXT_TOKEN]->(dummy2:Token) // just to make sure labels and reltypes are known
+                CREATE (t:Text{uuid:$uuidText})
+                """, params);
+
+        // empty modification list
+        validatePathLength(db, """
+                CALL atag.chains.update($uuidText, null, null, $characterList, $config) YIELD path
+                RETURN path
+                """, params, expectedLength);
+
+        validatePathLength(db, """
+                MATCH path=(:Text{uuid:$uuidText})-[:NEXT_TOKEN*0..]->(x)
+                WHERE NOT (x)-[:NEXT_TOKEN]->()
+                RETURN path
+                """, params, expectedQueryLength);
     }
 
     @Test
     public void testUpdateEmptyList(GraphDatabaseService db) {
-        String uuidText = UUID.randomUUID().toString();
-        String uuidStart = UUID.randomUUID().toString();
-        String uuidEnd = UUID.randomUUID().toString();
+        String uuidText = uuid();
+        String uuidStart = uuid();
+        String uuidEnd = uuid();
         Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd,
         "config", configuration);
 
@@ -177,9 +234,9 @@ public class ChainsProcedureTest {
 
     @Test
     public void testUpdateAdd(GraphDatabaseService db) {
-        String uuidText = UUID.randomUUID().toString();
-        String uuidStart = UUID.randomUUID().toString();
-        String uuidEnd = UUID.randomUUID().toString();
+        String uuidText = uuid();
+        String uuidStart = uuid();
+        String uuidEnd = uuid();
         Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd,
                 "config", configuration);
 
@@ -296,22 +353,5 @@ public class ChainsProcedureTest {
                 MATCH path=(:Token{uuid:$uuidStart})-[:NEXT_TOKEN*]->(:Token{uuid:$uuidEnd})
                 RETURN path
                 """, params, 2);
-    }
-
-    private static void validatePathLength(GraphDatabaseService db, String query, Map<String, Object> params,
-                                           int expectedPathLength) {
-        validatePathLength(db, query, params, expectedPathLength, (Path entities) -> {});
-    }
-
-    private static void validatePathLength(GraphDatabaseService db, String query, Map<String, Object> params,
-                                           int expectedPathLength, Consumer<Path> assertion) {
-        db.executeTransactionally(query,
-                params,
-                result -> {
-                    Path path = (Path) Iterators.single(result).get("path");
-                    assertEquals(expectedPathLength, path.length());
-                    assertion.accept(path);
-                    return true;
-                });
     }
 }
