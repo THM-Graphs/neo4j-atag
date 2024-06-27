@@ -4,7 +4,7 @@
 
     <groupId>de.thm.atag</groupId>
     <artifactId>neo4j-atag</artifactId>
-    <version>v0.2.8</version>
+    <version>v0.2.9</version>
 
     <properties>
         <!--<maven.compiler.source>17</maven.compiler.source>
