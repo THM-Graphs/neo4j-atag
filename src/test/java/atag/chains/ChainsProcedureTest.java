@@ -60,12 +60,19 @@ public class ChainsProcedureTest {
         );
     }
 
+    private static Consumer<GraphDatabaseService> assertTokenCount(long expectedCount) {
+        return db -> db.executeTransactionally("MATCH (t:Token) RETURN count(t) as count", Collections.emptyMap(), result -> {
+            assertEquals(expectedCount, (long) Iterators.single(result).get("count"));
+            return true;
+        });
+    }
+
     public static Stream<Arguments> testUpdateInitial() {
+
         return Stream.of(
-                Arguments.of(Collections.emptyList(), 0, 0),
-                Arguments.of(List.of(Map.of("uuid", uuid())), 0, 1),
-//                Arguments.of(List.of(Map.of("uuidX", UUID.randomUUID().toString())), 0, 1),
-                Arguments.of(List.of(Map.of("uuid", uuid()), Map.of("uuid", uuid())), 1, 2)
+                Arguments.of(Collections.emptyList(), 0, 0, assertTokenCount(0)),
+                Arguments.of(List.of(Map.of("uuid", uuid())), 0, 1, assertTokenCount(1)),
+                Arguments.of(List.of(Map.of("uuid", uuid()), Map.of("uuid", uuid())), 1, 2, assertTokenCount(2))
         );
     }
 
@@ -179,15 +186,21 @@ public class ChainsProcedureTest {
 
     @ParameterizedTest
     @MethodSource
-    public void testUpdateInitial(List<Map<String, Object>> characterList, int expectedLength, int expectedQueryLength, GraphDatabaseService db) {
+    public void testUpdateInitial(List<Map<String, Object>> characterList, int expectedLength, int expectedQueryLength,
+                                  Consumer<GraphDatabaseService> additionalAssertion, GraphDatabaseService db) {
         String uuidText = uuid();
-        Map<String, Object> params = Map.of("uuidText", uuidText, "config", configuration,
+        String uuidStart = uuid();
+        String uuidEnd = uuid();
+        Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd,"config", configuration,
                 "characterList", characterList);
 
         // fixture
         db.executeTransactionally("""
-                CREATE (dummy1:Text)-[:NEXT_TOKEN]->(dummy2:Token) // just to make sure labels and reltypes are known
                 CREATE (t:Text{uuid:$uuidText})
+                CREATE (s:Token{uuid:$uuidStart})
+                CREATE (e:Token{uuid:$uuidEnd})
+                CREATE (t)-[:NEXT_TOKEN]->(s)
+                CREATE (s)-[:NEXT_TOKEN]->(e)
                 """, params);
 
         // empty modification list
@@ -201,6 +214,9 @@ public class ChainsProcedureTest {
                 WHERE NOT (x)-[:NEXT_TOKEN]->()
                 RETURN path
                 """, params, expectedQueryLength);
+        if (additionalAssertion != null) {
+            additionalAssertion.accept(db);
+        }
     }
 
     @Test

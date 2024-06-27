@@ -4,8 +4,6 @@ import atag.util.EmptyPath;
 import atag.util.ResultTypes;
 import org.neo4j.graphalgo.impl.util.PathImpl;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.traversal.Evaluation;
-import org.neo4j.graphdb.traversal.Traverser;
 import org.neo4j.internal.helpers.collection.Iterables;
 import org.neo4j.logging.Log;
 import org.neo4j.procedure.Context;
@@ -13,10 +11,7 @@ import org.neo4j.procedure.Mode;
 import org.neo4j.procedure.Name;
 import org.neo4j.procedure.Procedure;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Stream;
 
 public class ChainsProcedure {
@@ -141,7 +136,7 @@ public class ChainsProcedure {
         Node beforeNode = uuidBefore == null ? null : tx.findNode(characterLabel, uuidProperty, uuidBefore);
         Node afterNode = uuidBefore == null ? null : tx.findNode(characterLabel, uuidProperty, uuidAfter);
 
-        Map<String, Node> existingNodes = getExistingNodes(uuidBefore, uuidAfter, beforeNode, afterNode, relationshipType, uuidProperty);
+        Map<String, Node> existingNodes = getExistingNodesBetween(textNode, beforeNode, afterNode, relationshipType, uuidProperty);
 
         Node currentNode = beforeNode == null ? textNode : beforeNode;
         PathImpl.Builder builder = null;
@@ -193,42 +188,32 @@ public class ChainsProcedure {
             }
             currentNode.createRelationshipTo(afterNode, relationshipType);
         }
-
-
         return asPathResult(builder == null ? new EmptyPath() : builder.build());
     }
 
-    private Map<String, Node> getExistingNodes(String uuidBefore, String uuidAfter, Node beforeNode, Node afterNode, RelationshipType relationshipType, String uuidProperty) {
+    private Map<String, Node> getExistingNodesBetween(Node textNode, Node beforeNode, Node afterNode, RelationshipType relationshipType, String uuidProperty) {
+        Node currentNode = beforeNode == null ? textNode : beforeNode;
+        currentNode = advance(relationshipType, currentNode);
+
+        if (currentNode == null) {
+            return Collections.emptyMap();
+        }
+
         Map<String, Node> existingNodes = new HashMap<>();
-        for (Node node: getExistingPathBetween(beforeNode, afterNode, relationshipType).nodes()) {
-            String uuidValue = (String) node.getProperty(uuidProperty);
-            if (!(uuidValue.equals(uuidBefore) || (uuidValue.equals(uuidAfter)))) {
-                existingNodes.put(uuidValue, node);
-            }
+        while (currentNode != null && !currentNode.equals(afterNode)) {
+            existingNodes.put((String) currentNode.getProperty(uuidProperty), currentNode);
+            currentNode = advance(relationshipType, currentNode);
         }
         return existingNodes;
     }
 
-    private Path getExistingPathBetween(Node beforeNode, Node afterNode, RelationshipType relationshipType) {
-        if ((beforeNode == null) && (afterNode == null)) {
-            return new EmptyPath();
-        }
-        Traverser traverser = tx.traversalDescription()
-                .expand(PathExpanders.forTypeAndDirection(relationshipType, Direction.OUTGOING))
-                .evaluator(path -> {
-                    Node last = path.endNode();
-                    if ((last != null ) && (last.equals(afterNode))) {
-                        return Evaluation.INCLUDE_AND_PRUNE;
-                    } else {
-                        return Evaluation.EXCLUDE_AND_CONTINUE;
-                    }
-                }).traverse(beforeNode);
-        return Iterables.single(traverser);
+    private static Node advance(RelationshipType relationshipType, Node startNode) {
+        Relationship singleRelationship = startNode.getSingleRelationship(relationshipType, Direction.OUTGOING);
+        return singleRelationship == null ? null : singleRelationship.getEndNode();
     }
 
     private static Stream<ResultTypes.PathResult> asPathResult(Path path) {
         return Stream.of(new ResultTypes.PathResult(path));
     }
-
 
 }
