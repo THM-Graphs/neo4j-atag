@@ -133,8 +133,12 @@ public class ChainsProcedure {
         Label characterLabel = Label.label(config.getOrDefault("elementLabel", "Character"));
         RelationshipType relationshipType = RelationshipType.withName(config.getOrDefault("relationshipType", "NEXT_CHARACTER"));
         Node textNode = tx.findNode(textLabel, uuidProperty, uuidText);
-        Node beforeNode = uuidBefore == null ? null : tx.findNode(characterLabel, uuidProperty, uuidBefore);
-        Node afterNode = uuidBefore == null ? null : tx.findNode(characterLabel, uuidProperty, uuidAfter);
+        Node beforeNode = findNodeOrThrow(characterLabel, uuidProperty, uuidBefore);
+        Node afterNode = findNodeOrThrow(characterLabel, uuidProperty, uuidAfter);
+
+        if ((beforeNode!=null) && beforeNode.equals(afterNode)) {
+            throw new IllegalArgumentException("beforeNode and afterNode must be different");
+        }
 
         Map<String, Node> existingNodes = getExistingNodesBetween(textNode, beforeNode, afterNode, relationshipType, uuidProperty);
 
@@ -189,6 +193,17 @@ public class ChainsProcedure {
             currentNode.createRelationshipTo(afterNode, relationshipType);
         }
         return asPathResult(builder == null ? new EmptyPath() : builder.build());
+    }
+
+    private Node findNodeOrThrow(Label textLabel, String uuidProperty, String uuidText) {
+        if ((uuidText == null) || (uuidText.isEmpty())) {
+            return null;
+        }
+        Node node = tx.findNode(textLabel, uuidProperty, uuidText);
+        if (node==null) {
+            throw new IllegalArgumentException("couldn't find node with label %s and property %s=%s".formatted(textLabel, uuidProperty, uuidText));
+        }
+        return node;
     }
 
     private Map<String, Node> getExistingNodesBetween(Node textNode, Node beforeNode, Node afterNode, RelationshipType relationshipType, String uuidProperty) {

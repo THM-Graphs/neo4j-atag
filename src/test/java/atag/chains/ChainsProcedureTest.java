@@ -1,16 +1,13 @@
 package atag.chains;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Path;
-import org.neo4j.harness.Neo4j;
+import org.neo4j.graphdb.*;
 import org.neo4j.harness.junit.extension.Neo4jExtension;
 import org.neo4j.internal.helpers.collection.Iterables;
 import org.neo4j.internal.helpers.collection.Iterators;
@@ -20,11 +17,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ChainsProcedureTest {
+
+    static Logger logger = Logger.getLogger(ChainsProcedureTest.class.getName());
+
     @RegisterExtension
     static Neo4jExtension neo4j = Neo4jExtension.builder()
             .withDisabledServer()
@@ -91,7 +93,18 @@ public class ChainsProcedureTest {
                 params,
                 result -> {
                     Path path = (Path) Iterators.single(result).get("path");
-                    assertEquals(expectedPathLength, path.length());
+                    if (logger.isLoggable(Level.INFO)) {
+                        StringBuilder sb = new StringBuilder();
+                        for (Node node: path.nodes()) {
+                            sb.append("(").append(node.getProperty("uuid")).append(")");
+                            if (!node.equals(path.endNode())) {
+                               sb.append("->");
+                            }
+
+                        }
+                        logger.info("path is %s".formatted(sb.toString()));
+                    }
+                    assertEquals(expectedPathLength, path.length(), "failed path length assertion for %s".formatted(query));
                     assertion.accept(path);
                     return true;
                 });
@@ -184,190 +197,89 @@ public class ChainsProcedureTest {
         assertEquals(expected, pathLength);
     }
 
-    @ParameterizedTest
+    public static Stream<Arguments> testChainUpdate() {
+
+        return Stream.of(
+                Arguments.of("removal of unbounded chain", 0, null, null, Collections.emptyList(), 0, 0, 0, null),
+                Arguments.of("removal of unbounded chain", 1, null, null, Collections.emptyList(), 0, 0, 0, null),
+                Arguments.of("removal of unbounded chain", 10, null, null, Collections.emptyList(), 0, 0, 0, null),
+                Arguments.of("removal of bounded chain", 10, "0", "9", Collections.emptyList(), 0, 2, 2, null),
+                Arguments.of("invalid uuid", 0, "invalid1", "invalid2", Collections.emptyList(), 0, 0, 0, IllegalArgumentException.class),
+
+                Arguments.of("add to empty chain", 0, null, null, List.of(Map.of("uuid", "new0")), 0, 1, 1, null),
+                Arguments.of("insert one node into existing chain", 5, "2", "3", List.of(Map.of("uuid", "new0")), 0, 6, 6, null),
+                Arguments.of("insert multiple into existing chain", 5, "2", "3", List.of(Map.of("uuid", "new0"), Map.of("uuid", "new1")), 1, 7, 7, null),
+                Arguments.of("before/afterUuid must be different", 5, "3", "3", List.of(Map.of("uuid", "new0")), 0, 6, 5, IllegalArgumentException.class),
+                Arguments.of("replace one node with two new ones", 5, "1", "3", List.of(Map.of("uuid", "new0"), Map.of("uuid", "new1")), 1, 6, 6, null),
+
+                Arguments.of("delete from start of chain", 5, null, "3", Collections.emptyList(), 0, 2, 2, null),
+                Arguments.of("replace from start of chain", 5, null, "3", List.of(Map.of("uuid", "new0"), Map.of("uuid", "new1")), 1, 4, 4, null ),
+
+                Arguments.of("delete to end of chain", 5, "3", null, Collections.emptyList(), 0, 4, 4, null),
+                Arguments.of("replace to end of chain", 5, "3", null, List.of(Map.of("uuid", "new0"), Map.of("uuid", "new1")), 1, 6, 6, null)
+        );
+    }
+
+    @ParameterizedTest(name = "{index}: {0} with fixture length {1}, boundaries ({2}, {3}")
     @MethodSource
-    public void testUpdateInitial(List<Map<String, Object>> characterList, int expectedLength, int expectedQueryLength,
-                                  Consumer<GraphDatabaseService> additionalAssertion, GraphDatabaseService db) {
-        String uuidText = uuid();
-        String uuidStart = uuid();
-        String uuidEnd = uuid();
-        Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd,"config", configuration,
-                "characterList", characterList);
+    public void testChainUpdate(String name, int fixtureLength, String uuidBefore, String uuidAfter, List<Map<String,Object>> characterList,
+                                     int expectedLength, int expectedQueryLength, int expectedNumberOfTokens, Class<Exception> exceptedException,
+                                     GraphDatabaseService db) {
+        String uuidText = "text";
+        Map<String, Object> params = Map.of(
+                "uuidText", uuidText,
+                "uuidBefore", uuidBefore == null ? "" : uuidBefore,
+                "uuidAfter", uuidAfter == null ? "" : uuidAfter,
+                "characterList", characterList,
+                "config", configuration
+        );
 
         // fixture
-        db.executeTransactionally("""
-                CREATE (t:Text{uuid:$uuidText})
-                CREATE (s:Token{uuid:$uuidStart})
-                CREATE (e:Token{uuid:$uuidEnd})
-                CREATE (t)-[:NEXT_TOKEN]->(s)
-                CREATE (s)-[:NEXT_TOKEN]->(e)
-                """, params);
+        try (var tx = db.beginTx()) {
+            Node currentNode = tx.createNode(Label.label("Text"));
+            currentNode.setProperty("uuid", uuidText);
 
-        // empty modification list
-        validatePathLength(db, """
-                CALL atag.chains.update($uuidText, null, null, $characterList, $config) YIELD path
-                RETURN path
-                """, params, expectedLength);
-
-        validatePathLength(db, """
-                MATCH path=(:Text{uuid:$uuidText})-[:NEXT_TOKEN*0..]->(x)
-                WHERE NOT (x)-[:NEXT_TOKEN]->()
-                RETURN path
-                """, params, expectedQueryLength);
-        if (additionalAssertion != null) {
-            additionalAssertion.accept(db);
+            for (int i = 0; i < fixtureLength; i++) {
+                Node nextNode = tx.createNode(Label.label("Token"));
+                nextNode.setProperty("uuid", Integer.valueOf(i).toString());
+                currentNode.createRelationshipTo(nextNode, RelationshipType.withName("NEXT_TOKEN"));
+                currentNode = nextNode;
+            }
+            tx.commit();
         }
-    }
 
-    @Test
-    public void testUpdateEmptyList(GraphDatabaseService db) {
-        String uuidText = uuid();
-        String uuidStart = uuid();
-        String uuidEnd = uuid();
-        Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd,
-        "config", configuration);
-
-        // fixture
-        db.executeTransactionally("""
-                CREATE (t:Text{uuid:$uuidText})
-                CREATE (s:Token{uuid:$uuidStart})
-                CREATE (e:Token{uuid:$uuidEnd})
-                CREATE (t)-[:NEXT_TOKEN]->(s)
-                CREATE (s)-[:NEXT_TOKEN]->(e)
+        try {
+            // cut
+            db.executeTransactionally("""
+                CALL atag.chains.update("text", $uuidBefore, $uuidAfter, $characterList, $config) YIELD path
+                RETURN path
                 """, params);
+            if (exceptedException !=null) {
+                fail("expected a exception but did not get one.");
+            }
 
-        // empty modification list
-        validatePathLength(db, """
-                CALL atag.chains.update($uuidText, $uuidStart, $uuidEnd, [], $config) YIELD path
-                RETURN path
-                """, params, 0);
+            validatePathLength(db, """
+                    CALL atag.chains.update("text", $uuidBefore, $uuidAfter, $characterList, $config) YIELD path
+                    RETURN path
+                    """, params, expectedLength);
 
-        validatePathLength(db, """
-                MATCH path=(:Token{uuid:$uuidStart})-[:NEXT_TOKEN*]->(:Token{uuid:$uuidEnd})
-                RETURN path
-                """, params, 1);
-    }
+            // verification
+            db.executeTransactionally("MATCH (t:Token) RETURN count(t) as count", Collections.emptyMap(), result -> {
+                assertEquals((long) expectedNumberOfTokens, Iterators.single(result).get("count"));
+                return true;
+            });
 
-    @Test
-    public void testUpdateAdd(GraphDatabaseService db) {
-        String uuidText = uuid();
-        String uuidStart = uuid();
-        String uuidEnd = uuid();
-        Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd,
-                "config", configuration);
-
-        // fixture
-        db.executeTransactionally("""
-                CREATE (t:Text{uuid:$uuidText})
-                CREATE (s:Token{uuid:$uuidStart})
-                CREATE (e:Token{uuid:$uuidEnd})
-                CREATE (t)-[:NEXT_TOKEN]->(s)
-                CREATE (s)-[:NEXT_TOKEN]->(e)
-                """, params);
-
-        // insert two nodes
-        validatePathLength(db, """
-                CALL atag.chains.update($uuidText, $uuidStart, $uuidEnd, [
-                   {
-                        uuid: '0',
-                        tagName: 'a'
-                    },
-                    {
-                        uuid: '1',
-                        tagName: 'b'
-                    }
-                ], $config) YIELD path
-                RETURN path
-                """, params, 1);
-        validatePathLength(db, """
-                MATCH path=(:Token{uuid:$uuidStart})-[:NEXT_TOKEN*]->(:Token{uuid:$uuidEnd})
-                RETURN path
-                """, params, 3);
-    }
-
-    @Test
-    public void testUpdateModify(GraphDatabaseService db, Neo4j neo4j) {
-//        System.out.println(neo4j.boltURI());
-        String uuidText = "uuidText";
-        String uuidStart = "uuidStart";
-        String uuidEnd = "uuidEnd";
-        String uuidMiddle1 = "uuidMiddle1";
-        String uuidMiddle2 = "uuidMiddle2";
-        Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd,
-                "uuidMiddle1", uuidMiddle1, "uuidMiddle2", uuidMiddle2, "config", configuration);
-
-        // fixture
-        db.executeTransactionally("""
-                CREATE (t:Text{uuid:$uuidText})
-                CREATE (s:Token{uuid:$uuidStart})
-                CREATE (m1:Token{uuid:$uuidMiddle1, tagName:'a'})
-                CREATE (m2:Token{uuid:$uuidMiddle2, tagName:'b'})
-                CREATE (e:Token{uuid:$uuidEnd})
-                CREATE (t)-[:NEXT_TOKEN]->(s)
-                CREATE (s)-[:NEXT_TOKEN]->(m1)
-                CREATE (m1)-[:NEXT_TOKEN]->(m2)
-                CREATE (m2)-[:NEXT_TOKEN]->(e)
-                """, params);
-
-        // change one one
-        validatePathLength(db, """
-                CALL atag.chains.update($uuidText, $uuidStart, $uuidEnd, [
-                   {
-                        uuid: $uuidMiddle1,
-                        tagName: 'a'
-                    },
-                    {
-                        uuid:  $uuidMiddle2,
-                        tagName: 'c'
-                    }
-                ], $config) YIELD path
-                RETURN path
-                """, params, 1);
-        validatePathLength(db, """
-                MATCH path=(:Token{uuid:$uuidStart})-[:NEXT_TOKEN*]->(:Token{uuid:$uuidEnd})
-                RETURN path
-                """, params, 3, path -> {
-            assertEquals("c", path.lastRelationship().getStartNode().getProperty("tagName"));
-        });
-    }
-
-    @Test
-    public void testUpdateDelete(GraphDatabaseService db, Neo4j neo4j) {
-        System.out.println(neo4j.boltURI());
-        String uuidText = "uuidText";
-        String uuidStart = "uuidStart";
-        String uuidEnd = "uuidEnd";
-        String uuidMiddle1 = "uuidMiddle1";
-        String uuidMiddle2 = "uuidMiddle2";
-        Map<String, Object> params = Map.of("uuidText", uuidText, "uuidStart", uuidStart, "uuidEnd", uuidEnd,
-                "uuidMiddle1", uuidMiddle1, "uuidMiddle2", uuidMiddle2, "config", configuration);
-
-        // fixture
-        db.executeTransactionally("""
-                CREATE (t:Text{uuid:$uuidText})
-                CREATE (s:Token{uuid:$uuidStart})
-                CREATE (m1:Token{uuid:$uuidMiddle1, tagName:'a'})
-                CREATE (m2:Token{uuid:$uuidMiddle2, tagName:'b'})
-                CREATE (e:Token{uuid:$uuidEnd})
-                CREATE (t)-[:NEXT_TOKEN]->(s)
-                CREATE (s)-[:NEXT_TOKEN]->(m1)
-                CREATE (m1)-[:NEXT_TOKEN]->(m2)
-                CREATE (m2)-[:NEXT_TOKEN]->(e)
-                """, params);
-
-        // change one one
-        validatePathLength(db, """
-                CALL atag.chains.update($uuidText, $uuidStart, $uuidEnd, [
-                   {
-                        uuid: $uuidMiddle1,
-                        tagName: 'a'
-                    }
-                ], $config) YIELD path
-                RETURN path
-                """, params, 0);
-        validatePathLength(db, """
-                MATCH path=(:Token{uuid:$uuidStart})-[:NEXT_TOKEN*]->(:Token{uuid:$uuidEnd})
-                RETURN path
-                """, params, 2);
+            validatePathLength(db, """
+                    MATCH path=(:Text{uuid:$uuidText})-[:NEXT_TOKEN*0..]->(x)
+                    WHERE NOT (x)-[:NEXT_TOKEN]->()
+                    RETURN path
+                    """, params, expectedQueryLength);
+        } catch (QueryExecutionException e) {
+            if (exceptedException == null) {
+                fail("unexpected exception", e);
+            } else {
+                assertEquals(exceptedException, ExceptionUtils.getRootCause(e).getClass());
+            }
+        }
     }
 }
