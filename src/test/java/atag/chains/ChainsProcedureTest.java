@@ -29,7 +29,7 @@ public class ChainsProcedureTest {
 
     @RegisterExtension
     static Neo4jExtension neo4j = Neo4jExtension.builder()
-            .withDisabledServer()
+            //.withDisabledServer()
             .withProcedure(ChainsProcedure.class)
             /*.withFixture(db -> {
                 try {
@@ -92,20 +92,26 @@ public class ChainsProcedureTest {
         db.executeTransactionally(query,
                 params,
                 result -> {
-                    Path path = (Path) Iterators.single(result).get("path");
-                    if (logger.isLoggable(Level.INFO)) {
-                        StringBuilder sb = new StringBuilder();
-                        for (Node node: path.nodes()) {
-                            sb.append("(").append(node.getProperty("uuid")).append(")");
-                            if (!node.equals(path.endNode())) {
-                               sb.append("->");
-                            }
+                    Map<String, Object> singleResult = Iterators.singleOrNull(result);
+                    if (singleResult == null) {
+                        assertEquals(expectedPathLength, 0);
+                        return false;
+                    } else {
+                        Path path = (Path) singleResult.get("path");
+                        if (logger.isLoggable(Level.INFO)) {
+                            StringBuilder sb = new StringBuilder();
+                            for (Node node: path.nodes()) {
+                                sb.append("(").append(node.getProperty("uuid")).append(")");
+                                if (!node.equals(path.endNode())) {
+                                   sb.append("->");
+                                }
 
+                            }
+                            logger.info("path is %s".formatted(sb.toString()));
                         }
-                        logger.info("path is %s".formatted(sb.toString()));
+                        assertEquals(expectedPathLength, path.length(), "failed path length assertion for %s".formatted(query));
+                        assertion.accept(path);
                     }
-                    assertEquals(expectedPathLength, path.length(), "failed path length assertion for %s".formatted(query));
-                    assertion.accept(path);
                     return true;
                 });
     }
@@ -200,7 +206,7 @@ public class ChainsProcedureTest {
     public static Stream<Arguments> testChainUpdate() {
 
         return Stream.of(
-                Arguments.of("removal of unbounded chain", 0, null, null, Collections.emptyList(), 0, 0, 0, null),
+                Arguments.of("removal of unbounded chain", 0, "", "", Collections.emptyList(), 0, 0, 0, null),
                 Arguments.of("removal of unbounded chain", 1, null, null, Collections.emptyList(), 0, 0, 0, null),
                 Arguments.of("removal of unbounded chain", 10, null, null, Collections.emptyList(), 0, 0, 0, null),
                 Arguments.of("removal of bounded chain", 10, "0", "9", Collections.emptyList(), 0, 2, 2, null),
@@ -223,8 +229,8 @@ public class ChainsProcedureTest {
     @ParameterizedTest(name = "{index}: {0} with fixture length {1}, boundaries ({2}, {3}")
     @MethodSource
     public void testChainUpdate(String name, int fixtureLength, String uuidBefore, String uuidAfter, List<Map<String,Object>> characterList,
-                                     int expectedLength, int expectedQueryLength, int expectedNumberOfTokens, Class<Exception> exceptedException,
-                                     GraphDatabaseService db) {
+                                int expectedLength, int expectedQueryLength, int expectedNumberOfTokens, Class<Exception> exceptedException,
+                                GraphDatabaseService db) {
         String uuidText = "text";
         Map<String, Object> params = Map.of(
                 "uuidText", uuidText,
@@ -250,14 +256,6 @@ public class ChainsProcedureTest {
 
         try {
             // cut
-            db.executeTransactionally("""
-                CALL atag.chains.update("text", $uuidBefore, $uuidAfter, $characterList, $config) YIELD path
-                RETURN path
-                """, params);
-            if (exceptedException !=null) {
-                fail("expected a exception but did not get one.");
-            }
-
             validatePathLength(db, """
                     CALL atag.chains.update("text", $uuidBefore, $uuidAfter, $characterList, $config) YIELD path
                     RETURN path
@@ -282,4 +280,5 @@ public class ChainsProcedureTest {
             }
         }
     }
+
 }

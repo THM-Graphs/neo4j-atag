@@ -1,6 +1,5 @@
 package atag.chains;
 
-import atag.util.EmptyPath;
 import atag.util.ResultTypes;
 import org.neo4j.graphalgo.impl.util.PathImpl;
 import org.neo4j.graphdb.*;
@@ -192,7 +191,7 @@ public class ChainsProcedure {
             }
             currentNode.createRelationshipTo(afterNode, relationshipType);
         }
-        return asPathResult(builder == null ? new EmptyPath() : builder.build());
+        return builder == null ? Stream.empty() : asPathResult(builder.build());
     }
 
     private Node findNodeOrThrow(Label textLabel, String uuidProperty, String uuidText) {
