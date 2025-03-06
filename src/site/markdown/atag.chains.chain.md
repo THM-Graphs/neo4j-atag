@@ -23,15 +23,3 @@ NOTE: the regex parameter uses lookahead/lookbehind notation, see https://docs.o
 CALL atag.chains.chain('what a nice text', '((?<=\\s)|(?=\\s))', 'Character', 'NEXT_CHARACTER', false) YIELD path RETURN path
 ```
 
-```
-:auto
-MATCH (s:Text)
-WHERE s.text IS NOT NULL
-WITH s
-CALL {
-WITH s
-CALL atag.chains.fullChain(s, 'text')
-}
-IN TRANSACTIONS OF 100 ROWS;
-```
-
