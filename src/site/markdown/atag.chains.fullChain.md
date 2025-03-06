@@ -23,3 +23,15 @@ WITH s
 CALL atag.chains.fullChain(s, 'text')
 RETURN s
 ```
+
+```
+:auto
+MATCH (s:Text)
+WHERE s.text IS NOT NULL
+WITH s
+CALL {
+WITH s
+CALL atag.chains.fullChain(s, 'text')
+}
+IN TRANSACTIONS OF 100 ROWS;
+```
