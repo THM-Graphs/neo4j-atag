@@ -35,6 +35,12 @@ public class Utils {
     @UserFunction
     public String load(@Name("uri") String uri) {
         try {
+            if (uri.startsWith("file://")) {
+                uri = uri.substring(7); // remove "file://" prefix
+            } else if (!uri.startsWith("http://") && !uri.startsWith("https://")) {
+                throw new IllegalArgumentException("URI must start with 'http://' or 'https://'");
+            }
+
             HttpClient client = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(uri))

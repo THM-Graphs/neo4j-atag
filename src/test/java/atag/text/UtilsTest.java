@@ -30,11 +30,22 @@ public class UtilsTest {
     static HttpServerExtension httpServer = new HttpServerExtension();
 
     @Test
-    public void testLoad(GraphDatabaseService db, HttpServerExtension.HttpServerInfo httpServerInfo) throws IOException {
+    public void testLoadHttp(GraphDatabaseService db, HttpServerExtension.HttpServerInfo httpServerInfo) throws IOException {
         URI uri = httpServerInfo.getURI();
         String text = (String) db.executeTransactionally("""
                 RETURN atag.text.load($uri + '/test.txt') AS text""",
                 Map.of("uri", uri.toString()),
+                result -> Iterators.single(result).get("text")
+        );
+        String expected = new String(Files.readAllBytes(Paths.get("src/test/resources/test.txt")));
+        assertEquals(expected, text);
+    }
+
+    @Test
+    public void testLoadFile(GraphDatabaseService db, HttpServerExtension.HttpServerInfo httpServerInfo) throws IOException {
+        String text = (String) db.executeTransactionally("""
+                RETURN atag.text.load($uri + '/test.txt') AS text""",
+                Map.of("uri", httpServerInfo.getURI().toString()),
                 result -> Iterators.single(result).get("text")
         );
         String expected = new String(Files.readAllBytes(Paths.get("src/test/resources/test.txt")));
