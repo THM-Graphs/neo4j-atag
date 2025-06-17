@@ -7,23 +7,21 @@
     <version>v0.2.12</version>
 
     <properties>
-        <!--<maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>-->
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <neo4j.version>5.26.0</neo4j.version>
-        <junitJupiter.version>5.11.3</junitJupiter.version>
-        <jsoup.version>1.18.3</jsoup.version>
-        <saxon.version>12.5</saxon.version>
+        <neo4j.version>2025.05.0</neo4j.version>
+        <junitJupiter.version>5.13.1</junitJupiter.version>
+        <junitPlatformEngine.version>1.13.1</junitPlatformEngine.version>
+        <jsoup.version>1.20.1</jsoup.version>
+        <saxon.version>12.7</saxon.version>
         <xmlunit.version>2.10.0</xmlunit.version>
-        <build-plugin.jacoco.version>0.8.11</build-plugin.jacoco.version>
-        <build-plugin.shade.version>3.5.2</build-plugin.shade.version>
-        <build-plugin.release.version>3.0.1</build-plugin.release.version>
-        <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
-        <maven-scm-publish-plugin.version>3.2.1</maven-scm-publish-plugin.version>
+        <build-plugin.jacoco.version>0.8.13</build-plugin.jacoco.version>
+        <build-plugin.shade.version>3.6.0</build-plugin.shade.version>
+        <build-plugin.release.version>3.1.1</build-plugin.release.version>
+        <versions-maven-plugin.version>2.18.0</versions-maven-plugin.version>
+        <maven-scm-publish-plugin.version>3.3.0</maven-scm-publish-plugin.version>
         <maven-site-plugin.version>4.0.0-M13</maven-site-plugin.version>
-        <maven-project-info-reports-plugin.version>3.5.0</maven-project-info-reports-plugin.version>
-        <maven-surefire-plugin.version>3.3.0</maven-surefire-plugin.version>
+        <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
+        <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
     </properties>
 
     <scm>
@@ -79,18 +77,6 @@
             <version>${saxon.version}</version>
         </dependency>
 
-        <!--        <dependency>
-                    <groupId>org.neo4j.procedure</groupId>
-                    <artifactId>apoc-core</artifactId>
-                    <version>${neo4j.version}</version>
-                </dependency>
-                <dependency>
-                    <groupId>org.neo4j.procedure</groupId>
-                    <artifactId>apoc-common</artifactId>
-                    <version>${neo4j.version}</version>
-                </dependency>-->
-
-
         <!-- test dependencies below -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -104,17 +90,20 @@
             <version>${junitJupiter.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- needed since surefire plugin brings a different version of junit -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-engine</artifactId>
+            <version>${junitPlatformEngine.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>org.neo4j.test</groupId>
             <artifactId>neo4j-harness</artifactId>
             <version>${neo4j.version}</version>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.junit.vintage</groupId>
-                    <artifactId>junit-vintage-engine</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.xmlunit</groupId>
@@ -128,14 +117,6 @@
             <version>${xmlunit.version}</version>
             <scope>test</scope>
         </dependency>
-<!--
-        <dependency>
-            <groupId>uk.org.webcompere</groupId>
-            <artifactId>system-stubs-jupiter</artifactId>
-            <version>2.1.6</version>
-            <scope>test</scope>
-        </dependency>
--->
 
     </dependencies>
 
@@ -144,10 +125,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.11.0</version>
+                <version>3.14.0</version>
                 <configuration>
-                    <source>17</source>
-                    <target>17</target>
+                    <source>21</source>
+                    <target>21</target>
                 </configuration>
             </plugin>
             <plugin>
