@@ -178,6 +178,25 @@ public class ChainsProcedureTest {
     }
 
     @Test
+    public void testCharacterChainWithoutIndex(GraphDatabaseService db) {
+        String text = "what a nice text";
+        db.executeTransactionally("CALL atag.chains.characterChain($text, false) YIELD path RETURN path", Map.of( "text", text), result -> {
+            Map<String, Object> map = Iterators.single(result);
+            Path path = (Path) map.get("path");
+
+            assertEquals(15, path.length());
+            List<Node> nodes = Iterables.asList(path.nodes());
+
+            for (int index=0; index<text.length(); index++) {
+                assertEquals(Character.toString(text.charAt(index)), nodes.get(index).getProperty("text"));
+                assertFalse(nodes.get(index).hasProperty(ChainsProcedure.PROPERTY_START_INDEX));
+                assertFalse(nodes.get(index).hasProperty(ChainsProcedure.PROPERTY_START_INDEX));
+            }
+            return true;
+        });
+    }
+
+    @Test
     public void testFullChain(GraphDatabaseService db) {
 
         String text = "what a nice text";

@@ -10,7 +10,7 @@ Optionally the chain can be enriched with `startIndex` and `endIndex` properties
 | name         | type    | description                                         | default value |
 |--------------|---------|-----------------------------------------------------|---------------|
 | text         | String  | string to be used for building a chain of nodes     |               |
-| applyIndexes | boolean | if true, `startIndex/endIndex` properties are added | `false`       |
+| applyIndexes | boolean | if true, `startIndex/endIndex` properties are added | `true`        |
 |              |         |                                                     |               |
 | return value | Path    | a path holding the created chain                    |               |
 
