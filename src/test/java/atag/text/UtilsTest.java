@@ -1,6 +1,6 @@
 package atag.text;
 
-import atag.atag.util.HttpServerExtension;
+import atag.util.HttpServerExtension;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;

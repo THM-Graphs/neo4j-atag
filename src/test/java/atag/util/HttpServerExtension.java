@@ -1,4 +1,4 @@
-package atag.atag.util;
+package atag.util;
 
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.SimpleFileServer;
