@@ -8,6 +8,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <github.global.server>github</github.global.server>
         <neo4j.version>2025.05.0</neo4j.version>
         <junitJupiter.version>5.13.1</junitJupiter.version>
         <junitPlatformEngine.version>1.13.1</junitPlatformEngine.version>
@@ -39,7 +40,7 @@
         </repository>
         <site>
             <id>github</id>
-            <url>scm:git:git@github.com:THM-Graphs/neo4j-atag.git</url>
+            <url>scm:git:https://github.com/THM-Graphs/neo4j-atag.git</url>
         </site>
     </distributionManagement>
 
@@ -115,6 +116,13 @@
             <groupId>org.xmlunit</groupId>
             <artifactId>xmlunit-assertj3</artifactId>
             <version>${xmlunit.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>1.5.8</version>
             <scope>test</scope>
         </dependency>
 
