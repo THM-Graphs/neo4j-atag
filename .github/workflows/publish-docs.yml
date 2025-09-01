@@ -28,5 +28,9 @@ jobs:
           git config --global user.email "github-actions@users.noreply.github.com"
           git config --global user.name "github-actions"
 
+      - name: Set authenticated git remote
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/THM-Graphs/neo4j-atag.git
+
       - name: publish to gh-pages
         run: mvn scm-publish:publish-scm
