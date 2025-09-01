@@ -40,7 +40,7 @@ class ExporterProceduresTest {
         String json = db.executeTransactionally("""
                 MATCH (a)-[r]->(b)
                 WITH collect(a) + collect(b) AS nodes, collect(r) AS relationships
-                RETURN atag.export.exportJgf(nodes, relationships) AS json
+                RETURN atag.export.jgf(nodes, relationships) AS json
                 """, Collections.emptyMap(), r -> Iterators.single(r).get("json").toString());
         System.out.println(json);
 
@@ -49,7 +49,6 @@ class ExporterProceduresTest {
         final JsonSchema schema = factory.getSchema(uri);
         JsonNode jsonNode = new ObjectMapper().readTree(json);
         Set<ValidationMessage> validationMessages = schema.validate(jsonNode);
-
         validationMessages.forEach(validationMessage -> System.out.println(validationMessage.getMessage()));
 
         // Then

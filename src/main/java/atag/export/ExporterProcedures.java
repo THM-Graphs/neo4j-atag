@@ -23,7 +23,7 @@ public class ExporterProcedures {
 
     @UserFunction
     @Description("export a graph into JGF format")
-    public String exportJgf(@Name("nodes") List<Node> nodes, @Name("relationships") List<Relationship> relationships) {
+    public String jgf(@Name("nodes") List<Node> nodes, @Name("relationships") List<Relationship> relationships) {
 
         try {
             ObjectMapper mapper = new ObjectMapper();

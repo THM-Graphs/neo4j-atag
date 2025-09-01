@@ -31,6 +31,7 @@
             <item name="atag.chains.fullChain" href="atag.chains.fullChain.html"/>
             <item name="atag.chains.chain" href="atag.chains.chain.html"/>
             <item name="atag.chains.update" href="atag.chains.update.html"/>
+            <item name="atag.export.jgf" href="atag.export.jgf.html"/>
             <item name="atag.text.load" href="atag.text.load.html"/>
             <item name="atag.text.import.html" href="atag.text.import.html.html"/>
             <item name="atag.text.import.xml" href="atag.text.import.xml.html"/>
