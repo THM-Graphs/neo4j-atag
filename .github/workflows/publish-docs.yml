@@ -23,5 +23,10 @@ jobs:
       - name: generate maven site
         run: mvn site site:stage
 
+      - name: Set git user for SCM publishing
+        run: |
+          git config --global user.email "github-actions@users.noreply.github.com"
+          git config --global user.name "github-actions"
+
       - name: publish to gh-pages
         run: mvn scm-publish:publish-scm
