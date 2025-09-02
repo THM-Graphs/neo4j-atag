@@ -1,5 +1,6 @@
 package atag.export;
 
+import apoc.convert.Json;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -26,6 +27,7 @@ class ExporterProceduresTest {
     @RegisterExtension
     static Neo4jExtension neo4j = Neo4jExtension.builder()
             .withFunction(ExporterProcedures.class)
+            .withFunction(Json.class)
             .withDisabledServer()
             .withFixture("""
                 CREATE (a:Person {name: 'Alice', dob: date({year: 2012, month: 6, day: 1}), height: 175})
@@ -40,9 +42,9 @@ class ExporterProceduresTest {
         String json = db.executeTransactionally("""
                 MATCH (a)-[r]->(b)
                 WITH collect(a) + collect(b) AS nodes, collect(r) AS relationships
-                RETURN atag.export.jgf(nodes, relationships) AS json
+                RETURN apoc.convert.toJson(atag.export.jgf(nodes, relationships)) AS json
                 """, Collections.emptyMap(), r -> Iterators.single(r).get("json").toString());
-        System.out.println(json);
+//        System.out.println(json);
 
         final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
         URI uri = ExporterProceduresTest.class.getResource("/json-graph-schema.json").toURI();

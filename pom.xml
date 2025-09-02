@@ -126,6 +126,19 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.neo4j.procedure</groupId>
+            <artifactId>apoc-core</artifactId>
+            <version>${neo4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.neo4j.procedure</groupId>
+            <artifactId>apoc-common</artifactId>
+            <version>${neo4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

@@ -1,6 +1,5 @@
 package atag.export;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -23,46 +22,43 @@ public class ExporterProcedures {
 
     @UserFunction
     @Description("export a graph into JGF format")
-    public String jgf(@Name("nodes") List<Node> nodes, @Name("relationships") List<Relationship> relationships) {
-
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            ObjectNode root = mapper.createObjectNode();
-            ObjectNode graph = root.putObject("graph");
+    public Map<String,Object> jgf(@Name("nodes") List<Node> nodes, @Name("relationships") List<Relationship> relationships) {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode root = mapper.createObjectNode();
+        ObjectNode graph = root.putObject("graph");
 
 
-            //root.put("graph", "exported_graph");
-            graph.put("label", OffsetDateTime.now().toString());
+        //root.put("graph", "exported_graph");
+        graph.put("label", OffsetDateTime.now().toString());
 //            graph.put("type", "graph");
-            //root.put("label", "Neo4j Export");
-            graph.put("directed", true);
+        //root.put("label", "Neo4j Export");
+        graph.put("directed", true);
 
-            ObjectNode jsonNodes = graph.putObject("nodes");
-            ArrayNode jsonRelationships = graph.putArray("edges");
+        ObjectNode jsonNodes = graph.putObject("nodes");
+        ArrayNode jsonRelationships = graph.putArray("edges");
 
-            for (Node node : nodes) {
-                ObjectNode jsonNode = jsonNodes.putObject(node.getElementId());
+        for (Node node : nodes) {
+            ObjectNode jsonNode = jsonNodes.putObject(node.getElementId());
 /*
                 // use json array for labels - note compliant with JGF spec
                 ArrayNode labels = jsonNode.putArray("label");
                 node.getLabels().forEach(l-> labels.add(l.name()));
 */
-                jsonNode.put("label", Iterators.stream(node.getLabels().iterator()).map(Label::name).collect(Collectors.joining(",")));
-                addPropertiesToJsonNode(node, jsonNode);
-            }
-
-            for (Relationship rel : relationships) {
-                ObjectNode edgeObj = jsonRelationships.addObject();
-                edgeObj.put("source", rel.getStartNode().getElementId());
-                edgeObj.put("target", rel.getEndNode().getElementId());
-                edgeObj.put("relation", rel.getType().name());
-                addPropertiesToJsonNode(rel, edgeObj);
-
-            }
-            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            jsonNode.put("label", Iterators.stream(node.getLabels().iterator()).map(Label::name).collect(Collectors.joining(",")));
+            addPropertiesToJsonNode(node, jsonNode);
         }
+
+        for (Relationship rel : relationships) {
+            ObjectNode edgeObj = jsonRelationships.addObject();
+            edgeObj.put("source", rel.getStartNode().getElementId());
+            edgeObj.put("target", rel.getEndNode().getElementId());
+            edgeObj.put("relation", rel.getType().name());
+            addPropertiesToJsonNode(rel, edgeObj);
+
+        }
+
+        Map<String, Object> result = mapper.convertValue(root, Map.class);
+        return result;
     }
 
     private void addPropertiesToJsonNode(Entity entity, ObjectNode jsonNode) {
@@ -77,6 +73,12 @@ public class ExporterProcedures {
                     case Double d -> metadata.put(key, d);
                     case Boolean b -> metadata.put(key, b);
                     case LocalDate d -> metadata.put(key, d.toString());
+                    case String[] arr -> {
+                        ArrayNode arrayNode = metadata.putArray(key);
+                        for (String s : arr) {
+                            arrayNode.add(s);
+                        }
+                    }
                     default -> throw new IllegalArgumentException("Unsupported property type: " + value.getClass().getName());
                 }
             });
