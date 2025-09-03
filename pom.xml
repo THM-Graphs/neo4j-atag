@@ -51,21 +51,25 @@
             <artifactId>neo4j-graphdb-api</artifactId>
             <version>${neo4j.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-procedure-api</artifactId>
             <version>${neo4j.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-logging</artifactId>
             <version>${neo4j.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.neo4j</groupId>
             <artifactId>neo4j-graph-algo</artifactId>
             <version>${neo4j.version}</version>
         </dependency>
+
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
@@ -77,6 +81,19 @@
             <artifactId>Saxon-HE</artifactId>
             <version>${saxon.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.neo4j.procedure</groupId>
+            <artifactId>apoc-core</artifactId>
+            <version>${neo4j.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.neo4j.procedure</groupId>
+            <artifactId>apoc-common</artifactId>
+            <version>${neo4j.version}</version>
+        </dependency>
+
 
         <!-- test dependencies below -->
         <dependency>
@@ -125,20 +142,6 @@
             <version>1.5.8</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.neo4j.procedure</groupId>
-            <artifactId>apoc-core</artifactId>
-            <version>${neo4j.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.neo4j.procedure</groupId>
-            <artifactId>apoc-common</artifactId>
-            <version>${neo4j.version}</version>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
     <build>

@@ -1,20 +1,20 @@
-# `atag.export.Jgf`
+# `atag.export.jgf`
 
-Exportiert einen Graphen im [JGF (JSON Graph Format)](https://jsongraphformat.info/) aus einer Liste von Knoten und Beziehungen.
+Exports a graph in [JGF (JSON Graph Format)](https://jsongraphformat.info/) from a list of nodes and relationships.
 
-## Signatur
+## Signature
 
 ```cypher
 atag.export.jgf(nodes, relationships) :: STRING
 ```
 
-- **nodes**: Liste von Knoten (`List<Node>`)
-- **relationships**: Liste von Beziehungen (`List<Relationship>`)
-- **Rückgabe**: JGF-String (JSON)
+- **nodes**: List of nodes (`List<Node>`)
+- **relationships**: List of relationships (`List<Relationship>`)
+- **Returns**: JGF string (JSON)
 
-## Beispiel
+## Example
 
-Exportiere einen Subgraphen mit APOC und konvertiere ihn ins JGF-Format:
+Export a subgraph with APOC and convert it to JGF format:
 
 ```cypher
 MATCH (start:Person {name: 'Alice'})
@@ -22,19 +22,19 @@ CALL apoc.expand.subgraphAll(start, {maxLevel:2}) YIELD nodes, relationships
 RETURN atag.export.jgf(nodes, relationships) AS jgf
 ```
 
-Das Ergebnis ist ein JSON-String im JGF-Format, der den Subgraphen beschreibt.
+The result is a JSON string in JGF format describing the subgraph.
 
-## Eigenschaften
+## Features
 
-- Knoten und Beziehungen werden mit ihren Eigenschaften und Labels exportiert.
-- Unterstützt verschiedene Property-Typen (String, Integer, Long, Double, Boolean, LocalDate).
+- Nodes and relationships are exported with their properties and labels.
+- Supports various property types (String, Integer, Long, Double, Boolean, LocalDate).
 
-## Typische Anwendung
+## Typical Usage
 
-- Export von Graphdaten zur Visualisierung oder Weiterverarbeitung in externen Tools.
-- Integration mit APOC-Prozeduren zur flexiblen Subgraph-Extraktion.
+- Export graph data for visualization or further processing in external tools.
+- Integration with APOC procedures for flexible subgraph extraction.
 
-## Beispielausgabe
+## Example Output
 
 ```json
 {

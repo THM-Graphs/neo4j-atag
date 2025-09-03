@@ -27,7 +27,9 @@ class ExporterProceduresTest {
     @RegisterExtension
     static Neo4jExtension neo4j = Neo4jExtension.builder()
             .withFunction(ExporterProcedures.class)
+            .withProcedure(ExporterProcedures.class)
             .withFunction(Json.class)
+            //.withConfig(ApocConfig.APOC_EXPORT_FILE_ENABLED, true)
             .withDisabledServer()
             .withFixture("""
                 CREATE (a:Person {name: 'Alice', dob: date({year: 2012, month: 6, day: 1}), height: 175})
@@ -37,7 +39,7 @@ class ExporterProceduresTest {
             .build();
 
     @Test
-    void testExportToJson(GraphDatabaseService db) throws URISyntaxException, ProcessingException, JsonProcessingException {
+    void testExportToJsonFunction(GraphDatabaseService db) throws URISyntaxException, ProcessingException, JsonProcessingException {
         // When
         String json = db.executeTransactionally("""
                 MATCH (a)-[r]->(b)
@@ -55,5 +57,19 @@ class ExporterProceduresTest {
 
         // Then
         assertEquals(0, validationMessages.size(), "JSON does not conform to schema");
+    }
+
+    @Test
+    void testExportToJsonProcedure(GraphDatabaseService db) throws URISyntaxException, ProcessingException, JsonProcessingException {
+        // When
+        String value = db.executeTransactionally("""
+                MATCH (a)-[r]->(b)
+                WITH collect(a) + collect(b) AS nodes, collect(r) AS relationships
+                CALL atag.export.jgfFile(nodes, relationships, 'jgfExport.json') YIELD value
+                RETURN value
+                """, Collections.emptyMap(), r -> Iterators.single(r).get("value").toString());
+
+        // Then
+        assertEquals( "jgfExport.json", value);
     }
 }
