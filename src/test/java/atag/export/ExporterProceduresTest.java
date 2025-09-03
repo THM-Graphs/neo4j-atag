@@ -10,6 +10,7 @@ import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
+import org.neo4j.configuration.GraphDatabaseSettings;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.junit.extension.Neo4jExtension;
 import org.neo4j.internal.helpers.collection.Iterators;
@@ -18,6 +19,7 @@ import javax.ws.rs.ProcessingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,6 +30,7 @@ class ExporterProceduresTest {
     static Neo4jExtension neo4j = Neo4jExtension.builder()
             .withFunction(ExporterProcedures.class)
             .withProcedure(ExporterProcedures.class)
+            .withConfig(GraphDatabaseSettings.procedure_unrestricted, List.of("atag.*"))
             .withFunction(Json.class)
             //.withConfig(ApocConfig.APOC_EXPORT_FILE_ENABLED, true)
             .withDisabledServer()
