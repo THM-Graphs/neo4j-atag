@@ -1,0 +1,27 @@
+{
+  "graph" : {
+    "label" : "2025-09-03T19:57:59.091267849+02:00",
+    "directed" : true,
+    "nodes" : {
+      "4:6c6b20af-f2a8-4743-aaaa-bd0c4c56e1a2:0" : {
+        "label" : "Person",
+        "metadata" : {
+          "dob" : "2012-06-01",
+          "name" : "Alice",
+          "height" : 175
+        }
+      },
+      "4:6c6b20af-f2a8-4743-aaaa-bd0c4c56e1a2:1" : {
+        "label" : "Person",
+        "metadata" : {
+          "name" : "Bob"
+        }
+      }
+    },
+    "edges" : [ {
+      "source" : "4:6c6b20af-f2a8-4743-aaaa-bd0c4c56e1a2:0",
+      "target" : "4:6c6b20af-f2a8-4743-aaaa-bd0c4c56e1a2:1",
+      "relation" : "KNOWS"
+    } ]
+  }
+}
