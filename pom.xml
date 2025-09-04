@@ -4,7 +4,7 @@
 
     <groupId>de.thm.atag</groupId>
     <artifactId>neo4j-atag</artifactId>
-    <version>v0.3.0</version>
+    <version>v0.4.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
