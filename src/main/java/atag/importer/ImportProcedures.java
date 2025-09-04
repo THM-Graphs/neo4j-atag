@@ -40,13 +40,14 @@ public class ImportProcedures {
     @Procedure(value = "atag.import.jgfFile", mode = Mode.WRITE)
     @Description("Import a graph from a JGF file")
     public Stream<GraphResult> jgfFile(@Name("filename") String fileName) {
-        Config config = graphDatabaseAPI.getDependencyResolver().resolveDependency(Config.class);
-        Path folder = config.get(GraphDatabaseSettings.load_csv_file_url_root);
-        Path inputPath = folder.resolve(fileName);
-
-        InputStream inputStream = Files.newInputStream(inputPath);
-        GraphResult graphResult = importJgf(inputStream);
-        return Stream.of(graphResult);
+        try {
+            Config config = graphDatabaseAPI.getDependencyResolver().resolveDependency(Config.class);
+            Path folder = config.get(GraphDatabaseSettings.load_csv_file_url_root);
+            Path inputPath = folder.resolve(fileName);
+            return Stream.of(importJgf(Files.newInputStream(inputPath)));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Procedure(value = "atag.import.jgf", mode = Mode.WRITE)
