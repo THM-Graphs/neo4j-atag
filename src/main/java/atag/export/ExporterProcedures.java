@@ -34,7 +34,6 @@ public class ExporterProcedures {
     @Procedure
     @Description("export a graph into JGF format and write to a file")
     public Stream<ObjectResult> jgfFile(@Name("nodes") List<Node> nodes, @Name("relationships") List<Relationship> relationships, @Name("filename") String fileName) {
-//        apocConfig.checkWriteAllowed(new ExportConfig(Collections.emptyMap()), fileName);\
         Config config = graphDatabaseAPI.getDependencyResolver().resolveDependency(Config.class);
         Path folder = config.get(GraphDatabaseSettings.load_csv_file_url_root);
 
