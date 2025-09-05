@@ -18,7 +18,7 @@ Export a subgraph with APOC and convert it to JGF format:
 
 ```cypher
 MATCH (start:Person {name: 'Alice'})
-CALL apoc.expand.subgraphAll(start, {maxLevel:2}) YIELD nodes, relationships
+CALL apoc.path.subgraphAll(start, {maxLevel:2}) YIELD nodes, relationships
 RETURN atag.export.jgf(nodes, relationships) AS jgf
 ```
 

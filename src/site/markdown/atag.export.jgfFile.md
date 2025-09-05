@@ -20,7 +20,7 @@ Export a subgraph with APOC and write it as a JGF file:
 
 ```cypher
 MATCH (start:Person {name: 'Alice'})
-CALL apoc.expand.subgraphAll(start, {maxLevel:2}) YIELD nodes, relationships
+CALL apoc.path.subgraphAll(start, {maxLevel:2}) YIELD nodes, relationships
 CALL atag.export.jgfFile(nodes, relationships, 'myExport.json') YIELD value
 RETURN value
 ```
