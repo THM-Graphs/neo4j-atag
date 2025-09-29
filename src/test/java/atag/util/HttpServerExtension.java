@@ -1,7 +1,6 @@
 package atag.util;
 
 import com.sun.net.httpserver.HttpServer;
-import com.sun.net.httpserver.SimpleFileServer;
 import org.junit.jupiter.api.extension.*;
 
 import java.io.IOException;
@@ -10,6 +9,8 @@ import java.net.ServerSocket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class HttpServerExtension implements BeforeEachCallback, AfterEachCallback, ParameterResolver {
 
@@ -43,10 +44,18 @@ public class HttpServerExtension implements BeforeEachCallback, AfterEachCallbac
     @Override
     public void beforeEach(ExtensionContext context) throws IOException {
         int port = findAvailablePort();
-        server = SimpleFileServer.createFileServer(new InetSocketAddress(port),
-                FileSystems.getDefault().getPath("src/test/resources").toAbsolutePath(),
-                SimpleFileServer.OutputLevel.INFO
-        );
+        server = HttpServer.create(new InetSocketAddress(port), 0);
+        server.createContext("/", httpExchange -> {
+            Path filePath = FileSystems.getDefault().getPath("src/test/resources").resolve(httpExchange.getRequestURI().getPath().substring(1));
+            if (!Files.exists(filePath) || Files.isDirectory(filePath)) {
+                httpExchange.sendResponseHeaders(404, -1);
+                return;
+            }
+            httpExchange.sendResponseHeaders(200, Files.size(filePath));
+            try (var os = httpExchange.getResponseBody(); var is = Files.newInputStream(filePath)) {
+                is.transferTo(os);
+            }
+        });
         server.start();
         context.getStore(NAMESPACE).put(HTTP_SERVER_INFO, new HttpServerInfo(server.getAddress()));
     }

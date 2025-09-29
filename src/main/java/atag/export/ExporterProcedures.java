@@ -100,20 +100,25 @@ public class ExporterProcedures {
         if (!allProperties.isEmpty()) {
             ObjectNode metadata = jsonNode.putObject("metadata");
             allProperties.forEach((key, value) -> {
-                switch (value) {
-                    case String str -> metadata.put(key, str);
-                    case Integer i -> metadata.put(key, i);
-                    case Long l -> metadata.put(key, l);
-                    case Double d -> metadata.put(key, d);
-                    case Boolean b -> metadata.put(key, b);
-                    case LocalDate d -> metadata.put(key, d.toString());
-                    case String[] arr -> {
-                        ArrayNode arrayNode = metadata.putArray(key);
-                        for (String s : arr) {
-                            arrayNode.add(s);
-                        }
+                if (value instanceof String str) {
+                    metadata.put(key, str);
+                } else if (value instanceof Integer i) {
+                    metadata.put(key, i);
+                } else if (value instanceof Long l) {
+                    metadata.put(key, l);
+                } else if (value instanceof Double d) {
+                    metadata.put(key, d);
+                } else if (value instanceof Boolean b) {
+                    metadata.put(key, b);
+                } else if (value instanceof LocalDate d) {
+                    metadata.put(key, d.toString());
+                } else if (value instanceof String[] arr) {
+                    ArrayNode arrayNode = metadata.putArray(key);
+                    for (String s : arr) {
+                        arrayNode.add(s);
                     }
-                    default -> throw new IllegalArgumentException("Unsupported property type: " + value.getClass().getName());
+                } else {
+                    throw new IllegalArgumentException("Unsupported property type: " + value.getClass().getName());
                 }
             });
         }
