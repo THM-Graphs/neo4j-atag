@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.neo4j.configuration.Config;
 import org.neo4j.configuration.GraphDatabaseSettings;
 import org.neo4j.graphdb.*;
+import org.neo4j.internal.helpers.collection.Iterables;
 import org.neo4j.kernel.internal.GraphDatabaseAPI;
+import org.neo4j.logging.Log;
 import org.neo4j.procedure.*;
 
 import java.io.ByteArrayInputStream;
@@ -27,6 +29,9 @@ public class ImportProcedures {
     @Context
     public Transaction tx;
 
+    @Context
+    public Log log;
+
     public static class GraphResult {
         public long nodeCount;
         public long relationshipCount;
@@ -37,14 +42,17 @@ public class ImportProcedures {
         }
     }
 
+    private record JsonImportConfig(String propertyKey, List<String> labels, boolean overwrite) {
+    }
+
     @Procedure(value = "atag.import.jgfFile", mode = Mode.WRITE)
     @Description("Import a graph from a JGF file")
-    public Stream<GraphResult> jgfFile(@Name("filename") String fileName) {
+    public Stream<GraphResult> jgfFile(@Name("filename") String fileName, @Name(value = "config", defaultValue = "{}") Map<String, Object> config) {
         try {
-            Config config = graphDatabaseAPI.getDependencyResolver().resolveDependency(Config.class);
-            Path folder = config.get(GraphDatabaseSettings.load_csv_file_url_root);
+            Config neo4jConfig = graphDatabaseAPI.getDependencyResolver().resolveDependency(Config.class);
+            Path folder = neo4jConfig.get(GraphDatabaseSettings.load_csv_file_url_root);
             Path inputPath = folder.resolve(fileName);
-            return Stream.of(importJgf(Files.newInputStream(inputPath)));
+            return Stream.of(importJgf(Files.newInputStream(inputPath), config));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -52,15 +60,20 @@ public class ImportProcedures {
 
     @Procedure(value = "atag.import.jgf", mode = Mode.WRITE)
     @Description("Import a graph from a JGF string")
-    public Stream<GraphResult> jgf(@Name("json") String json) {
+    public Stream<GraphResult> jgf(@Name("json") String json,  @Name(value = "config", defaultValue = "{}") Map<String, Object> config) {
         InputStream inputStream = new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8));
-        GraphResult graphResult = importJgf(inputStream);
+        GraphResult graphResult = importJgf(inputStream, config);
         return Stream.of(graphResult);
     }
 
-    private GraphResult importJgf(InputStream inputStream) {
+    private GraphResult importJgf(InputStream inputStream, Map<String, Object> config) {
         try {
             ObjectMapper mapper = new ObjectMapper();
+
+            config.putIfAbsent("overwrite", false); // default behaviour
+            JsonImportConfig jsonImportConfig = mapper.convertValue(config, JsonImportConfig.class);
+            List<String> configLabels = jsonImportConfig.labels() == null ? List.of() : jsonImportConfig.labels();
+
             JsonNode root = mapper.readTree(inputStream);
 
             JsonNode graph = root.get("graph");
@@ -76,19 +89,34 @@ public class ImportProcedures {
                 String nodeId = entry.getKey();
                 JsonNode nodeData = entry.getValue();
 
-                Node node = tx.createNode();
-                nodeMap.put(nodeId, node);
-                createdNodes.incrementAndGet();
+                List<String> labels = Arrays.asList(nodeData.get("label").asText().split(","));
+                JsonNode metadata = nodeData.get("metadata");
 
-                // Add labels
-                String labels = nodeData.get("label").asText();
-                Arrays.stream(labels.split(","))
-                        .forEach(label -> node.addLabel(Label.label(label)));
+                String mergeLabelString = Iterables.singleOrNull(configLabels);
+                Label mergeLabel = mergeLabelString == null ? null : Label.label(mergeLabelString);
 
-                // Add properties
-                if (nodeData.has("metadata")) {
-                    addProperties(node, nodeData.get("metadata"));
+                Node node = null;
+                boolean nodeCreated = false;
+                if (mergeLabel != null) {
+                    Object value = getProperty(metadata, jsonImportConfig.propertyKey);
+                    node = tx.findNode(mergeLabel, jsonImportConfig.propertyKey, value);
+                    if (node == null) {
+                        log.info("couldn't find node with label {} and {} = {}", mergeLabel, jsonImportConfig.propertyKey, value);
+                    }
                 }
+                if (node == null) {
+                    node = tx.createNode();
+                    nodeCreated = true;
+                    createdNodes.incrementAndGet();
+                }
+
+                if (nodeCreated || jsonImportConfig.overwrite) {
+                    for (String label : labels) {
+                        node.addLabel(Label.label(label));
+                    }
+                    addProperties(node, metadata);
+                }
+                nodeMap.put(nodeId, node);
             });
 
             // Create relationships
@@ -111,6 +139,10 @@ public class ImportProcedures {
         } catch (IOException e) {
             throw new RuntimeException("Failed to parse JGF input", e);
         }
+    }
+
+    private Object getProperty(JsonNode nodeData, String propertyKey) {
+        return nodeData.get(propertyKey);
     }
 
     private void addProperties(Entity entity, JsonNode metadata) {
