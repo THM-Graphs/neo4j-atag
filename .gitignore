@@ -8,3 +8,4 @@ build
 *.iws
 /neo4j-home
 /bin
+.env

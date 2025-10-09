@@ -1,0 +1,40 @@
+services:
+  neo4j-seed:
+    image: neo4j:${NEO4J_VERSION}
+    container_name: neo4j-seed
+    volumes:
+      - ./data:/data
+      - ./backup:/backup
+    environment:
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+    command: >
+      sh -c 'cat /backup/backup_hildegard_20250930_020008.dump | neo4j-admin database load  --from-stdin --overwrite-destination=true neo4j'
+    user: "${UID}:${GID}"
+
+  neo4j:
+    image: neo4j:${NEO4J_VERSION}
+    container_name: neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=none
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*,atag.*
+      - NEO4J_PLUGINS=["apoc"]
+    volumes:
+      - ./plugins:/plugins
+      - ./data:/data
+      - ./import:/import
+    user: "${UID}:${GID}"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c '</dev/tcp/localhost/7687'"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    depends_on:
+      neo4j-seed:
+        condition: service_completed_successfully
