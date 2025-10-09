@@ -2,10 +2,10 @@ package atag.importer;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.TextNode;
 import org.neo4j.configuration.Config;
 import org.neo4j.configuration.GraphDatabaseSettings;
 import org.neo4j.graphdb.*;
-import org.neo4j.internal.helpers.collection.Iterables;
 import org.neo4j.kernel.internal.GraphDatabaseAPI;
 import org.neo4j.logging.Log;
 import org.neo4j.procedure.*;
@@ -92,14 +92,14 @@ public class ImportProcedures {
                 List<String> labels = Arrays.asList(nodeData.get("label").asText().split(","));
                 JsonNode metadata = nodeData.get("metadata");
 
-                String mergeLabelString = Iterables.singleOrNull(configLabels);
-                Label mergeLabel = mergeLabelString == null ? null : Label.label(mergeLabelString);
+                Optional<Label> mergeLabel = configLabels.stream().filter(labels::contains).map(Label::label).findFirst();
 
                 Node node = null;
                 boolean nodeCreated = false;
-                if (mergeLabel != null) {
-                    Object value = getProperty(metadata, jsonImportConfig.propertyKey);
-                    node = tx.findNode(mergeLabel, jsonImportConfig.propertyKey, value);
+                if (mergeLabel.isPresent()) {
+                    TextNode valueNode = getProperty(metadata, jsonImportConfig.propertyKey);
+                    String value = valueNode.asText();
+                    node = tx.findNode(mergeLabel.get(), jsonImportConfig.propertyKey, value);
                     if (node == null) {
                         log.info("couldn't find node with label {} and {} = {}", mergeLabel, jsonImportConfig.propertyKey, value);
                     }
@@ -127,10 +127,13 @@ public class ImportProcedures {
 
                 Node sourceNode = nodeMap.get(sourceId);
                 Node targetNode = nodeMap.get(targetId);
+                RelationshipType relationshipType = RelationshipType.withName(relationType);
 
-                Relationship rel = sourceNode.createRelationshipTo(targetNode, RelationshipType.withName(relationType));
-                createdRelationships.incrementAndGet();
-
+                Relationship rel = relationshipBetween(sourceNode, targetNode, relationshipType);
+                if (rel == null) {
+                    rel = sourceNode.createRelationshipTo(targetNode, relationshipType);
+                    createdRelationships.incrementAndGet();
+                }
                 if (edge.has("metadata")) {
                     addProperties(rel, edge.get("metadata"));
                 }
@@ -141,8 +144,29 @@ public class ImportProcedures {
         }
     }
 
-    private Object getProperty(JsonNode nodeData, String propertyKey) {
-        return nodeData.get(propertyKey);
+    /**
+     * find first relationship between nodes efficiently
+     * traverses from less connected node to more connected node
+     * @param sourceNode
+     * @param targetNode
+     * @param relationshipType
+     * @return
+     */
+    private Relationship relationshipBetween(Node sourceNode, Node targetNode, RelationshipType relationshipType) {
+        int sourceDegree = sourceNode.getDegree(relationshipType, Direction.OUTGOING);
+        int targetDegree = targetNode.getDegree(relationshipType, Direction.INCOMING);
+
+        Node from = sourceDegree <= targetDegree ? sourceNode : targetNode;
+        Node to = sourceDegree <= targetDegree ? targetNode : sourceNode;
+        Direction direction = sourceDegree <= targetDegree ? Direction.OUTGOING : Direction.INCOMING;
+
+        return from.getRelationships(direction, relationshipType).stream()
+                .filter(relationship -> relationship.getOtherNode(from).equals(to))
+                .findFirst().orElse(null);
+    }
+
+    private TextNode getProperty(JsonNode nodeData, String propertyKey) {
+        return (TextNode) nodeData.get(propertyKey);
     }
 
     private void addProperties(Entity entity, JsonNode metadata) {

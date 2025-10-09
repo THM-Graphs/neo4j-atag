@@ -8,13 +8,15 @@
         "metadata" : {
           "dob" : "2012-06-01",
           "name" : "Alice",
-          "height" : 175
+          "height" : 175,
+          "uuid": "6c6b20af-f2a8-4743-aaaa-bd0c4c56e1a2"
         }
       },
       "4:6c6b20af-f2a8-4743-aaaa-bd0c4c56e1a2:1" : {
         "label" : "Person",
         "metadata" : {
-          "name" : "Bob"
+          "name" : "Bob",
+          "uuid" : "6c6b20af-f2a8-4743-aaaa-bd0c4c56e1a4"
         }
       }
     },
