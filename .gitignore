@@ -9,3 +9,7 @@ build
 /neo4j-home
 /bin
 .env
+/docker/data/*
+/docker/import/*
+/docker/backup/*
+/docker/plugins/*
