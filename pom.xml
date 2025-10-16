@@ -168,6 +168,7 @@
                                     <include>org.jsoup:*</include>
                                     <include>de.thm.atag:*</include>
                                     <include>net.sf.saxon:*</include>
+                                    <include>org.xmlresolver:*</include>
                                 </includes>
                             </artifactSet>
                             <createDependencyReducedPom>false</createDependencyReducedPom>

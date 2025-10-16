@@ -8,7 +8,6 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.neo4j.configuration.Config;
 import org.neo4j.configuration.GraphDatabaseSettings;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Result;
 import org.neo4j.harness.junit.extension.Neo4jExtension;
 import org.neo4j.kernel.internal.GraphDatabaseAPI;
 
@@ -51,7 +50,7 @@ class ImportProceduresTest {
         });
 
         // Verify imported data
-        Result dataResult = db.executeTransactionally("""
+        db.executeTransactionally("""
             MATCH (a:Person {name: 'Alice'})-[r:KNOWS]->(b:Person {name: 'Bob'})
             RETURN count(r) as count
             """, Map.of(),  result -> {
@@ -89,7 +88,7 @@ class ImportProceduresTest {
         });
 
         // Verify imported data
-        Result dataResult = db.executeTransactionally("""
+        db.executeTransactionally("""
             MATCH (a:Person {name: 'Alice'})-[r:KNOWS]->(b:Person {name: 'Bob'})
             RETURN count(r) as count
             """, Map.of(),  result -> {
