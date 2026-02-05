@@ -29,8 +29,10 @@ jobs:
           git config --global user.name "github-actions"
 
       - name: Set authenticated git remote
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
+          git config --global http.https://github.com/.extraheader "Authorization: basic $(echo -n "x-access-token:${GITHUB_TOKEN}" | base64 -w 0)"
 
       - name: publish to gh-pages
         run: mvn scm-publish:publish-scm
