@@ -13,3 +13,4 @@ build
 /docker/import/*
 /docker/backup/*
 /docker/plugins/*
+CLAUDE.md
