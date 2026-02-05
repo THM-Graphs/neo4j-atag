@@ -30,7 +30,7 @@ jobs:
 
       - name: Set authenticated git remote
         run: |
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/THM-Graphs/neo4j-atag.git
+          git config --global url."https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com".insteadOf "https://github.com"
 
       - name: publish to gh-pages
         run: mvn scm-publish:publish-scm
