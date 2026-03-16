@@ -75,4 +75,5 @@ class ExporterProceduresTest {
         // Then
         assertEquals( "jgfExport.json", value);
     }
+
 }

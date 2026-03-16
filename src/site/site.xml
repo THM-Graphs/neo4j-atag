@@ -32,6 +32,7 @@
             <item name="atag.chains.chain" href="atag.chains.chain.html"/>
             <item name="atag.chains.update" href="atag.chains.update.html"/>
             <item name="atag.export.jgf" href="atag.export.jgf.html"/>
+            <item name="atag.export.jgf.fromNode" href="atag.export.jgf.fromNode.html"/>
             <item name="atag.export.jgfFile" href="atag.export.jgfFile.html"/>
             <item name="atag.import.jgf" href="atag.import.jgf.html"/>
             <item name="atag.import.jgfFile" href="atag.import.jgfFile.html"/>
