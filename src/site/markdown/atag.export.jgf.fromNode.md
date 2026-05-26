@@ -47,6 +47,10 @@ Export an ATAG text graph starting from a specific node, excluding the character
 MATCH (start:Text {name: 'myDocument'})
 CALL atag.export.jgf.fromNode(start, {includeCharacterChain: false}) YIELD value
 RETURN value
+
+MATCH (start:Collection {uuid: '123'})
+CALL atag.export.jgf.fromNode(start, {includeCharacterChain: false}) YIELD value
+RETURN value
 ```
 
 Export only annotations of specific types:

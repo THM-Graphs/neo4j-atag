@@ -30,6 +30,11 @@ public class ExporterProcedures {
     @Procedure
     @Description("export a graph into JGF format and write to a file")
     public Stream<ObjectResult> jgfFile(@Name("nodes") List<Node> nodes, @Name("relationships") List<Relationship> relationships, @Name("filename") String fileName) {
+        ObjectMapper mapper = new ObjectMapper();
+        return asFile(fileName, toJgf(mapper, nodes, relationships), mapper);
+    }
+
+    private Stream<ObjectResult> asFile(String fileName, ObjectNode jgf, ObjectMapper mapper) {
         Config config = graphDatabaseAPI.getDependencyResolver().resolveDependency(Config.class);
         Path folder = config.get(GraphDatabaseSettings.load_csv_file_url_root);
 
@@ -38,12 +43,11 @@ public class ExporterProcedures {
         }
         Path outputPath = folder.resolve(fileName);
 
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectNode root = toJgf(mapper, nodes, relationships);
         try {
-            String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(root);
+            String json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jgf);
             writeString(outputPath, json);
-            return Stream.of(new ObjectResult(fileName));
+            long size = outputPath.toFile().length();
+            return Stream.of(new ObjectResult(String.format("%d bytes written to %s", size, fileName)));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -63,6 +67,7 @@ public class ExporterProcedures {
     public Stream<ObjectResult> jgfFromNode(@Name("startNode") Node startNode, @Name("config") Map<String, Object> config) {
         boolean includeCharacterChain = !Boolean.FALSE.equals(config.get("includeCharacterChain"));
         List<String> annotationTypes = (List<String>) config.get("annotationTypes");
+        String fileName = (String) config.get("fileName");
         Label annotationLabel = Label.label("Annotation");
 
         RelationshipType[] incomingTypes = { RelationshipType.withName("PART_OF") };
@@ -106,7 +111,11 @@ public class ExporterProcedures {
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode root = toJgf(mapper, nodes, relationships);
-        return Stream.of(new ObjectResult(mapper.convertValue(root, Map.class)));
+        if (fileName != null) {
+            return asFile(fileName, root, mapper);
+        } else {
+            return Stream.of(new ObjectResult(mapper.convertValue(root, Map.class)));
+        }
     }
 
     private void visitNeighbor(Relationship rel, Node current, List<String> annotationTypes, Label annotationLabel,
