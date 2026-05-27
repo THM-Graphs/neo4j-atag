@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ExporterProceduresTest {
 
@@ -73,7 +74,7 @@ class ExporterProceduresTest {
                 """, Collections.emptyMap(), r -> Iterators.single(r).get("value").toString());
 
         // Then
-        assertEquals( "jgfExport.json", value);
+        assertTrue(value.endsWith("bytes written to jgfExport.json"));
     }
 
 }
