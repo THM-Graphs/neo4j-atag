@@ -56,7 +56,7 @@ public class Importer {
 
         return startNode.getRelationships(Direction.OUTGOING, relationshipType).stream()
                 .map(Relationship::getEndNode)
-                .sorted(Comparator.comparing(node -> (long) node.getProperty("startIndex")))
+                .sorted(Comparator.comparing(node -> (long) node.getProperty("startIndex", 0)))
                 .map(ResultTypes.NodeResult::new);
     }
 
