@@ -16,10 +16,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ImporterTest {
@@ -50,6 +51,14 @@ public class ImporterTest {
                         } catch (IOException e) {
                             throw new RuntimeException(e);
                         }
+                    }
+            )
+            .withFixture(db -> {
+                        String html = "bestätigt den folgenden schwäbischen u. elsässischen Reichsstädten ihre Privilegien: " +
+                                "<seg type='kanzleivermerk' nr='0738' > Ad m. d. r. Joh. Kirchen. (fr. vor Sixten.) " +
+                                "<span class='spaced' type='place' >Memmingen</span> [o. KU! ─ R] </seg>";
+                        db.executeTransactionally("CREATE (t:Text {id:3, text:$html})", Map.of("html", html));
+                        return null;
                     }
             )
             .withProcedure(Importer.class)
@@ -130,6 +139,44 @@ public class ImporterTest {
                 Collections.emptyMap(), result -> {
                     String plainText = Iterators.single(result).get("plainText").toString();
                     assertEquals("TrabantTrabanten", plainText.substring(1029, 1045));
+                    return null;
+                });
+    }
+
+    @Test
+    public void testAnnotateHtmlAttributes(GraphDatabaseService db) {
+        // issue #16: HTML attributes should be stored with "attribute:" prefix and a uuid should be generated
+        db.executeTransactionally("""
+                        MATCH (t:Text{id: 3})
+                        CALL atag.text.import.html(t, 'text', 'Annotation', 'text') YIELD node
+                        RETURN properties(node) as props""",
+                Collections.emptyMap(), result -> {
+                    List<Map<String, Object>> list = Iterators.asList(result);
+                    assertEquals(2, list.size());
+
+                    Map<String, Object> seg = (Map<String, Object>) list.get(0).get("props");
+                    assertThat(seg, Matchers.<Map<String, Object>>allOf(
+                            hasEntry("startIndex", 85L),
+                            hasEntry("endIndex", 153L),
+                            hasEntry("tag", "seg"),
+                            hasEntry("attribute:type", "kanzleivermerk"),
+                            hasEntry("attribute:nr", "0738"),
+                            hasKey("uuid")
+                    ));
+
+                    Map<String, Object> span = (Map<String, Object>) list.get(1).get("props");
+                    assertThat(span, Matchers.<Map<String, Object>>allOf(
+                            hasEntry("startIndex", 130L),
+                            hasEntry("endIndex", 139L),
+                            hasEntry("tag", "span"),
+                            hasEntry("attribute:class", "spaced"),
+                            hasEntry("attribute:type", "place"),
+                            hasKey("uuid")
+                    ));
+
+                    Pattern uuidPattern = Pattern.compile("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");
+                    assertThat((String) seg.get("uuid"), matchesPattern(uuidPattern));
+                    assertThat((String) span.get("uuid"), matchesPattern(uuidPattern));
                     return null;
                 });
     }
