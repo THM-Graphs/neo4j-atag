@@ -40,7 +40,8 @@ public class Importer {
             @Name("propertyKey") String propertyKey,
             @Name(value = "label for annotation nodes", defaultValue = "Annotation") String label,
             @Name(value = "property name for plain text", defaultValue = "plainText") String plainTextProperty,
-            @Name(value = "relationship type", defaultValue = "HAS_ANNOTATION") String relationshipTypeString ) {
+            @Name(value = "relationship type", defaultValue = "HAS_ANNOTATION") String relationshipTypeString,
+            @Name(value = "add uuid to annotation nodes", defaultValue = "true") boolean addUuid) {
 
         String htmlText = (String) startNode.getProperty(propertyKey);
 
@@ -50,7 +51,7 @@ public class Importer {
         StringBuilder plainTextBuilder = new StringBuilder();
         RelationshipType relationshipType = RelationshipType.withName(relationshipTypeString);
         long result = traverse(0, document.body(), 0l, plainTextBuilder, startNode, Label.label(label),
-                relationshipType, plainTextProperty);
+                relationshipType, plainTextProperty, addUuid);
         startNode.setProperty(plainTextProperty, plainTextBuilder.toString());
         log.info("Result: plain {}, length {}", plainTextBuilder, result);
 
@@ -61,21 +62,29 @@ public class Importer {
     }
 
     private long traverse(int depth, org.jsoup.nodes.Node node, long index, StringBuilder plainTextBuilder,
-                          Node neo4jNode, Label label, RelationshipType relationshipType, String plainTextProperty) {
+                          Node neo4jNode, Label label, RelationshipType relationshipType, String plainTextProperty,
+                          boolean addUuid) {
         if (node instanceof org.jsoup.nodes.Element element) {
-            Node newNeo4jNode = null;
+            final Node newNeo4jNode;
             if (depth>0){
                 newNeo4jNode = tx.createNode(label);
                 neo4jNode.createRelationshipTo(newNeo4jNode, relationshipType);
                 newNeo4jNode.setProperty("startIndex", index);
                 newNeo4jNode.setProperty("tag", element.nodeName());
+                if (addUuid) {
+                    newNeo4jNode.setProperty("uuid", java.util.UUID.randomUUID().toString());
+                }
+                element.attributes().forEach(attr ->
+                        newNeo4jNode.setProperty("attribute:" + attr.getKey(), attr.getValue()));
+            } else {
+                newNeo4jNode = null;
             }
 
             log.debug(" ".repeat(depth) + "Depth: {}, Element: {}, index: {}", depth, element.nodeName(), index);
             StringBuilder localPlainTextBuilder = new StringBuilder();
             for (org.jsoup.nodes.Node child : element.childNodes()) {
                 index = traverse(depth+1, child, index, localPlainTextBuilder, neo4jNode, label,
-                        relationshipType, plainTextProperty);
+                        relationshipType, plainTextProperty, addUuid);
             }
 
             if (depth>0){
