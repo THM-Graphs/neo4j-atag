@@ -69,7 +69,7 @@ class ExporterProceduresTest {
         String value = db.executeTransactionally("""
                 MATCH (a)-[r]->(b)
                 WITH collect(a) + collect(b) AS nodes, collect(r) AS relationships
-                CALL atag.export.jgfFile(nodes, relationships, 'jgfExport.json') YIELD value
+                CALL atag.export.jgf.list(nodes, relationships, {fileName: 'jgfExport.json'}) YIELD value
                 RETURN value
                 """, Collections.emptyMap(), r -> Iterators.single(r).get("value").toString());
 

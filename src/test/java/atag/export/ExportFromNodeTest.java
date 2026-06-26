@@ -14,9 +14,10 @@ import org.neo4j.internal.helpers.collection.Iterators;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 class ExportFromNodeTest {
 
@@ -129,6 +130,44 @@ class ExportFromNodeTest {
             assertFalse(label.contains("Character"),
                     "export with includeCharacterChain:false should not contain Character nodes");
         }
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void testStandoffJsonFromNode(GraphDatabaseService db) {
+        Map<String, Object> value = db.executeTransactionally("""
+                MATCH (t:Text {uuid: 'bd96acbe-9f45-4bf7-b6da-b40f730f4a9a'})
+                CALL atag.export.standoff_json.fromNode(t, {}) YIELD value
+                RETURN value
+                """, Collections.emptyMap(), r -> (Map<String, Object>) Iterators.single(r).get("value"));
+
+        assertTrue(value.containsKey("text"), "root should contain the document's 'text' property");
+        assertTrue(value.containsKey("uuid"), "root should contain the document's 'uuid' property");
+
+        List<Map<String, Object>> properties = (List<Map<String, Object>>) value.get("properties");
+        assertNotNull(properties);
+        assertEquals(8, properties.size(), "should have one entry per Annotation node");
+        assertTrue(properties.stream().allMatch(p -> p.containsKey("startIndex")),
+                "each annotation entry should have a startIndex property");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void testStandoffJsonList(GraphDatabaseService db) {
+        Map<String, Object> value = db.executeTransactionally("""
+                MATCH (t:Text {uuid: 'bd96acbe-9f45-4bf7-b6da-b40f730f4a9a'})
+                MATCH (t)-[:HAS_ANNOTATION]->(a:Annotation)
+                WITH t, collect(a) AS annotations
+                WITH [t] + annotations AS nodes
+                CALL atag.export.standoff_json.list(nodes, [], {}) YIELD value
+                RETURN value
+                """, Collections.emptyMap(), r -> (Map<String, Object>) Iterators.single(r).get("value"));
+
+        assertTrue(value.containsKey("text"), "root should contain the document's 'text' property");
+
+        List<Map<String, Object>> properties = (List<Map<String, Object>>) value.get("properties");
+        assertNotNull(properties);
+        assertFalse(properties.isEmpty(), "properties should contain the annotations");
     }
 
     @Test
