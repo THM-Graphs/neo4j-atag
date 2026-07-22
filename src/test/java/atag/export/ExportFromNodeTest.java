@@ -59,6 +59,9 @@ class ExportFromNodeTest {
                 CREATE (t)-[:HAS_ANNOTATION]->(a7)
                 CREATE (a8:Annotation {type: 'expansion', startIndex: 48, endIndex: 48, text: 'm', uuid: 'a1000008-0000-0000-0000-000000000008'})
                 CREATE (t)-[:HAS_ANNOTATION]->(a8)
+                CREATE (c1:Annotation {type: 'commentary', label: 'comment', uuid: 'c1000001-0000-0000-0000-000000000001'})
+                CREATE (a4)-[:HAS_ANNOTATION]->(c1)
+                CREATE (o1:Annotation {type: 'floating', startIndex: 5, endIndex: 6, uuid: 'f0000001-0000-0000-0000-000000000001'})
                 """)
             .build();
 
@@ -141,14 +144,112 @@ class ExportFromNodeTest {
                 RETURN value
                 """, Collections.emptyMap(), r -> (Map<String, Object>) Iterators.single(r).get("value"));
 
-        assertTrue(value.containsKey("text"), "root should contain the document's 'text' property");
-        assertTrue(value.containsKey("uuid"), "root should contain the document's 'uuid' property");
+        assertTrue(value.containsKey("text"), "root should contain the Text anchor's 'text' property");
+        assertTrue(value.containsKey("uuid"), "root should contain the Text anchor's 'uuid' property");
 
-        List<Map<String, Object>> properties = (List<Map<String, Object>>) value.get("properties");
-        assertNotNull(properties);
-        assertEquals(8, properties.size(), "should have one entry per Annotation node");
-        assertTrue(properties.stream().allMatch(p -> p.containsKey("startIndex")),
+        List<Map<String, Object>> annotations = (List<Map<String, Object>>) value.get("annotations");
+        assertNotNull(annotations);
+        assertEquals(8, annotations.size(), "all annotations should sit on their Text anchor");
+        assertTrue(annotations.stream().allMatch(p -> p.containsKey("startIndex")),
                 "each annotation entry should have a startIndex property");
+
+        List<Long> startIndices = annotations.stream()
+                .map(a -> ((Number) a.get("startIndex")).longValue())
+                .toList();
+        List<Long> sorted = startIndices.stream().sorted().toList();
+        assertEquals(sorted, startIndices, "annotations should be ordered by startIndex");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void testStandoffJsonNestsAnnotationOnAnnotation(GraphDatabaseService db) {
+        Map<String, Object> value = db.executeTransactionally("""
+                MATCH (t:Text {uuid: 'bd96acbe-9f45-4bf7-b6da-b40f730f4a9a'})
+                CALL atag.export.standoff_json.fromNode(t, {}) YIELD value
+                RETURN value
+                """, Collections.emptyMap(), r -> (Map<String, Object>) Iterators.single(r).get("value"));
+
+        List<Map<String, Object>> annotations = (List<Map<String, Object>>) value.get("annotations");
+        assertTrue(annotations.stream().noneMatch(a -> "commentary".equals(a.get("type"))),
+                "a commentary on an annotation must not sit directly on the Text anchor");
+
+        Map<String, Object> a4 = annotations.stream()
+                .filter(a -> "a1000004-0000-0000-0000-000000000004".equals(a.get("uuid")))
+                .findFirst()
+                .orElseThrow();
+        List<Map<String, Object>> nested = (List<Map<String, Object>>) a4.get("annotations");
+        assertNotNull(nested, "the annotated annotation should carry its commentary under 'annotations'");
+        assertEquals(1, nested.size());
+        assertEquals("commentary", nested.get(0).get("type"),
+                "the commentary should be nested inside its originating annotation");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void testStandoffJsonNestsAnchorsFromCollection(GraphDatabaseService db) {
+        Map<String, Object> value = db.executeTransactionally("""
+                MATCH (m:Manuscript {uuid: 'f5f6deaa-8356-4c97-931a-14e0b02f08b2'})
+                CALL atag.export.standoff_json.fromNode(m, {}) YIELD value
+                RETURN value
+                """, Collections.emptyMap(), r -> (Map<String, Object>) Iterators.single(r).get("value"));
+
+        assertEquals("Handschrift R", value.get("label"),
+                "root should be the top-level Manuscript collection");
+        assertFalse(value.containsKey("annotations"),
+                "an empty annotations list should be omitted on the root");
+
+        List<Map<String, Object>> manuscriptParts = (List<Map<String, Object>>) value.get("parts");
+        assertNotNull(manuscriptParts, "Manuscript should nest its Letter as a part");
+        assertEquals(1, manuscriptParts.size());
+        Map<String, Object> letter = manuscriptParts.get(0);
+        assertTrue(((List<?>) letter.get("annotations")).isEmpty(),
+                "the Letter anchor carries no annotations of its own");
+
+        List<Map<String, Object>> letterParts = (List<Map<String, Object>>) letter.get("parts");
+        assertNotNull(letterParts, "Letter should nest its Text as a part");
+        assertEquals(1, letterParts.size());
+        Map<String, Object> text = letterParts.get(0);
+
+        assertTrue(text.containsKey("text"), "the Text anchor should carry its 'text' property");
+        assertNull(text.get("parts"), "the Text anchor is a leaf with no nested anchors");
+
+        List<Map<String, Object>> annotations = (List<Map<String, Object>>) text.get("annotations");
+        assertNotNull(annotations);
+        assertEquals(8, annotations.size(), "all annotations should sit on their Text anchor, not the collections");
+    }
+
+    @Test
+    void testStandoffXmlFromNode(GraphDatabaseService db) {
+        String xml = db.executeTransactionally("""
+                MATCH (t:Text {uuid: 'bd96acbe-9f45-4bf7-b6da-b40f730f4a9a'})
+                CALL atag.export.standoff_xml.fromNode(t, {}) YIELD value
+                RETURN value
+                """, Collections.emptyMap(), r -> (String) Iterators.single(r).get("value"));
+
+        assertTrue(xml.startsWith("<?xml"), "output should be an XML document");
+        assertTrue(xml.contains("<Text "), "root element should be named after the Text anchor's label");
+        assertTrue(xml.contains("uuid=\"bd96acbe-9f45-4bf7-b6da-b40f730f4a9a\""),
+                "root element should carry the Text anchor's uuid as an attribute");
+        int annotationCount = xml.split("<annotation ", -1).length - 1;
+        assertEquals(9, annotationCount, "should emit one <annotation> element per Annotation node, nested ones included");
+        assertTrue(xml.contains("type=\"commentary\""), "the nested commentary annotation should be emitted");
+    }
+
+    @Test
+    void testStandoffXmlNestsAnchorsFromCollection(GraphDatabaseService db) {
+        String xml = db.executeTransactionally("""
+                MATCH (m:Manuscript {uuid: 'f5f6deaa-8356-4c97-931a-14e0b02f08b2'})
+                CALL atag.export.standoff_xml.fromNode(m, {}) YIELD value
+                RETURN value
+                """, Collections.emptyMap(), r -> (String) Iterators.single(r).get("value"));
+
+        assertTrue(xml.contains("uuid=\"f5f6deaa-8356-4c97-931a-14e0b02f08b2\""),
+                "the Manuscript should be the outermost element");
+        assertTrue(xml.contains("<Text "), "the Text anchor should be nested as its own element");
+        assertTrue(xml.indexOf("<Text ") > xml.indexOf("f5f6deaa"),
+                "the Text element should be nested inside the Manuscript element");
+        int annotationCount = xml.split("<annotation ", -1).length - 1;
+        assertEquals(9, annotationCount, "annotations should sit inside their Text anchor element, nested ones included");
     }
 
     @Test
@@ -165,9 +266,23 @@ class ExportFromNodeTest {
 
         assertTrue(value.containsKey("text"), "root should contain the document's 'text' property");
 
-        List<Map<String, Object>> properties = (List<Map<String, Object>>) value.get("properties");
-        assertNotNull(properties);
-        assertFalse(properties.isEmpty(), "properties should contain the annotations");
+        List<Map<String, Object>> annotations = (List<Map<String, Object>>) value.get("annotations");
+        assertNotNull(annotations);
+        assertFalse(annotations.isEmpty(), "annotations should contain the annotations");
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void testStandoffJsonExcludesUnanchoredAnnotations(GraphDatabaseService db) {
+        Map<String, Object> value = db.executeTransactionally("""
+                MATCH (t:Text {uuid: 'bd96acbe-9f45-4bf7-b6da-b40f730f4a9a'})
+                MATCH (o:Annotation {uuid: 'f0000001-0000-0000-0000-000000000001'})
+                CALL atag.export.standoff_json.list([t, o], [], {}) YIELD value
+                RETURN value
+                """, Collections.emptyMap(), r -> (Map<String, Object>) Iterators.single(r).get("value"));
+
+        assertFalse(value.containsKey("annotations"),
+                "an annotation with no HAS_ANNOTATION parent must be excluded, not attached to the root");
     }
 
     @Test
