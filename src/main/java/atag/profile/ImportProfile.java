@@ -2,6 +2,7 @@ package atag.profile;
 
 import atag.model.ProjectModel;
 import atag.model.Ramen.Concept;
+import org.neo4j.graphdb.Transaction;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,8 +57,8 @@ public class ImportProfile {
     private final boolean createMissingEntities;
 
     @SuppressWarnings("unchecked")
-    private ImportProfile(Map<String, Object> config, String defaultAttributePrefix) {
-        this.model = ProjectModel.from(config);
+    private ImportProfile(Map<String, Object> config, String defaultAttributePrefix, Transaction tx) {
+        this.model = ProjectModel.from(config, tx);
         this.dictionary = Dictionary.from(config, defaultAttributePrefix);
         this.xpath = (String) config.getOrDefault("xpath", TEI_BODY);
         this.standoffXPath = (String) config.getOrDefault("standoffXPath", "");
@@ -76,13 +77,13 @@ public class ImportProfile {
     }
 
     /** A profile for XML sources, where attribute names become property keys unchanged. */
-    public static ImportProfile xml(Map<String, Object> config) {
-        return new ImportProfile(config, "");
+    public static ImportProfile xml(Map<String, Object> config, Transaction tx) {
+        return new ImportProfile(config, "", tx);
     }
 
     /** A profile for HTML sources, where attributes are kept apart by an {@code attribute:} prefix. */
-    public static ImportProfile html(Map<String, Object> config) {
-        return new ImportProfile(config, "attribute:");
+    public static ImportProfile html(Map<String, Object> config, Transaction tx) {
+        return new ImportProfile(config, "attribute:", tx);
     }
 
     /**
@@ -90,10 +91,10 @@ public class ImportProfile {
      * the body is the text, {@code standOff} carries annotations and entities, and
      * {@code @ref} links an annotation to an entity.
      */
-    public static ImportProfile tei(Map<String, Object> config) {
+    public static ImportProfile tei(Map<String, Object> config, Transaction tx) {
         Map<String, Object> merged = new LinkedHashMap<>(TEI_DEFAULTS);
         merged.putAll(config);
-        return new ImportProfile(merged, "");
+        return new ImportProfile(merged, "", tx);
     }
 
     public ProjectModel model() {

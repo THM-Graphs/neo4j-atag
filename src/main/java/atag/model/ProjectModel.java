@@ -4,6 +4,7 @@ import atag.model.Ramen.Concept;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.Transaction;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -29,6 +30,8 @@ public class ProjectModel {
             Concept.ENTITY, List.of("Entity"),
             Concept.ANNOTATION, List.of("Annotation"));
 
+    private static final String META = "meta";
+
     private final Map<Concept, List<String>> labels;
     private final RelationshipType partOf;
     private final RelationshipType hasAnnotation;
@@ -46,6 +49,20 @@ public class ProjectModel {
 
     public static ProjectModel defaults() {
         return new ProjectModel(Map.of(), Ramen.PART_OF.name(), Ramen.HAS_ANNOTATION.name(), Ramen.REFERS_TO.name());
+    }
+
+    /**
+     * Read a project model from the {@code model} entry of a profile configuration, or
+     * from the meta graph in the database when that entry is the string {@code 'meta'}.
+     */
+    public static ProjectModel from(Map<String, Object> config, Transaction tx) {
+        if (!META.equals(config.get("model"))) {
+            return from(config);
+        }
+        if (tx == null) {
+            throw new IllegalArgumentException("model: 'meta' can only be used where a transaction is available");
+        }
+        return MetaGraph.read(tx);
     }
 
     /**

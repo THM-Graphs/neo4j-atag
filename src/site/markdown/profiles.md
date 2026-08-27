@@ -29,6 +29,9 @@ project model refines the concepts with its own labels:
 }
 ```
 
+`model: 'meta'` reads the model from the meta graph instead, see
+[atag.model.meta](atag.model.meta.html).
+
 ## The dictionary
 
 The dictionary translates between a markup vocabulary and the graph vocabulary, in both

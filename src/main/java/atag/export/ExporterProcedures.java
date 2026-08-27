@@ -14,6 +14,7 @@ import atag.export.io.ExportWriter;
 import atag.profile.ExportProfile;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.kernel.internal.GraphDatabaseAPI;
 import org.neo4j.procedure.*;
 
@@ -31,6 +32,9 @@ public class ExporterProcedures {
 
     @Context
     public GraphDatabaseAPI graphDatabaseAPI;
+
+    @Context
+    public Transaction tx;
 
     @UserFunction
     @Description("export a graph into JGF format and return as a map")
@@ -87,13 +91,13 @@ public class ExporterProcedures {
     }
 
     private Stream<ObjectResult> fromNode(Node startNode, Map<String, Object> config, Exporter exporter) {
-        ExportProfile profile = ExportProfile.from(config);
+        ExportProfile profile = ExportProfile.from(config, tx);
         return export(new TraversalCollector(startNode, TraversalRules.from(profile)), exporter, profile);
     }
 
     private Stream<ObjectResult> fromList(List<Node> nodes, List<Relationship> relationships,
                                           Map<String, Object> config, Exporter exporter) {
-        ExportProfile profile = ExportProfile.from(config);
+        ExportProfile profile = ExportProfile.from(config, tx);
         return export(new ListCollector(nodes, relationships), exporter, profile);
     }
 

@@ -47,7 +47,7 @@ public class Importer {
                 "plainTextProperty", plainTextProperty,
                 "relationshipType", relationshipType,
                 "addUuid", addUuid,
-                "idAttribute", ""));
+                "idAttribute", ""), tx);
         return run(ImportPipeline.html(log), startNode, propertyKey, profile);
     }
 
@@ -67,7 +67,7 @@ public class Importer {
                 "plainTextProperty", plainTextProperty,
                 "relationshipType", relationshipType,
                 "addUuid", false,
-                "idAttribute", ""));
+                "idAttribute", ""), tx);
         return run(ImportPipeline.xml(log), startNode, propertyKey, profile);
     }
 
@@ -78,7 +78,7 @@ public class Importer {
             @Name("propertyKey") String propertyKey,
             @Name(value = "profile", defaultValue = "{}") Map<String, Object> profile) {
 
-        return run(ImportPipeline.xml(log), startNode, propertyKey, ImportProfile.tei(profile));
+        return run(ImportPipeline.xml(log), startNode, propertyKey, ImportProfile.tei(profile, tx));
     }
 
     private <D> Stream<ResultTypes.NodeResult> run(ImportPipeline<D> pipeline, Node startNode,

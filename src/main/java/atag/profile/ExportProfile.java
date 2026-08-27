@@ -1,6 +1,7 @@
 package atag.profile;
 
 import atag.model.ProjectModel;
+import org.neo4j.graphdb.Transaction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +44,8 @@ public class ExportProfile {
     private final String fileName;
 
     @SuppressWarnings("unchecked")
-    private ExportProfile(Map<String, Object> config) {
-        this.model = ProjectModel.from(config);
+    private ExportProfile(Map<String, Object> config, Transaction tx) {
+        this.model = ProjectModel.from(config, tx);
         this.dictionary = Dictionary.from(config, "");
         this.followIncoming = (List<String>) config.getOrDefault("followIncoming", DEFAULT_INCOMING);
         this.followOutgoing = outgoing(config);
@@ -59,7 +60,12 @@ public class ExportProfile {
     }
 
     public static ExportProfile from(Map<String, Object> config) {
-        return new ExportProfile(config);
+        return new ExportProfile(config, null);
+    }
+
+    /** A profile that may take its project model from the meta graph in the database. */
+    public static ExportProfile from(Map<String, Object> config, Transaction tx) {
+        return new ExportProfile(config, tx);
     }
 
     @SuppressWarnings("unchecked")

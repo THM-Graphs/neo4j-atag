@@ -44,6 +44,7 @@
             <item name="atag.text.import.xml" href="atag.text.import.xml.html"/>
             <item name="atag.text.import.tei" href="atag.text.import.tei.html"/>
             <item name="atag.text.xslt" href="atag.text.xslt.html"/>
+            <item name="atag.model.meta" href="atag.model.meta.html"/>
         </menu>
         <menu ref="reports" inherit="top"/>
     </body>
