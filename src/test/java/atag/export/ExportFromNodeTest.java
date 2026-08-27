@@ -286,6 +286,21 @@ class ExportFromNodeTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
+    void testStandoffJsonWithIgnoredProperties(GraphDatabaseService db) {
+        Map<String, Object> value = db.executeTransactionally("""
+                MATCH (t:Text {uuid: 'bd96acbe-9f45-4bf7-b6da-b40f730f4a9a'})
+                CALL atag.export.standoff_json.fromNode(t, {ignoreProperties: ['text']}) YIELD value
+                RETURN value
+                """, Collections.emptyMap(), r -> (Map<String, Object>) Iterators.single(r).get("value"));
+
+        assertFalse(value.containsKey("text"), "an ignored property should not be serialized");
+        List<Map<String, Object>> annotations = (List<Map<String, Object>>) value.get("annotations");
+        assertTrue(annotations.stream().noneMatch(a -> a.containsKey("text")),
+                "ignoring a property should apply to every node of the export");
+    }
+
+    @Test
     void testExportWrapperWithAnnotationTypeFilter(GraphDatabaseService db) throws JsonProcessingException {
         setupCharacterChain(db);
 

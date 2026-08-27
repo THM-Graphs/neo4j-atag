@@ -3,6 +3,7 @@ package atag.export.format.jgf;
 import atag.export.Subgraph;
 import atag.export.format.Exporter;
 import atag.export.format.PropertyValues;
+import atag.profile.ExportProfile;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -18,7 +19,9 @@ import java.util.stream.Collectors;
 
 /**
  * Schema-agnostic export into <a href="https://github.com/jsongraph/json-graph-specification">JSON Graph Format</a>.
- * Serializes whatever nodes and edges the subgraph contains, without interpreting labels.
+ * Serializes whatever nodes and edges the subgraph contains, without interpreting labels:
+ * a graph-oriented exchange format keeps the graph as it is, so the profile only selects
+ * the scope and has no vocabulary to contribute here.
  */
 public class JgfExporter implements Exporter {
 
@@ -26,12 +29,12 @@ public class JgfExporter implements Exporter {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Map<String, Object> toValue(Subgraph subgraph) {
+    public Map<String, Object> toValue(Subgraph subgraph, ExportProfile profile) {
         return MAPPER.convertValue(buildRoot(subgraph), Map.class);
     }
 
     @Override
-    public String render(Subgraph subgraph) {
+    public String render(Subgraph subgraph, ExportProfile profile) {
         try {
             return MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(buildRoot(subgraph));
         } catch (JsonProcessingException e) {

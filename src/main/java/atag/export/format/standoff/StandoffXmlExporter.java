@@ -1,8 +1,11 @@
 package atag.export.format.standoff;
 
-import atag.export.Subgraph;
-import atag.export.format.Exporter;
+import atag.export.format.DocumentExporter;
 import atag.export.format.PropertyValues;
+import atag.export.map.MappedExport;
+import atag.export.map.MappedExport.MappedAnnotation;
+import atag.export.map.MappedExport.MappedDocument;
+import atag.profile.ExportProfile;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -11,31 +14,28 @@ import java.io.StringWriter;
 import java.util.Map;
 
 /**
- * Renders the {@link StandoffDocument} model as XML, demonstrating that the export
- * pipeline is not bound to JSON: each anchor becomes an element named after its label
- * (its properties are attributes), its annotations become {@code <annotation>} child
- * elements, and its nested child anchors are written recursively inside it. Nested
- * annotations become {@code <annotation>} elements inside their originating annotation.
+ * Renders the mapped document model as generic XML, without committing to a markup
+ * vocabulary: each anchor becomes an element named after its label (its properties are
+ * attributes), its annotations become {@code <annotation>} child elements, and its
+ * nested child anchors are written recursively inside it. Nested annotations become
+ * {@code <annotation>} elements inside their originating annotation.
  */
-public class StandoffXmlExporter implements Exporter {
+public class StandoffXmlExporter extends DocumentExporter {
 
     private static final XMLOutputFactory FACTORY = XMLOutputFactory.newFactory();
 
-    private final StandoffModelBuilder builder = new StandoffModelBuilder();
-
     @Override
-    public String toValue(Subgraph subgraph) {
-        return render(subgraph);
+    protected String value(MappedExport export, ExportProfile profile) {
+        return serialize(export, profile);
     }
 
     @Override
-    public String render(Subgraph subgraph) {
-        StandoffDocument document = builder.build(subgraph);
+    protected String serialize(MappedExport export, ExportProfile profile) {
         StringWriter out = new StringWriter();
         try {
             XMLStreamWriter writer = FACTORY.createXMLStreamWriter(out);
             writer.writeStartDocument("UTF-8", "1.0");
-            writeNode(writer, document);
+            writeNode(writer, export.root());
             writer.writeEndDocument();
             writer.close();
         } catch (XMLStreamException e) {
@@ -44,7 +44,7 @@ public class StandoffXmlExporter implements Exporter {
         return out.toString();
     }
 
-    private void writeNode(XMLStreamWriter writer, StandoffDocument node) throws XMLStreamException {
+    private void writeNode(XMLStreamWriter writer, MappedDocument node) throws XMLStreamException {
         if (node.annotations().isEmpty() && node.children().isEmpty()) {
             writer.writeEmptyElement(node.name());
             writeAttributes(writer, node.properties());
@@ -52,16 +52,16 @@ public class StandoffXmlExporter implements Exporter {
         }
         writer.writeStartElement(node.name());
         writeAttributes(writer, node.properties());
-        for (StandoffAnnotation annotation : node.annotations()) {
+        for (MappedAnnotation annotation : node.annotations()) {
             writeAnnotation(writer, annotation);
         }
-        for (StandoffDocument child : node.children()) {
+        for (MappedDocument child : node.children()) {
             writeNode(writer, child);
         }
         writer.writeEndElement();
     }
 
-    private void writeAnnotation(XMLStreamWriter writer, StandoffAnnotation annotation) throws XMLStreamException {
+    private void writeAnnotation(XMLStreamWriter writer, MappedAnnotation annotation) throws XMLStreamException {
         if (annotation.children().isEmpty()) {
             writer.writeEmptyElement("annotation");
             writeAttributes(writer, annotation.properties());
@@ -69,7 +69,7 @@ public class StandoffXmlExporter implements Exporter {
         }
         writer.writeStartElement("annotation");
         writeAttributes(writer, annotation.properties());
-        for (StandoffAnnotation child : annotation.children()) {
+        for (MappedAnnotation child : annotation.children()) {
             writeAnnotation(writer, child);
         }
         writer.writeEndElement();
