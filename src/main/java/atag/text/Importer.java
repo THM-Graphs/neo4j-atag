@@ -19,6 +19,10 @@ import java.util.stream.Stream;
  * Thin dispatch layer for the import pipeline. Each procedure builds an
  * {@link ImportProfile} and hands it to an {@link ImportPipeline}; all of the work
  * happens in the four phases of that pipeline.
+ * <p>
+ * The parameterized procedures cover the common cases with positional arguments, while
+ * {@code atag.text.import.tei} takes a full profile and therefore also supports
+ * stand-off annotations, entity declarations and dictionary mappings.
  */
 public class Importer {
 
@@ -65,6 +69,16 @@ public class Importer {
                 "addUuid", false,
                 "idAttribute", ""));
         return run(ImportPipeline.xml(log), startNode, propertyKey, profile);
+    }
+
+    @Procedure(mode = Mode.WRITE, name = "atag.text.import.tei")
+    @Description("import a TEI/XML document stored on a node property, controlled by an import profile")
+    public Stream<ResultTypes.NodeResult> importTei(
+            @Name("startNode") Node startNode,
+            @Name("propertyKey") String propertyKey,
+            @Name(value = "profile", defaultValue = "{}") Map<String, Object> profile) {
+
+        return run(ImportPipeline.xml(log), startNode, propertyKey, ImportProfile.tei(profile));
     }
 
     private <D> Stream<ResultTypes.NodeResult> run(ImportPipeline<D> pipeline, Node startNode,

@@ -9,6 +9,7 @@ import atag.export.format.Exporter;
 import atag.export.format.jgf.JgfExporter;
 import atag.export.format.standoff.StandoffJsonExporter;
 import atag.export.format.standoff.StandoffXmlExporter;
+import atag.export.format.tei.TeiExporter;
 import atag.export.io.ExportWriter;
 import atag.profile.ExportProfile;
 import org.neo4j.graphdb.Node;
@@ -71,6 +72,18 @@ public class ExporterProcedures {
     @Description("traverse from a start node and export the subgraph as standoff XML")
     public Stream<ObjectResult> standoffXmlFromNode(@Name("startNode") Node startNode, @Name("config") Map<String, Object> config) {
         return fromNode(startNode, config, new StandoffXmlExporter());
+    }
+
+    @Procedure(name = "atag.export.tei.list", mode = Mode.READ)
+    @Description("export a list of nodes and relationships as TEI/XML")
+    public Stream<ObjectResult> teiList(@Name("nodes") List<Node> nodes, @Name("relationships") List<Relationship> relationships, @Name("config") Map<String, Object> config) {
+        return fromList(nodes, relationships, config, new TeiExporter());
+    }
+
+    @Procedure(name = "atag.export.tei.fromNode", mode = Mode.READ)
+    @Description("traverse from a start node and export the subgraph as TEI/XML, inline or as stand-off markup")
+    public Stream<ObjectResult> teiFromNode(@Name("startNode") Node startNode, @Name("config") Map<String, Object> config) {
+        return fromNode(startNode, config, new TeiExporter());
     }
 
     private Stream<ObjectResult> fromNode(Node startNode, Map<String, Object> config, Exporter exporter) {

@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  The contract of `atag.export.tei.*`: the TEI subset the exporter is allowed to produce.
+  It is deliberately narrow where the exporter is deterministic (document structure,
+  stand-off markup, entity declarations) and open where the project's dictionary decides
+  what is written (the inline markup inside <ab>, and the attributes carrying properties).
+-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tei="http://www.tei-c.org/ns/1.0"
+           targetNamespace="http://www.tei-c.org/ns/1.0"
+           elementFormDefault="qualified">
+
+    <xs:element name="TEI">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="tei:teiHeader"/>
+                <xs:element ref="tei:text"/>
+                <xs:element ref="tei:standOff" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="teiHeader">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="fileDesc">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="titleStmt">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="title" type="xs:string"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="publicationStmt">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="p" type="xs:string"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="sourceDesc">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="p" type="xs:string"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="text">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="body" type="tei:anchors"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- a collection: holds further collections and content, never text of its own -->
+    <xs:element name="div">
+        <xs:complexType>
+            <xs:complexContent>
+                <xs:extension base="tei:anchors">
+                    <xs:anyAttribute namespace="##any" processContents="lax"/>
+                </xs:extension>
+            </xs:complexContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="anchors">
+        <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element ref="tei:div"/>
+            <xs:element ref="tei:ab"/>
+        </xs:choice>
+    </xs:complexType>
+
+    <!--
+      a content node: its text with the inline markup the profile's dictionary chose, which
+      is why the element names are not fixed here - only their namespace is.
+    -->
+    <xs:element name="ab">
+        <xs:complexType mixed="true">
+            <xs:sequence>
+                <xs:any namespace="##targetNamespace" processContents="lax"
+                        minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:anyAttribute namespace="##any" processContents="lax"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="standOff">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="listAnnotation" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element ref="tei:annotation" maxOccurs="unbounded"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="list" minOccurs="0">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="item" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:anyAttribute namespace="##any" processContents="lax"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="type" use="required" fixed="entity"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- an annotation that could not be written inline; its target must be resolvable -->
+    <xs:element name="annotation">
+        <xs:complexType>
+            <xs:attribute name="target" use="required" type="tei:pointer"/>
+            <xs:anyAttribute namespace="##any" processContents="lax"/>
+        </xs:complexType>
+    </xs:element>
+
+    <!-- either a reference to an element, or a character range of the text it belongs to -->
+    <xs:simpleType name="pointer">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="#[\i-[:]][\c-[:]]*"/>
+            <xs:pattern value="#string-range\([^,()]+,\d+,\d+\)"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+</xs:schema>

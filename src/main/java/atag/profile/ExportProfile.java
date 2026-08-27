@@ -4,6 +4,7 @@ import atag.model.ProjectModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -11,10 +12,16 @@ import java.util.Map;
  * traversed (phase 1) and how the traversed graph is mapped onto a serialization
  * vocabulary (phase 2).
  * <p>
- * The same subgraph can be rendered as JGF or as stand-off JSON/XML; the profile - not
- * the procedure - decides the scope of the export and the vocabulary it is mapped into.
+ * The same subgraph can be rendered as JGF, as generic stand-off JSON/XML or as TEI;
+ * the profile - not the procedure - decides the scope, the vocabulary and, for TEI,
+ * whether annotations are serialized inline or as stand-off markup.
  */
 public class ExportProfile {
+
+    public enum Serialization {
+        INLINE,
+        STANDOFF
+    }
 
     private static final List<String> DEFAULT_INCOMING = List.of("PART_OF");
     private static final List<String> DEFAULT_OUTGOING = List.of("HAS_ANNOTATION", "NEXT_TOKEN", "REFERS_TO");
@@ -30,6 +37,7 @@ public class ExportProfile {
     private final List<String> annotationTypes;
     private final List<String> textProperties;
     private final List<String> ignoreProperties;
+    private final Serialization serialization;
     private final String entityKey;
     private final String idProperty;
     private final String fileName;
@@ -43,6 +51,8 @@ public class ExportProfile {
         this.annotationTypes = (List<String>) config.get("annotationTypes");
         this.textProperties = (List<String>) config.getOrDefault("textProperties", DEFAULT_TEXT_PROPERTIES);
         this.ignoreProperties = (List<String>) config.getOrDefault("ignoreProperties", List.of());
+        this.serialization = Serialization.valueOf(
+                ((String) config.getOrDefault("serialization", "inline")).toUpperCase(Locale.ROOT));
         this.entityKey = (String) config.getOrDefault("entityKey", "uuid");
         this.idProperty = (String) config.getOrDefault("idProperty", "uuid");
         this.fileName = (String) config.get("fileName");
@@ -102,6 +112,10 @@ public class ExportProfile {
     /** Properties that should not be serialized at all, e.g. the source markup a node keeps. */
     public List<String> ignoreProperties() {
         return ignoreProperties;
+    }
+
+    public Serialization serialization() {
+        return serialization;
     }
 
     /** File in the import directory to write to, or {@code null} to return the result to Cypher. */

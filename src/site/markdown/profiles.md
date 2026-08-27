@@ -9,7 +9,7 @@ config map of the procedure call.
 | direction | phases                                                                                              |
 |-----------|-----------------------------------------------------------------------------------------------------|
 | import    | 1. parsing + validation &rarr; 2. extracting structure &rarr; 3. dictionary mapping &rarr; 4. graph construction |
-| export    | 1. graph traversal &rarr; 2. dictionary mapping &rarr; serialization (JGF, stand-off JSON/XML)       |
+| export    | 1. graph traversal &rarr; 2. dictionary mapping &rarr; serialization (JGF, stand-off JSON/XML, TEI)   |
 
 ## The project model
 
@@ -52,19 +52,23 @@ name is always kept in `tag`, unmapped attributes become properties.
 
 ## Import profile keys
 
-| key                     | description                                                       | default                  |
-|-------------------------|-------------------------------------------------------------------|--------------------------|
-| `xpath`                 | selects the nodes that make up the text                           | `/TEI/text/body//node()` |
-| `rootElement`           | expected document element, checked in phase 1                     | - (not checked)          |
-| `idAttribute`           | attribute holding an identifier                                   | `xml:id`                 |
-| `idProperty`            | property the identifier is written to                             | `uuid`                   |
-| `referenceAttributes`   | attributes pointing at an entity                                  | `[]`                     |
-| `annotationLabel`       | label of new annotation nodes                                     | model default            |
-| `plainTextProperty`     | property receiving the extracted plain text                       | `plainText`              |
-| `relationshipType`      | relationship from the content node to its annotations             | model default            |
-| `addUuid`               | generate an identifier where the source has none                  | `true`                   |
-| `entityKey`             | property an entity reference is resolved against                  | `uuid`                   |
+| key                     | description                                                       | default        |
+|-------------------------|-------------------------------------------------------------------|----------------|
+| `xpath`                 | selects the nodes that make up the text                           | TEI body       |
+| `standoffXPath`         | selects stand-off annotations; empty disables resolution          | TEI `standOff` |
+| `entityXPath`           | selects entity declarations                                       | TEI `standOff` |
+| `rootElement`           | expected document element, checked in phase 1                     | `TEI`          |
+| `idAttribute`           | attribute holding an identifier                                   | `xml:id`       |
+| `idProperty`            | property the identifier is written to                             | `uuid`         |
+| `referenceAttributes`   | attributes pointing at an entity                                  | `['ref']`      |
+| `annotationLabel`       | label of new annotation nodes                                     | model default  |
+| `plainTextProperty`     | property receiving the extracted plain text                       | `plainText`    |
+| `relationshipType`      | relationship from the content node to its annotations             | model default  |
+| `addUuid`               | generate an identifier where the source has none                  | `true`         |
+| `entityKey`             | property an entity reference is resolved against                  | `uuid`         |
+| `createMissingEntities` | create entities that are declared but not yet in the graph        | `false`        |
 
+The defaults above are those of [atag.text.import.tei](atag.text.import.tei.html);
 `atag.text.import.html` and `atag.text.import.xml` build their profile from their
 positional arguments.
 
@@ -78,6 +82,7 @@ positional arguments.
 | `annotationTypes`       | allow-list of annotation types                                    | all                                       |
 | `textProperties`        | properties holding the character content of a content node        | `['text', 'plainText']`                   |
 | `ignoreProperties`      | properties that should not be serialized at all                   | `[]`                                      |
+| `serialization`         | `inline` or `standoff`, for TEI output                            | `inline`                                  |
 | `entityKey`             | property an entity reference points at                            | `uuid`                                    |
 | `idProperty`            | property a node is addressed by in the serialization              | `uuid`                                    |
 | `fileName`              | write into the import directory instead of returning the result   | -                                         |

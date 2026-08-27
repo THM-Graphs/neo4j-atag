@@ -3,6 +3,7 @@ package atag.profile;
 import atag.model.ProjectModel;
 import atag.model.Ramen.Concept;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -12,17 +13,37 @@ import java.util.Map;
  * names are translated into the project vocabulary (phase 3), and how the result is
  * written to the graph (phase 4).
  * <p>
- * A profile is what makes an import reproducible: the same document imported with two
- * different profiles legitimately yields two different graphs, and nothing outside the
- * profile decides how a document is interpreted.
+ * A profile is what makes an import reproducible: the same TEI document imported with
+ * two different profiles legitimately yields two different graphs, and nothing outside
+ * the profile decides how a document is interpreted.
  */
 public class ImportProfile {
 
-    private static final String DEFAULT_XPATH = "/TEI/text/body//node()";
+    /**
+     * Namespace-agnostic XPaths, so a profile works for TEI with and without a namespace
+     * declaration. The structural containers {@code <div>} and {@code <ab>} are skipped:
+     * they carry the collection and content nodes of the model, not annotations.
+     */
+    private static final String TEI_BODY = "/*[local-name()='TEI']/*[local-name()='text']/*[local-name()='body']"
+            + "//node()[not(self::*[local-name()='div' or local-name()='ab'])]";
+    private static final String TEI_STANDOFF_ANNOTATIONS =
+            "/*[local-name()='TEI']/*[local-name()='standOff']//*[local-name()='annotation']";
+    private static final String TEI_STANDOFF_ENTITIES =
+            "/*[local-name()='TEI']/*[local-name()='standOff']//*[local-name()='list'][@type='entity']/*[local-name()='item']";
+
+    private static final Map<String, Object> TEI_DEFAULTS = Map.of(
+            "xpath", TEI_BODY,
+            "standoffXPath", TEI_STANDOFF_ANNOTATIONS,
+            "entityXPath", TEI_STANDOFF_ENTITIES,
+            "rootElement", "TEI",
+            "idAttribute", "xml:id",
+            "referenceAttributes", List.of("ref"));
 
     private final ProjectModel model;
     private final Dictionary dictionary;
     private final String xpath;
+    private final String standoffXPath;
+    private final String entityXPath;
     private final String rootElement;
     private final String idAttribute;
     private final String idProperty;
@@ -32,12 +53,15 @@ public class ImportProfile {
     private final String relationshipType;
     private final boolean addUuid;
     private final String entityKey;
+    private final boolean createMissingEntities;
 
     @SuppressWarnings("unchecked")
     private ImportProfile(Map<String, Object> config, String defaultAttributePrefix) {
         this.model = ProjectModel.from(config);
         this.dictionary = Dictionary.from(config, defaultAttributePrefix);
-        this.xpath = (String) config.getOrDefault("xpath", DEFAULT_XPATH);
+        this.xpath = (String) config.getOrDefault("xpath", TEI_BODY);
+        this.standoffXPath = (String) config.getOrDefault("standoffXPath", "");
+        this.entityXPath = (String) config.getOrDefault("entityXPath", "");
         this.rootElement = (String) config.getOrDefault("rootElement", "");
         this.idAttribute = (String) config.getOrDefault("idAttribute", "xml:id");
         this.idProperty = (String) config.getOrDefault("idProperty", "uuid");
@@ -48,6 +72,7 @@ public class ImportProfile {
         this.relationshipType = (String) config.getOrDefault("relationshipType", model.hasAnnotation().name());
         this.addUuid = !Boolean.FALSE.equals(config.getOrDefault("addUuid", true));
         this.entityKey = (String) config.getOrDefault("entityKey", "uuid");
+        this.createMissingEntities = Boolean.TRUE.equals(config.get("createMissingEntities"));
     }
 
     /** A profile for XML sources, where attribute names become property keys unchanged. */
@@ -60,6 +85,17 @@ public class ImportProfile {
         return new ImportProfile(config, "attribute:");
     }
 
+    /**
+     * An XML profile with TEI defaults layered underneath the given configuration:
+     * the body is the text, {@code standOff} carries annotations and entities, and
+     * {@code @ref} links an annotation to an entity.
+     */
+    public static ImportProfile tei(Map<String, Object> config) {
+        Map<String, Object> merged = new LinkedHashMap<>(TEI_DEFAULTS);
+        merged.putAll(config);
+        return new ImportProfile(merged, "");
+    }
+
     public ProjectModel model() {
         return model;
     }
@@ -70,6 +106,14 @@ public class ImportProfile {
 
     public String xpath() {
         return xpath;
+    }
+
+    public String standoffXPath() {
+        return standoffXPath;
+    }
+
+    public String entityXPath() {
+        return entityXPath;
     }
 
     /** Expected name of the document element, or empty when phase 1 should not check it. */
@@ -110,5 +154,9 @@ public class ImportProfile {
     /** Property an entity reference is resolved against. */
     public String entityKey() {
         return entityKey;
+    }
+
+    public boolean createMissingEntities() {
+        return createMissingEntities;
     }
 }

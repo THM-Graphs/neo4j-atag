@@ -7,5 +7,11 @@ import java.util.List;
  * to ranges within it. Still expressed in the source vocabulary - the translation into
  * the project's own vocabulary is phase 3.
  */
-public record ExtractedStructure(String plainText, List<ExtractedElement> elements) {
+public record ExtractedStructure(String plainText,
+                                 List<ExtractedElement> elements,
+                                 List<ExtractedElement> entities) {
+
+    public ExtractedStructure(String plainText, List<ExtractedElement> elements) {
+        this(plainText, elements, List.of());
+    }
 }

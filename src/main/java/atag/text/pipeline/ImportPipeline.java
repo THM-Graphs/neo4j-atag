@@ -43,8 +43,8 @@ public class ImportPipeline<D> {
         ExtractedStructure structure = extractor.extract(document, profile);
         MappedStructure mapped = mapper.map(structure, profile);
         List<Node> annotations = constructor.construct(tx, contentNode, mapped, profile);
-        log.debug("imported {} annotations from {} characters of text",
-                annotations.size(), mapped.plainText().length());
+        log.debug("imported {} annotations and {} entity declarations from {} characters of text",
+                annotations.size(), mapped.entities().size(), mapped.plainText().length());
         return annotations;
     }
 }

@@ -1,10 +1,14 @@
 package atag.text.pipeline;
 
+import atag.model.Ramen.Concept;
 import atag.profile.Dictionary;
 import atag.profile.ImportProfile;
+import atag.profile.StandoffVocabulary;
 import atag.text.pipeline.MappedStructure.MappedAnnotation;
+import atag.text.pipeline.MappedStructure.MappedEntity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,29 +31,38 @@ public class StructureMapper {
         for (ExtractedElement element : structure.elements()) {
             annotations.add(mapAnnotation(element, profile));
         }
-        return new MappedStructure(structure.plainText(), annotations);
+        List<MappedEntity> entities = new ArrayList<>();
+        for (ExtractedElement element : structure.entities()) {
+            entities.add(mapEntity(element, profile));
+        }
+        return new MappedStructure(structure.plainText(), annotations, entities);
     }
 
     private MappedAnnotation mapAnnotation(ExtractedElement element, ImportProfile profile) {
         Dictionary dictionary = profile.dictionary();
         Map<String, Object> properties = new LinkedHashMap<>();
-        properties.put(dictionary.elementProperty(), element.name());
-
-        String type = dictionary.typeFor(element.name());
-        if (type != null) {
-            properties.put(dictionary.typeProperty(), type);
+        if (element.name() != null) {
+            properties.put(dictionary.elementProperty(), element.name());
+            String type = dictionary.typeFor(element.name());
+            if (type != null) {
+                properties.put(dictionary.typeProperty(), type);
+            }
         }
-        properties.put("startIndex", element.startIndex());
-        properties.put("endIndex", element.endIndex());
+        if (element.startIndex() != null) {
+            properties.put("startIndex", element.startIndex());
+            properties.put("endIndex", element.endIndex());
+        }
         if (element.text() != null) {
             properties.put(profile.plainTextProperty(), element.text());
         }
 
+        String id = null;
         List<String> references = new ArrayList<>();
         for (Map.Entry<String, String> attribute : element.attributes().entrySet()) {
             String name = attribute.getKey();
             String value = attribute.getValue();
             if (name.equals(profile.idAttribute())) {
+                id = value;
                 properties.put(profile.idProperty(), value);
             } else if (profile.referenceAttributes().contains(name)) {
                 references.addAll(pointers(value));
@@ -57,7 +70,36 @@ public class StructureMapper {
                 properties.put(dictionary.propertyFor(name), value);
             }
         }
-        return new MappedAnnotation(properties, references);
+        return new MappedAnnotation(id, element.parentId(), properties, references);
+    }
+
+    /**
+     * An entity declaration carries the identifier references point at, the labels that
+     * refine the generic {@code Entity} concept, and a display name.
+     */
+    private MappedEntity mapEntity(ExtractedElement element, ImportProfile profile) {
+        Dictionary dictionary = profile.dictionary();
+        List<String> labels = new ArrayList<>(profile.model().labels(Concept.ENTITY));
+        Map<String, Object> properties = new LinkedHashMap<>();
+        String id = null;
+
+        for (Map.Entry<String, String> attribute : element.attributes().entrySet()) {
+            String name = attribute.getKey();
+            String value = attribute.getValue();
+            if (name.equals(profile.idAttribute())) {
+                id = value;
+                properties.put(profile.entityKey(), value);
+            } else if (name.equals(StandoffVocabulary.TYPE_ATTRIBUTE)) {
+                Arrays.stream(value.split(",")).map(String::trim).filter(label -> !label.isEmpty())
+                        .filter(label -> !labels.contains(label))
+                        .forEach(labels::add);
+            } else if (name.equals(StandoffVocabulary.NAME_ATTRIBUTE)) {
+                properties.put("label", value);
+            } else {
+                properties.put(dictionary.propertyFor(name), value);
+            }
+        }
+        return new MappedEntity(id, labels, properties);
     }
 
     /** A reference attribute may hold several whitespace-separated pointers. */

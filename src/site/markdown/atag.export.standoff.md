@@ -30,3 +30,5 @@ RETURN value
   ]
 }
 ```
+
+For TEI output, see [atag.export.tei](atag.export.tei.html).

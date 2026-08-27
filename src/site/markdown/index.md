@@ -5,6 +5,6 @@ This project provides a collection of procedures and functions for working with 
 Text and markup are imported into the graph and exported back out through profile-driven
 pipelines: an import parses and validates a source document, extracts its structure, maps
 it into the project's vocabulary and constructs the graph; an export traverses the graph,
-maps it back and serializes it as JGF or stand-off JSON/XML. What a project's
+maps it back and serializes it as JGF, stand-off JSON/XML or TEI/XML. What a project's
 structures mean is declared in an [import or export profile](profiles.html) rather than
 built into the procedures.

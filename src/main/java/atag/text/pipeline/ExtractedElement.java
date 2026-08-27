@@ -4,14 +4,24 @@ import java.util.Map;
 
 /**
  * One element found by phase 2, still in the vocabulary of the source document: its
- * markup name, its attributes as written, and the character range it covers in the
- * extracted plain text.
+ * markup name - {@code null} where the source has none to contribute - its attributes as written, and the character range it covers in the
+ * extracted plain text. Whether it was written inline or as stand-off markup is already
+ * resolved at this point - both end up as a range over the same text.
  *
- * @param text the element's own textual content, or {@code null} if it has none to record
+ * @param startIndex start of the covered range, or {@code null} for an element that does
+ *                   not refer to a range of text at all
+ * @param text       the element's own textual content, or {@code null} if it has none to record
+ * @param parentId   id of the annotation this one is attached to, for annotations that
+ *                   target another annotation rather than a range of text
  */
 public record ExtractedElement(String name,
                                Map<String, String> attributes,
-                               long startIndex,
-                               long endIndex,
-                               String text) {
+                               Long startIndex,
+                               Long endIndex,
+                               String text,
+                               String parentId) {
+
+    public ExtractedElement(String name, Map<String, String> attributes, long startIndex, long endIndex, String text) {
+        this(name, attributes, startIndex, endIndex, text, null);
+    }
 }
