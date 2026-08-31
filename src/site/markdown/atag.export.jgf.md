@@ -2,6 +2,9 @@
 
 Exports a graph in [JGF (JSON Graph Format)](https://jsongraphformat.info/) from a list of nodes and relationships.
 
+Requires `dbms.security.procedures.unrestricted` to cover `atag.export.*`, see
+[installation](installation.html).
+
 ## Signature
 
 ```cypher

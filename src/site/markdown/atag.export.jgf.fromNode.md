@@ -2,6 +2,9 @@
 
 Traverses from a start node and exports the reachable subgraph as [JGF (JSON Graph Format)](https://jsongraphformat.info/).
 
+Requires `dbms.security.procedures.unrestricted` to cover `atag.export.*`, see
+[installation](installation.html).
+
 Unlike `atag.export.jgf` and `atag.export.jgfFile`, this procedure does not require pre-collected node and relationship lists. Instead, it performs a breadth-first traversal from a given start node, following ATAG-specific relationship types.
 
 ## Signature

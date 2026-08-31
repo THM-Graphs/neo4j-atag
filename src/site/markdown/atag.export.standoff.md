@@ -8,6 +8,9 @@ formats render the same mapped document model, so they agree on how the graph is
 interpreted - anchors nest along `PART_OF`, annotations sit on the anchor or annotation
 they hang off, and annotations are ordered by `startIndex`.
 
+Requires `dbms.security.procedures.unrestricted` to cover `atag.export.*`, see
+[installation](installation.html).
+
 Each format comes in two flavours: `fromNode` traverses from a start node according to the
 [export profile](profiles.html), `list` takes the nodes and relationships the caller has
 already selected.

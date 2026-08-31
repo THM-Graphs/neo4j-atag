@@ -3,6 +3,9 @@
 Exports a graph in [JGF (JSON Graph Format)](https://jsongraphformat.info/) and writes it to a file. 
 The file location is the import folder of the Neo4j database.
 
+Requires `dbms.security.procedures.unrestricted` to cover `atag.export.*`, see
+[installation](installation.html).
+
 ## Signature
 
 ```cypher

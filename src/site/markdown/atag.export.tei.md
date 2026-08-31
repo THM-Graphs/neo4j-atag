@@ -6,6 +6,9 @@ Export a subgraph as TEI/XML. `fromNode` traverses from a start node according t
 [export profile](profiles.html), `list` takes the nodes and relationships the caller has
 already selected.
 
+Requires `dbms.security.procedures.unrestricted` to cover `atag.export.*`, see
+[installation](installation.html).
+
 An annotation is written inline wherever the XML hierarchy permits it. Annotations that
 overlap another one, annotations on annotations, and every annotation at all when the
 profile asks for `serialization: 'standoff'`, are written into `<standOff>` pointing back

@@ -2,6 +2,9 @@
 
 This procedure imports a graph from a JSON Graph Format (JGF) file.
 
+Requires `dbms.security.procedures.unrestricted` to cover `atag.import.*`, see
+[installation](installation.html).
+
 ## Syntax
 
 ```cypher

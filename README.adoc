@@ -1,3 +1,22 @@
 # neo4j-atag
 
 A collections of https://neo4j.com[neo4j] stored procedures to support the https://git.thm.de/aksz15/atag[applied text as graph] (ATAG) concept.
+
+== Installation
+
+Copy the jar file into the `plugins` directory of your Neo4j installation and restart it.
+
+The export procedures and the JGF importer need to be exempted from procedure sandboxing,
+because they resolve Neo4j's import directory:
+
+----
+dbms.security.procedures.unrestricted=atag.export.*,atag.import.*
+----
+
+Without it, every call into those groups fails with `... is unavailable because it is
+sandboxed and has dependencies outside of the sandbox`. The other procedures need no
+configuration.
+
+See the https://thm-graphs.github.io/neo4j-atag/[documentation] for the procedure
+reference and a worked example.
+
