@@ -49,3 +49,6 @@ CALL atag.text.import.tei(t, 'xml', {
 }) YIELD node
 RETURN node
 ```
+
+The [worked example](worked-example.html) walks through this import step by step and shows
+the graph it produces.

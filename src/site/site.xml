@@ -25,6 +25,7 @@
             <item name="Installation" href="installation.html"/>
             <item name="Building" href="building.html"/>
             <item name="Import and export profiles" href="profiles.html"/>
+            <item name="Worked example: TEI in and out" href="worked-example.html"/>
         </menu>
         <menu name="Procedures / Functions">
             <item name="atag.chains.characterChain" href="atag.chains.characterChain.html"/>

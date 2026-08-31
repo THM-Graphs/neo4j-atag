@@ -45,3 +45,6 @@ The result can be read back with [atag.text.import.tei](atag.text.import.tei.htm
 roundtrip is semantic: the text, the annotated ranges, their types, annotations on
 annotations and entity references survive, while the serialization may differ in shape
 from the document that was originally imported.
+
+The [worked example](worked-example.html) shows both serializations of one text, including
+an annotation that has to move into `<standOff>` because it overlaps another one.

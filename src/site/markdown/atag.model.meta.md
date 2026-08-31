@@ -33,3 +33,6 @@ MATCH (t:Transcript {uuid: 'transcript-1'})
 CALL atag.export.standoff_json.fromNode(t, {model: 'meta'}) YIELD value
 RETURN value
 ```
+
+The [worked example](worked-example.html) uses a meta graph for a complete import and
+export.

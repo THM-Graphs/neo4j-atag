@@ -4,6 +4,9 @@ Import and export are model-guided transformations, not generic file conversions
 directions run as pipelines whose phases are controlled by a *profile*, given as the
 config map of the procedure call.
 
+The [worked example](worked-example.html) shows the keys below in use on a complete
+import and export.
+
 ## Pipelines
 
 | direction | phases                                                                                              |
