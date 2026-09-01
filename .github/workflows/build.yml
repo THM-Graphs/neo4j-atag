@@ -1,5 +1,8 @@
 name: build
 
+permissions:
+  contents: read
+
 on: [push]
 
 jobs:
@@ -12,6 +15,7 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+          cache: 'maven'
       - run: mvn -B verify --no-transfer-progress
 
 #  coverage:

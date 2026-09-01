@@ -1,6 +1,8 @@
-permissions: write-all
-
 name: publish-docs
+
+permissions:
+  contents: write
+
 on:
   workflow_dispatch:
 
@@ -13,12 +15,8 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: 21
-#          server-id: oss.sonatype.org
-#          server-username: MAVEN_USERNAME
-#          server-password: MAVEN_PASSWORD
-#          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
-#          gpg-passphrase: MAVEN_GPG_PASSPHRASE
+          java-version: '17'
+          cache: 'maven'
 
       - name: generate maven site
         run: mvn site site:stage
