@@ -55,6 +55,7 @@ public final class MetaGraph {
 
         relate(concepts.get(Concept.CONTENT), concepts.get(Concept.COLLECTION), model.partOf());
         relate(concepts.get(Concept.COLLECTION), concepts.get(Concept.COLLECTION), model.partOf());
+        relate(concepts.get(Concept.ENTITY), concepts.get(Concept.COLLECTION), model.partOf());
         relate(concepts.get(Concept.CONTENT), concepts.get(Concept.ANNOTATION), model.hasAnnotation());
         relate(concepts.get(Concept.ANNOTATION), concepts.get(Concept.ANNOTATION), model.hasAnnotation());
         relate(concepts.get(Concept.ANNOTATION), concepts.get(Concept.ENTITY), model.refersTo());

@@ -61,6 +61,17 @@ class MetaGraphTest {
     }
 
     @Test
+    void anEntityMayBePartOfACollection(GraphDatabaseService db) {
+        writeModel(db);
+
+        long relations = db.executeTransactionally("""
+                MATCH (:Meta:Concept {name: 'ENTITY'})-[:PART_OF]->(:Meta:Concept {name: 'COLLECTION'})
+                RETURN count(*) AS count
+                """, Map.of(), r -> (Long) Iterators.single(r).get("count"));
+        assertEquals(1, relations, "a register of entities belongs to the collection that declares it");
+    }
+
+    @Test
     void writingTheSameModelTwiceDoesNotDuplicateIt(GraphDatabaseService db) {
         writeModel(db);
         writeModel(db);
