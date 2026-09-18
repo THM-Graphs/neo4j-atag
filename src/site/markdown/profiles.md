@@ -5,7 +5,8 @@ directions run as pipelines whose phases are controlled by a *profile*, given as
 config map of the procedure call.
 
 The [worked example](worked-example.html) shows the keys below in use on a complete
-import and export.
+import and export; the [second worked example](worked-example-letter.html) uses the keys
+for headers, registers and references on a document from a real edition.
 
 ## Pipelines
 
@@ -56,6 +57,16 @@ directions:
 Names the dictionary does not know are passed through rather than dropped: the element
 name is always kept in `tag`, unmapped attributes become properties.
 
+## What is not modelled travels verbatim
+
+A source document contains things the model has no concept for - a `<teiHeader>`, the
+`<birth>` and `<idno>` children of an entity declaration. The import keeps them as XML
+strings on the node they belong to (`headerProperty`, `entitySourceProperty`), and the TEI
+export writes them back as they were. In the same spirit, a reference the graph cannot
+resolve stays a property named after its attribute instead of being dropped, and the
+nesting depth of an element is kept in `depth` so that two annotations over the same
+characters can be written back in their original order.
+
 ## Import profile keys
 
 | key                     | description                                                       | default        |
@@ -73,10 +84,14 @@ name is always kept in `tag`, unmapped attributes become properties.
 | `addUuid`               | generate an identifier where the source has none                  | `true`         |
 | `entityKey`             | property an entity reference is resolved against                  | `uuid`         |
 | `createMissingEntities` | create entities that are declared but not yet in the graph        | `false`        |
+| `headerXPath`           | selects the document header, kept verbatim; empty keeps none      | TEI `teiHeader` |
+| `headerProperty`        | property of the content node the header is stored on              | `teiHeader`    |
+| `entityLabelXPath`      | evaluated relative to a declaration to obtain its display name    | `@n`           |
+| `entitySourceProperty`  | property an entity declaration is stored on verbatim              | none           |
 
-The defaults above are those of [atag.text.import.tei](atag.text.import.tei.html);
-`atag.text.import.html` and `atag.text.import.xml` build their profile from their
-positional arguments.
+The defaults above are those of [atag.text.import.tei](atag.text.import.tei.html) and
+[atag.text.import.entities](atag.text.import.entities.html); `atag.text.import.html` and
+`atag.text.import.xml` build their profile from their positional arguments.
 
 ## Export profile keys
 
@@ -91,4 +106,7 @@ positional arguments.
 | `serialization`         | `inline` or `standoff`, for TEI output                            | `inline`                                  |
 | `entityKey`             | property an entity reference points at                            | `uuid`                                    |
 | `idProperty`            | property a node is addressed by in the serialization              | `uuid`                                    |
+| `referenceAttribute`    | attribute an entity reference is written as, for TEI output       | `ref`                                     |
+| `headerProperty`        | property holding a verbatim header; a node that has one becomes a `<TEI>` of its own | `teiHeader`    |
+| `entitySourceProperty`  | property holding a verbatim entity declaration, written back as it is | none                                  |
 | `fileName`              | write into the import directory instead of returning the result   | -                                         |

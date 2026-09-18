@@ -39,6 +39,18 @@ pointer:
 Both encodings result in the same kind of annotation node, which is what makes an inline
 and a stand-off encoding of the same relation interchangeable.
 
+## What else the import keeps
+
+* The `<teiHeader>` is stored verbatim on the content node (`headerProperty`, default
+  `teiHeader`), so that an export can write it back.
+* Every inline annotation records the nesting depth of its element in `depth`. Two
+  elements over exactly the same characters - `<subst><del>…</del></subst>` - are told
+  apart by nothing else.
+* A reference attribute whose pointer no entity in the graph answers to is not dropped: it
+  stays a property named after the attribute, with the pointer as written.
+* An entity declaration keeps its declaring element in `tag`, and the declaration itself
+  when `entitySourceProperty` is set.
+
 ## Example
 
 ```cypher
@@ -51,4 +63,5 @@ RETURN node
 ```
 
 The [worked example](worked-example.html) walks through this import step by step and shows
-the graph it produces.
+the graph it produces; the [second worked example](worked-example-letter.html) imports a
+letter from a real edition, register and headers included.

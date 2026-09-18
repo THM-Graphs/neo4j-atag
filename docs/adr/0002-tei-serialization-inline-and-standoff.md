@@ -4,7 +4,9 @@ Date: 2026-08-27
 
 ## Status
 
-Accepted
+Accepted. ADR 0004 replaces the placeholder header with the verbatim header of the source
+and adds nested `<TEI>` documents; ADR 0005 refines the nesting rule for annotations over
+the same range.
 
 ## Context
 

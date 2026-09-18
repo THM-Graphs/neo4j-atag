@@ -11,4 +11,6 @@ built into the procedures.
 
 A complete walkthrough - declaring a project model, importing a TEI letter, querying the
 result and exporting it again in both serializations - is in the
-[worked example](worked-example.html).
+[worked example](worked-example.html). A [second one](worked-example-letter.html) takes a
+letter from a real edition through the pipeline and shows that the export has the same
+content as the source.

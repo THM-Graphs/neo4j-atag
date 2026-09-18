@@ -13,8 +13,20 @@ An annotation is written inline wherever the XML hierarchy permits it. Annotatio
 overlap another one, annotations on annotations, and every annotation at all when the
 profile asks for `serialization: 'standoff'`, are written into `<standOff>` pointing back
 at the text with a `string-range()` pointer. Collections become `<div>`, content nodes
-become `<ab>`, and `REFERS_TO` relations become `@ref` pointers to entities declared in
-`<standOff>`.
+become `<ab>`, and `REFERS_TO` relations become `@ref` pointers (or whatever
+`referenceAttribute` names) to entities declared in `<standOff>`.
+
+A node that carries a header (`headerProperty`) is written as a `<TEI>` of its own, with
+its identifier and properties as attributes and the header verbatim, nested into the
+`<TEI>` of its parent - a corpus comes back as a corpus. A root without a header gets a
+placeholder header. Entities whose declaration was kept verbatim (`entitySourceProperty`)
+are written back into the TEI list their element belongs to, `<listPerson>` for
+`<person>` and so on; the others are declared as `<list type="entity"><item/>`.
+
+Annotations over the same characters are nested by the `depth` the import recorded, and a
+pointer the import could not resolve is written back as the attribute it was kept in. An
+`xml:id` is written where the node has an identifier or where a pointer needs one - a
+generated `atag-N` appears only in the second case.
 
 ## Parameters
 

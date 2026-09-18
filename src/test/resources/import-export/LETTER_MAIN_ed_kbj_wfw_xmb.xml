@@ -1,0 +1,915 @@
+<teiCorpus xmlns="http://www.tei-c.org/ns/1.0">
+    <teiHeader>
+        <fileDesc>
+            <titleStmt>
+                <title type="main">Ismaël Boulliau (Paris) an Stanisław Lubieniecki (Hamburg), 6.
+                    März 1665</title>
+                <title type="sub"/>
+                <principal ref="http://d-nb.info/gnd/135995728">Kęstutis Daugirdas</principal>
+                <principal ref="https://orcid.org/0000-0003-1020-507X">Andreas Kuczera</principal>
+                <funder>Deutsche Forschungsgemeinschaft</funder>
+            </titleStmt>
+            <extent>
+                <measure unit="texts" quantity="1"/>
+            </extent>
+            <publicationStmt>
+                <publisher>
+                    <orgName ref="https://www.jalb.de/">Johannes a Lasco Bibliothek</orgName>
+                    <settlement ref="https://sws.geonames.org/2930596">Emden</settlement>
+                </publisher>
+                <publisher>
+                    <orgName ref="https://www.adwmainz.de/">Akademie der Wissenschaften und der Literatur</orgName>
+                    <settlement ref="http://sws.geonames.org/2874225">Mainz</settlement>
+                </publisher>
+                <pubPlace ref="http://sws.geonames.org/2874225">Mainz</pubPlace>
+                <date from="2020">2020–2024</date>
+                <availability>
+                    <licence target="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International (CC-BY 4.0)</licence>
+                </availability>
+            </publicationStmt>
+            <seriesStmt>
+                <title type="main">Die sozinianischen Briefwechsel</title>
+                <title type="sub">Zwischen Theologie, frühmoderner Naturwissenschaft und politischer Korrespondenz</title>
+                <editor ref="http://d-nb.info/gnd/135995728">Kęstutis Daugirdas</editor>
+                <editor ref="https://orcid.org/0000-0003-1020-507X">Andreas Kuczera</editor>
+                <idno>https://gepris.dfg.de/gepris/projekt/324518514</idno>
+                <idno>https://registry.text-plus.org/entity/e4dde8f1-2335-4bc6-aeab-c64c4c163ef4/</idno>
+            </seriesStmt>
+            <notesStmt>
+                <note/>
+            </notesStmt>
+            <sourceDesc>
+                <bibl>„Ismaël Boulliau (Paris) an Stanisław Lubieniecki (Hamburg), 6. März 1665“, in: Zwischen Theologie, frühmoderner Naturwissenschaft und politischer Korrespondenz: Die sozinianischen Briefwechsel, hg. von Kęstutis Daugirdas und Andreas Kuczera unter DH-Mitarbeit von Julian Jarosch, Sebastian Enns und Patrick Toschka. Link zur aktuellen Version dieses Briefes: https://sozinianer.de/id/MAIN_ed_kbj_wfw_xmb</bibl>
+            </sourceDesc>
+        </fileDesc>
+        <encodingDesc>
+            <p/>
+        </encodingDesc>
+    </teiHeader>
+    <standOff>
+        <listPerson>
+            <head>Personen</head>
+            <desc>alle in den hier gesammelten Texten vorkommenden Personen (historische und antike Personen, biblische und mythologische Figuren)</desc>
+            <person xml:id="Anne_von_Oesterreich">
+                    
+                    <persName type="reg">
+                        <name>Anna Maria Mauricia von Österreich, Kgn. von Frankreich</name>
+                    </persName>
+                    <persName type="alt">
+                        <name>Anne d’Autriche</name>
+                    </persName>
+                    <birth>1601</birth>
+                    <death>1666</death>
+                    <note>Mutter von <persName key="ed_q5k_vhs_52b">Ludwig XIV</persName>.</note>
+                <idno type="uri">https://d-nb.info/gnd/1057566705</idno>
+            </person>
+            <person xml:id="ed_mvq_mvb_nlb">
+                    
+                    <persName type="reg">
+                        <name>Apollonius von Myndus</name>
+                    </persName>
+                    <birth>4. Jh. v. Chr.</birth>
+                    <death>4. Jh. v. Chr.</death>
+                <idno type="uri">https://www.wikidata.org/wiki/Q24949881</idno>
+            </person>
+            <person xml:id="ed_kgr_f4c_1gb">
+                    
+                    <persName type="reg">
+                        <surname>Beuningen</surname>
+                        <forename>Coenraad van</forename>
+                    </persName>
+                    <birth>1622</birth>
+                    <death>1693</death>
+                    <note>Bürgermeister von Amsterdam, Politiker und Diplomat. Vom 5. Mai 1660 bis
+                        zum 27. April 1662 auf Mission in Paris, als Botschafter ebenda vom 26.
+                        Dezember 1664 bis zum 29. September 1667 (Groß, Bittner, Repertorium der
+                        diplomatischen Vertreter I, S. 358). </note>
+                <idno type="uri">https://d-nb.info/gnd/102434816</idno>
+            </person>
+            <person xml:id="Boulliau">
+                    
+                    
+                    <persName type="reg">
+                        <surname>Boulliau</surname>
+                        <forename>Ismaël</forename>
+                    </persName>
+                    <persName type="alt">
+                        <name>Boullialdus, Ismael</name>
+                    </persName>
+                    <birth>1605</birth>
+                    <death>1694</death>
+                <idno type="uri">https://www.deutsche-biographie.de/pnd119277379.html</idno>
+                <idno type="uri">https://d-nb.info/gnd/119277379</idno>
+            </person>
+            <person xml:id="ed_j4f_2pn_g3b">
+                    
+                    <persName type="reg">
+                        <surname>Colbert</surname>
+                        <forename>Jean-Baptiste</forename>
+                    </persName>
+                    <birth>1619</birth>
+                    <death>1683</death>
+                <idno type="uri">https://d-nb.info/gnd/118521470</idno>
+            </person>
+            <person xml:id="ed_itt_2tp_5qb">
+                    
+                    <persName type="reg">
+                        <surname>Comminges</surname>
+                        <forename>Gaston Jean-Baptist, Comte de</forename>
+                    </persName>
+                    <birth>1613</birth>
+                    <death>1670</death>
+                <idno type="uri">https://d-nb.info/gnd/1055092218</idno>
+            </person>
+            <person xml:id="ed_q5t_kmf_5gb">
+                    
+                    <persName type="reg">
+                        <surname>Courtin</surname>
+                        <forename>Antoine de</forename>
+                    </persName>
+                    <birth>1622</birth>
+                    <death>1686</death>
+                    <note>Diplomat: Resident près les villes hanséatiques du Nord et ports de la mer
+                        Baltique vom 17. September 1661 bis zum 27. September 1668 (Bittner, Groß,
+                        Repertorium der dipomatischen Vertreter I, S. 213), daneben auch
+                        Schriftsteller.</note>
+                <idno type="uri">https://d-nb.info/gnd/120374307</idno>
+            </person>
+            <person xml:id="ed_aty_vzq_yjb">
+                    
+                    
+                    <persName type="reg">
+                        <surname>Cromwell</surname>
+                        <forename>Oliver</forename>
+                    </persName>
+                    <birth>1599</birth>
+                    <death>1658</death>
+                <idno type="uri">https://d-nb.info/gnd/118522841</idno>
+                <idno type="uri">https://www.wikidata.org/wiki/Q44279</idno>
+            </person>
+            <person xml:id="Curtz">
+                    
+                    
+                    <persName type="reg">
+                        <surname>Curtz SJ</surname>
+                        <forename>Albert</forename>
+                    </persName>
+                    <persName type="alt">
+                        <surname>Curtius</surname>
+                        <forename>Albertus</forename>
+                    </persName>
+                    <persName subtype="pseudonym" type="alt">
+                        <surname>Barretus</surname>
+                        <forename>Lucius</forename>
+                    </persName>
+                    <birth>1600</birth>
+                    <death>1671</death>
+                <idno type="uri">https://www.deutsche-biographie.de/pnd124643221.html</idno>
+                <idno type="uri">https://d-nb.info/gnd/124643221</idno>
+            </person>
+            <person xml:id="ed_yzs_ksx_qpb">
+                    
+                    <persName type="reg">
+                        <name>Elisabeth von Bourbon</name>
+                    </persName>
+                    <birth>1614</birth>
+                    <death>1664</death>
+                    <note>Gem. von Philipp IV., Kg. von Spanien</note>
+                <idno type="uri">https://www.wikidata.org/wiki/Q647497</idno>
+            </person>
+            <person xml:id="ed_dzg_5cl_3fb">
+                    <persName type="reg">
+                        <name>Epigenes von Byzanz</name>
+                    </persName>
+                    <floruit notAfter="-0100-00-00" notBefore="-0200-00-00">2. Jh. v. Chr.</floruit>
+                    <note>Keine Normadaten vorhanden.</note>
+                </person>
+            <person xml:id="ed_is5_r2x_c3b">
+                    
+                    <persName type="reg">
+                        <surname>Gassendi</surname>
+                        <forename>Pierre</forename>
+                    </persName>
+                    <birth>1592</birth>
+                    <death>1655</death>
+                <idno type="uri">https://d-nb.info/gnd/118537695</idno>
+            </person>
+            <person xml:id="Guericke">
+                    
+                    
+                    <persName type="reg">
+                        <surname>Guericke der Ältere</surname>
+                        <forename>Otto von</forename>
+                    </persName>
+                    <birth>1602</birth>
+                    <death>1686</death>
+                <idno type="uri">https://www.deutsche-biographie.de/pnd11854330X.html</idno>
+                <idno type="uri">https://d-nb.info/gnd/11854330X</idno>
+            </person>
+            <person xml:id="ed_etp_pgx_mjb">
+                    
+                    
+                    <persName type="reg">
+                        <name>Heinrich IV., Kg. von Frankreich</name>
+                    </persName>
+                    <birth>1553</birth>
+                    <death>1610</death>
+                <idno type="uri">https://d-nb.info/gnd/118548174</idno>
+                <idno type="uri">https://www.wikidata.org/wiki/Q936976</idno>
+            </person>
+            <person xml:id="Heinsius">
+                    
+                    
+                    
+                    <persName type="reg">
+                        <surname>Heinsius</surname>
+                        <forename>Nicolaus</forename>
+                    </persName>
+                    <persName type="alt">
+                        <surname>Heinsius</surname>
+                        <forename>Nikolaus</forename>
+                    </persName>
+                    <birth>1620</birth>
+                    <death>1681</death>
+                <idno type="uri">http://www.biografischportaal.nl/persoon/21442579</idno>
+                <idno type="uri">https://www.deutsche-biographie.de/pnd10415926X.html</idno>
+                <idno type="uri">https://d-nb.info/gnd/10415926X</idno>
+            </person>
+            <person xml:id="ed_lgk_jbc_kfb">
+                    
+                    <persName type="reg">
+                        <name>Henri de Bourbon, Hzg. von Verneuil</name>
+                    </persName>
+                    <birth>1601</birth>
+                    <death>1682</death>
+                    <note>Bischof von Metz, natürlicher Sohn Heinrichs IV. und Catherine Henriette
+                        Balzac d’Entragues, von April bis Dezember 1665 zusammen mit Honoré de
+                        Courtin außerordentlicher Botschafter Frankreichs in England </note>
+                <idno type="uri">https://d-nb.info/gnd/1020054220</idno>
+            </person>
+            <person xml:id="ed_pq1_cqm_ndb">
+                    
+                    <persName type="reg">
+                        <name>Johann II. Kasimir Wasa, Kg. von Polen und Schweden, Gfs. von
+                            Litauen</name>
+                    </persName>
+                    <persName type="alt">
+                        <name>Ioannes Casimirus</name>
+                    </persName>
+                    <persName type="alt">
+                        <name>Jonas Kazimieras Vaza</name>
+                    </persName>
+                    <persName type="alt">
+                        <name>Jan II Kazimierz Waza</name>
+                    </persName>
+                    <birth>1609</birth>
+                    <death>1672</death>
+                    <note>Titularkönig von Schweden, regierte 1648-1668</note>
+                <idno type="uri">https://d-nb.info/gnd/119389118</idno>
+            </person>
+            <person xml:id="ed_o5n_3mc_kfb">
+                    
+                    
+                    <persName type="reg">
+                        <name>Karl II. Stuart, Kg. von England, Schottland und Irland</name>
+                    </persName>
+                    <birth>1630</birth>
+                    <death>1685</death>
+                    <note>Thronbesteigung 1660</note>
+                <idno type="uri">https://www.deutsche-biographie.de/pnd118560042.html</idno>
+                <idno type="uri">https://d-nb.info/gnd/118560042</idno>
+            </person>
+            <person xml:id="ed_ygh_q5h_5pb">
+                    
+                    <persName type="reg">
+                        <name>Karl II., Kg. von Spanien</name>
+                    </persName>
+                    <birth>1661</birth>
+                    <death>1700</death>
+                <idno type="uri">https://d-nb.info/gnd/118776797</idno>
+            </person>
+            <person xml:id="ed_gfy_2rk_f3b">
+                    
+                    
+                    <persName type="reg">
+                        <surname>Kirsten</surname>
+                        <forename>Michael</forename>
+                    </persName>
+                    <birth>1620</birth>
+                    <death>1678</death>
+                <idno type="uri">https://d-nb.info/gnd/134620127</idno>
+                <idno type="uri">https://www.wikidata.org/wiki/Q27583572</idno>
+            </person>
+            <person xml:id="ed_rzf_5d1_j2b">
+                    
+                    
+                    <persName type="reg">
+                        <name>Leopold I. (HRR)</name>
+                    </persName>
+                    <birth>1640</birth>
+                    <death>1705</death>
+                    <note>1658 bis 1705 Kaiser</note>
+                <idno type="uri">https://www.deutsche-biographie.de/pnd118571869.html</idno>
+                <idno type="uri">https://d-nb.info/gnd/118571869</idno>
+            </person>
+            <person xml:id="ed_i5r_nld_1jb">
+                    <persName type="reg">
+                        <surname>Liberati</surname>
+                        <forename>Francesco</forename>
+                    </persName>
+                    <persName type="alt">
+                        <surname>Liberati</surname>
+                        <forename>François</forename>
+                    </persName>
+                    <birth>16. Jh.</birth>
+                    <death>16. Jh.</death>
+                    <note>Aus Rom stammender Astrologe, Verfasser eines „Discours de la comete“ und
+                        der „Prédictions pour l’an de Grâce 1585“.</note>
+                </person>
+            <person xml:id="ed_cfc_bdc_mkb">
+                    
+                    
+                    <persName type="reg">
+                        <name>Louis de Bourbon, Grand Dauphin de France</name>
+                    </persName>
+                    <birth>1661</birth>
+                    <death>1711</death>
+                <idno type="uri">https://www.wikidata.org/wiki/Q784173</idno>
+                <idno type="uri">https://d-nb.info/gnd/119209853</idno>
+            </person>
+            <person xml:id="Lubieniecki_Stanislaw">
+                    
+                    
+                    <persName type="reg">
+                        <surname>Lubieniecki</surname>
+                        <forename>Stanisław</forename>
+                    </persName>
+                    <birth>1623</birth>
+                    <death>1675</death>
+                <idno type="uri">https://www.deutsche-biographie.de/pnd119357100.html</idno>
+                <idno type="uri">https://d-nb.info/gnd/119357100</idno>
+            </person>
+            <person xml:id="ed_t1z_gmm_ndb">
+                    
+                    
+                    <persName type="reg">
+                        <surname>Lubomirski</surname>
+                        <forename>Jerzy Sebastian</forename>
+                    </persName>
+                    <persName type="alt">
+                        <surname>Lubormirscius</surname>
+                        <forename/>
+                    </persName>
+                    <birth>1616</birth>
+                    <death>1667</death>
+                    <note>Polnischer Magnat, Feldherr und Staatsmann, namensgebend für den „rokosz
+                        Lubomirskiego“ (1665–1666), einem bewaffneten Adelsaufstand, der gegen
+                        Reformpläne des Königs gerichtet war.</note>
+                <idno type="uri">https://www.deutsche-biographie.de/pnd119521733.html</idno>
+                <idno type="uri">https://d-nb.info/gnd/119521733</idno>
+            </person>
+            <person xml:id="ed_q5k_vhs_52b">
+                    
+                    
+                    <persName type="reg">
+                        <name>Ludwig XIV., Kg. von Frankreich</name>
+                    </persName>
+                    <persName type="alt">
+                        <name>Louis XIV</name>
+                    </persName>
+                    <birth>1638</birth>
+                    <death>1715</death>
+                <idno type="uri">https://www.deutsche-biographie.de/pnd118816829.html</idno>
+                <idno type="uri">https://d-nb.info/gnd/118816829</idno>
+            </person>
+            <person xml:id="ed_dr3_r2y_ydb">
+                    
+                    <persName type="reg">
+                        <name>Ludwika Maria Gonzaga, Kgn. von Polen, Gfsn. von Litauen</name>
+                    </persName>
+                    <persName type="alt">
+                        <name>Luisa Maria Gonzaga </name>
+                    </persName>
+                    <birth>1611</birth>
+                    <death>1667</death>
+                    <note>Tochter des Hzg.s Carlo I. Gonzaga und der Catherine de Lorraine-Guise,
+                        Gemahlin Władysław IV. Wasa und Johann II. Kasimir Wasa, Königin von Polen
+                        und GroßFsn. von Litauen, wurde in Polen-Litauen Ludwika genannt.</note>
+                <idno type="uri">https://d-nb.info/gnd/104321350</idno>
+            </person>
+            <person xml:id="ed_hpz_jwb_rhb">
+                    
+                    <persName type="reg">
+                        <name>Manilius</name>
+                    </persName>
+                    <birth/>
+                    <death>1. Jh. n. Chr.</death>
+                    <note>Römischer Dichter</note>
+                <idno type="uri">https://d-nb.info/gnd/118577077</idno>
+            </person>
+            <person xml:id="ed_sxp_mgn_3jb">
+                    
+                    
+                    
+                    <persName type="reg">
+                        <name>Margarethe Theresia von Spanien, Ksn.</name>
+                    </persName>
+                    <birth>1651</birth>
+                    <death>1673</death>
+                    <note>1. Gem. Leopolds I. (HRR)</note>
+                <idno type="uri">https://www.deutsche-biographie.de/pnd118730991.html</idno>
+                <idno type="uri">https://d-nb.info/gnd/118730991</idno>
+                <idno type="uri">https://www.wikidata.org/wiki/Q158659</idno>
+            </person>
+            <person xml:id="ed_bpw_j3k_kfb">
+                    
+                    
+                    <persName type="reg">
+                        <name>Maria Theresa von Spanien, Kgn. von Frankreich</name>
+                    </persName>
+                    <birth>1638</birth>
+                    <death>1683</death>
+                    <note>Tochter Philipps IV. von Spanien, Gem. Ludwigs XIV.</note>
+                <idno type="uri">https://www.deutsche-biographie.de/pnd119150182.html</idno>
+                <idno type="uri">https://d-nb.info/gnd/119150182</idno>
+            </person>
+            <person xml:id="Olearius">
+                    
+                    
+                    <persName type="reg">
+                        <surname>Olearius</surname>
+                        <forename>Adam</forename>
+                    </persName>
+                    <birth>1599</birth>
+                    <death>1671</death>
+                <idno type="uri">https://www.deutsche-biographie.de/pnd118736256.html</idno>
+                <idno type="uri">https://d-nb.info/gnd/118736256</idno>
+            </person>
+            <person xml:id="ed_fhq_5hd_dhb">
+                    <persName type="reg">
+                        <surname>Pels</surname>
+                        <forename>Paulus Philipp</forename>
+                    </persName>
+                    <note>Sohn oder sonstiger Verwandter von Paulus Pels? Vom 16. September 1659 bis
+                        9. Juli 1678 Kommissär der Niederlande in Danzig (Bittner, Groß, Repertorium
+                        der diplomamtischen Vertreter I, S. 354)</note>
+                </person>
+            <person xml:id="ed_mqm_kgk_kfb">
+                    
+                    
+                    <persName type="reg">
+                        <name>Philipp IV. (III.), Kg. von Spanien und Portugal, Kg. von
+                            Sizilien</name>
+                    </persName>
+                    <birth>1605</birth>
+                    <death>1665</death>
+                    <note>Spanischer Habsburger, König von Spanien und Portugal, als König von
+                        Sizilien: Philipp III.</note>
+                <idno type="uri">https://www.deutsche-biographie.de/pnd118593870.html</idno>
+                <idno type="uri">https://d-nb.info/gnd/118593870</idno>
+            </person>
+            <person xml:id="ed_ujx_zln_xhb">
+                    
+                    <persName type="reg">
+                        <surname>Seneca</surname>
+                        <forename>Lucius Annaeus</forename>
+                    </persName>
+                    <persName type="alt">
+                        <name>Seneca minor</name>
+                    </persName>
+                    <persName type="alt">
+                        <name>Seneca philosophus</name>
+                    </persName>
+                    <birth>1 n. Chr.</birth>
+                    <death>65 n. Chr.</death>
+                <idno type="uri">https://d-nb.info/gnd/118613200</idno>
+            </person>
+            <person xml:id="ed_dkk_1h2_rkb">
+                    
+                    
+                    <persName type="reg">
+                        <name>Sigismund II. August, Kg. von Polen, Gfs. von Litauen</name>
+                    </persName>
+                    <persName type="alt">
+                        <name>Žygimantas Augustas</name>
+                    </persName>
+                    <persName type="alt">
+                        <name>Zygmunt II. August</name>
+                    </persName>
+                    <birth>1520</birth>
+                    <death>1572</death>
+                    <note>Letzter Jagiellone</note>
+                <idno type="uri">https://www.wikidata.org/wiki/Q54058</idno>
+                <idno type="uri">https://d-nb.info/gnd/118614193</idno>
+            </person>
+        </listPerson>
+        <listPlace>
+            <head>Orte</head>
+            <desc>alle in den hier gesammelten Texten vorkommenden Geografika (Städte, Regionen etc.)</desc>
+            <place xml:id="England">
+                    
+                    
+                    <placeName type="reg">England</placeName>
+                <idno type="uri">https://d-nb.info/gnd/4014770-8</idno>
+                <idno type="uri">https://www.geonames.org/6269131</idno>
+            </place>
+            <place xml:id="ed_knq_nmt_rjb">
+                    
+                    
+                    <placeName type="reg">Europa</placeName>
+                <idno type="uri">https://www.wikidata.org/wiki/Q46</idno>
+                <idno type="uri">https://www.geonames.org/6255148</idno>
+            </place>
+            <place xml:id="Frankreich">
+                    
+                    
+                    <placeName type="reg">Frankreich</placeName>
+                    <placeName type="alt">Francia</placeName>
+                    <placeName type="alt">Gallia</placeName>
+                <idno type="uri">https://d-nb.info/gnd/4018145-5</idno>
+                <idno type="uri">https://www.geonames.org/3017382</idno>
+            </place>
+            <place xml:id="Hamburg">
+                    
+                    
+                    <placeName type="reg">Hamburg</placeName>
+                <idno type="uri">https://d-nb.info/gnd/4023118-5</idno>
+                <idno type="uri">https://www.geonames.org/2911298</idno>
+            </place>
+            <place xml:id="Holland">
+                    
+                    
+                    <placeName type="reg">Niederlande</placeName>
+                <idno type="uri">https://d-nb.info/gnd/4042203-3</idno>
+                <idno type="uri">https://www.geonames.org/2750405</idno>
+            </place>
+            <place xml:id="ed_wrb_yjk_kfb">
+                    <placeName type="reg">Niederlande, Spanische</placeName>
+                    <placeName type="alt">Hispanicum Belgium</placeName>
+                    <placeName type="alt">Belgium Regium</placeName>
+                </place>
+            <place xml:id="Paris">
+                    
+                    
+                    <placeName type="reg">Paris</placeName>
+                <idno type="uri">https://d-nb.info/gnd/4044660-8</idno>
+                <idno type="uri">https://www.geonames.org/2988507</idno>
+            </place>
+            <place xml:id="Polen">
+                    
+                    
+                    <placeName type="reg">Polen</placeName>
+                <idno type="uri">https://d-nb.info/gnd/4046496-9</idno>
+                <idno type="uri">https://www.geonames.org/798544</idno>
+            </place>
+        </listPlace>
+        <list n="terms">
+            <head>Sachbegriffe</head>
+            <desc>alle in den hier gesammelten Texten vorkommenden Sachbegriffe (allgemeine Sachbegriffe, Astronomie, Himmelskörper etc.)</desc>
+            <item xml:id="ed_cgf_bfk_hlb">
+                    <label type="reg">Astrologie, Kritik an</label>
+                </item>
+            <item xml:id="ed_dmm_1hj_mfb">
+                    <label type="reg">Äther</label>
+                </item>
+            <item xml:id="ed_a2r_hnt_4lb">
+                    <label type="reg">Ausdünstung</label>
+                </item>
+            <item xml:id="Brief">
+                    <label type="reg">Brief</label>
+                </item>
+            <item xml:id="ed_pjw_ndb_mfb">
+                    <label type="reg">Chaldäer (Stern- und Zeichendeuter)</label>
+                </item>
+            <item xml:id="ed_f53_msb_12b">
+                    <label type="reg">Chronologie bzw. Zeitrechnung</label>
+                </item>
+            <item xml:id="ed_ydg_g24_5qb">
+                    <label type="reg">Devolution</label>
+                </item>
+            <item xml:id="ed_krm_v32_f2b">
+                    <label type="reg">Devolutionskrieg</label>
+                </item>
+            <item xml:id="ed_xqg_dcj_qmb">
+                    
+                    <label type="reg">Dreißigjähriger Krieg 1618-1648</label>
+                <idno type="uri">https://d-nb.info/gnd/4012985-8</idno>
+            </item>
+            <item xml:id="ed_ykr_rsy_flb">
+                    
+                    <label type="reg">Englisch-Niederländischer Krieg 1664–1667</label>
+                <idno type="uri">https://d-nb.info/gnd/4152288-6</idno>
+            </item>
+            <item xml:id="ed_pgz_vbn_wpb">
+                    <label type="reg">Englischer Bürgerkrieg (1642–1649)</label>
+                </item>
+            <item xml:id="ed_ihr_wky_phb">
+                    
+                    <label type="reg">Fixstern Rigel (β Orionis)</label>
+                    <label type="alt">Regel</label>
+                    <label type="alt">Flamsteed: 19 Orionis</label>
+                <idno type="uri">https://www.wikidata.org/wiki/Q12126</idno>
+            </item>
+            <item xml:id="ed_v5d_m1n_wpb">
+                    <label type="reg">Französisch-Spanischer Krieg (1635–1659)</label>
+                </item>
+            <item xml:id="ed_w1f_wgf_lfb">
+                    <label type="reg">Goldene Freiheit</label>
+                </item>
+            <item xml:id="ed_ykm_ntz_kfb">
+                    <label type="reg">Hof (polnischer)</label>
+                </item>
+            <item xml:id="ed_r2v_tsk_33b">
+                    <label type="reg">Identität von Kometen</label>
+                </item>
+            <item xml:id="ed_vnp_dyc_ydb">
+                    <label type="reg">Komet</label>
+                </item>
+            <item xml:id="ed_wjf_m43_tdb">
+                    
+                    <label type="reg">Komet C/1618 W1</label>
+                    <desc>Sichtbarkeit 25. 11. 1618 bis 22. 01. 1619 „Großer Komet“</desc>
+                <idno type="uri">https://ssd.jpl.nasa.gov/sbdb.cgi?sstr=1000660</idno>
+            </item>
+            <item xml:id="ed_rb3_cpf_5kb">
+                    
+                    <label type="reg">Komet C/1652 Y1</label>
+                    <desc>https://ssd.jpl.nasa.gov/sbdb.cgi?sstr=1652+Y1&amp;orb=1</desc>
+                <idno type="uri">https://ssd.jpl.nasa.gov/sbdb.cgi?sstr=1000662</idno>
+            </item>
+            <item xml:id="ed_mjq_l43_tdb">
+                    
+                    <label type="reg">Komet C/1664 W1</label>
+                <idno type="uri">https://ssd.jpl.nasa.gov/sbdb.cgi?sstr=1000664</idno>
+            </item>
+            <item xml:id="ed_zsd_s2m_b3b">
+                    <label type="reg">Kometen, Auffassung Guerickes d. Ä.</label>
+                </item>
+            <item xml:id="ed_sp4_f4l_2lb">
+                    <label type="reg">Kometen, dauerhafte Objekte</label>
+                </item>
+            <item xml:id="ed_xkf_wqj_d2b">
+                    <label type="reg">Kometen, Historiographie</label>
+                </item>
+            <item xml:id="ed_ihr_s3m_g3b">
+                    <label type="reg">Kometen, Materie der</label>
+                </item>
+            <item xml:id="ed_mlh_ysv_qhb">
+                    <label type="reg">Kometen, supralunar</label>
+                </item>
+            <item xml:id="ed_cw4_pxq_y2b">
+                    <label type="reg">Kometen, Wirkung</label>
+                </item>
+            <item xml:id="ed_ixs_3qn_sfb">
+                    <label type="reg">König (Amt)</label>
+                </item>
+            <item xml:id="ed_kbz_fr4_jlb">
+                    <label type="reg">Krankheit</label>
+                </item>
+            <item xml:id="Krieg">
+                    <label type="reg">Krieg</label>
+                </item>
+            <item xml:id="ed_kvk_hsj_r2b">
+                    
+                    <label type="reg">Merkur, Planet</label>
+                    <label type="alt">☿</label>
+                <idno type="uri">https://d-nb.info/gnd/4169460-0</idno>
+            </item>
+            <item xml:id="ed_awy_hqm_g3b">
+                    <label type="reg">Milchstraße</label>
+                    <label type="alt">Galaxia</label>
+                    <label type="alt">Via lactea</label>
+                </item>
+            <item xml:id="ed_xny_jxj_wfb">
+                    <label type="reg">Mond</label>
+                </item>
+            <item xml:id="ed_ctd_34g_jfb">
+                    <label type="reg">Planet/Planeten</label>
+                </item>
+            <item xml:id="ed_wky_wcc_yhb">
+                    <label type="reg">Pythagoräer</label>
+                </item>
+            <item xml:id="ed_cph_zjt_32b">
+                    <label type="reg">Sejm (polnischer Reichstag)</label>
+                </item>
+            <item xml:id="ed_ort_3gz_m4b">
+                    <label type="reg">Senat, Königlicher Rat in Polen</label>
+                </item>
+            <item xml:id="Senator">
+                    <label type="reg">Senator</label>
+                </item>
+            <item xml:id="ed_u3y_pck_r2b">
+                    
+                    <label type="reg">Venus, Planet</label>
+                    <label type="alt">♀</label>
+                <idno type="uri">https://d-nb.info/gnd/4062527-8</idno>
+            </item>
+            <item xml:id="ed_pwq_nb5_sfb">
+                    <label type="reg">Vermutung</label>
+                </item>
+            <item xml:id="ed_v32_shj_mfb">
+                    <label type="reg">Wahlmonarchie</label>
+                </item>
+        </list>
+    </standOff>
+    <TEI xml:id="MAIN_ed_kbj_wfw_xmb" type="letter" n="cover_letter">
+    <teiHeader>
+        <fileDesc>
+            <titleStmt>
+                <title type="main">Ismaël Boulliau (Paris) an Stanisław Lubieniecki (Hamburg), 6.
+                    März 1665</title>
+                <principal ref="http://d-nb.info/gnd/135995728">Kęstutis Daugirdas</principal>
+                <principal ref="https://orcid.org/0000-0003-1020-507X">Andreas Kuczera</principal>
+                <funder>Deutsche Forschungsgemeinschaft</funder>
+                <editor>
+                    <persName>Michael Weichenhan</persName>
+                </editor>
+            </titleStmt>
+            <extent>
+                <measure unit="witnesses" quantity="2"/>
+            </extent>
+            <publicationStmt>
+                <publisher>
+                    <orgName ref="https://www.jalb.de/">Johannes a Lasco Bibliothek</orgName>
+                    <settlement ref="https://sws.geonames.org/2930596">Emden</settlement>
+                </publisher>
+                <publisher>
+                    <orgName ref="https://www.adwmainz.de/">Akademie der Wissenschaften und der Literatur</orgName>
+                    <settlement ref="http://sws.geonames.org/2874225">Mainz</settlement>
+                </publisher>
+                <pubPlace ref="http://sws.geonames.org/2874225">Mainz</pubPlace>
+                <date from="2020">2020–2024</date>
+                <availability>
+                    <licence target="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International (CC-BY 4.0)</licence>
+                </availability>
+                <idno type="uri">https://sozinianer.de/id/MAIN_ed_kbj_wfw_xmb</idno>
+            </publicationStmt>
+            <seriesStmt>
+                <title type="main">Die sozinianischen Briefwechsel</title>
+                <title type="sub">Zwischen Theologie, frühmoderner Naturwissenschaft und politischer Korrespondenz</title>
+                <editor ref="http://d-nb.info/gnd/135995728">Kęstutis Daugirdas</editor>
+                <editor ref="https://orcid.org/0000-0003-1020-507X">Andreas Kuczera</editor>
+                <idno>https://gepris.dfg.de/gepris/projekt/324518514</idno>
+                <idno>https://registry.text-plus.org/entity/e4dde8f1-2335-4bc6-aeab-c64c4c163ef4/</idno>
+            </seriesStmt>
+            <sourceDesc>
+                <listWit>
+                    <witness corresp="#ed_kbj_wfw_xmb"/>
+                    <witness corresp="#ed_abg_zbc_nlb"/>
+                </listWit>
+            </sourceDesc>
+        </fileDesc>
+        <profileDesc>
+            <correspDesc>
+                <correspAction type="sent">
+                    <persName key="Boulliau">Boulliau, Ismaël</persName>
+                    <placeName key="Paris">Paris</placeName>
+                    <date cert="high" when="1665-03-06"/>
+                </correspAction>
+                <correspAction type="received">
+                    <persName key="Lubieniecki_Stanislaw">Lubieniecki, Stanisław</persName>
+                    <placeName key="Hamburg">Hamburg</placeName>
+                </correspAction>
+            </correspDesc>
+            <abstract><p>Boulliau antwortet auf Lubienieckis Briefe vom <rs type="letter" corresp="o3w_qlm_zdb">14.</rs> und <rs type="letter" corresp="ed_wwh_p2w_xmb">21. Februar</rs>, die sich eingehend mit den Vorgängen in <rs type="place" corresp="Polen">Polen</rs> befasst hatten. Im ersten Teil des Briefes werden politische Verhältnisse angesprochen, in zweiten geht es um den <rs type="term" corresp="ed_mjq_l43_tdb">Kometen</rs>. Dass <rs type="person" corresp="ed_t1z_gmm_ndb">Lubomirski</rs> nach dem zerrissenen <rs type="term" corresp="ed_cph_zjt_32b">Sejm</rs> beim <rs type="person" corresp="ed_pq1_cqm_ndb">König</rs> wieder Gnade finden werde, bezweifelt Boulliau; von den Beschlüssen des <rs type="term" corresp="ed_ort_3gz_m4b">Senats</rs> wisse er nichts. Er erwägt das Pro und Contra der Designation eines <rs type="term" corresp="ed_v32_shj_mfb">Nachfolgers zu Lebzeiten des Königs</rs>, gibt seiner Sympathie Plänen gegenüber Ausdruck, einen Nachfolger französischer Herkunft zu bestimmen, wie dies insbesondere von der <rs type="person" corresp="ed_dr3_r2y_ydb">Königin von Polen</rs> verfolgt werde. Dabei spielen Überlegungen eine Rolle, dass <rs type="place" corresp="Polen">Polen</rs> erstarken würde, wenn sich seine Kräfte mit denen des mächtigen <rs type="place" corresp="Frankreich">Frankreich</rs> vereinen ließen. Anschließend berichtet Boulliau von der französischen Haltung zum Konflikt zwischen <rs type="place" corresp="England">England</rs> und den <rs type="place" corresp="Holland">Niederlanden</rs>, von den Versuchen <rs type="person" corresp="ed_q5k_vhs_52b">Ludwigs XIV</rs>., einen <rs type="term" corresp="ed_ykr_rsy_flb">Kriegsausbruch</rs> zu vermeiden und auf beide Parteien mittels Diplomatie mäßigenden Einfluss auszuüben. Erwähnt wird das Streben <rs type="person" corresp="ed_q5k_vhs_52b">Ludwigs</rs>, die <rs type="term" corresp="ed_ydg_g24_5qb">Rechtmäßigkeit der Ansprüche Spaniens auf die <rs type="place" corresp="ed_wrb_yjk_kfb">spanischen Niederlande</rs></rs>in Frage zu stellen. Hinsichtlich des <rs type="term" corresp="ed_mjq_l43_tdb">Kometen</rs> ist sich Boulliau nunmehr sicher, dass es sich bei <rs type="term" corresp="ed_r2v_tsk_33b">C/1664 W1 um ein und dasselbe Objekt</rs> handelt, und er bittet Lubieniecki, seine Bekannten von dieser richtigen Auffassung zu überzeugen. Boulliau unterstreicht seine bereits geäußerte Ansicht, die <rs type="term" corresp="ed_ihr_s3m_g3b">Materie des Kometen</rs> sei <rs type="term" corresp="ed_awy_hqm_g3b">galaktischer</rs> Natur, und er weist die <rs type="term" corresp="ed_zsd_s2m_b3b">Auffassung <rs type="person" corresp="Guericke">Guerickes</rs></rs>zurück, Kometen entstünden aus in die Höhe gerissener sublunarer Materie, was in der Antike bereits <rs type="person" corresp="ed_dzg_5cl_3fb">Epigenes</rs> behauptet habe. <rs type="term" corresp="ed_cgf_bfk_hlb">Astrologische Deutungen</rs> erklärt Boulliau für unsicher; Unglücksfälle hätten sich in jüngerer Zeit ereignet, ohne dass Kometen am Himmel erschienen seien. Abschließend geht Boulliau auf ein französisches Schreiben über <rs type="term" corresp="ed_vnp_dyc_ydb">Kometen</rs> ein, das zwar astronomisch nichts Interessantes biete, dessen <rs type="term" corresp="ed_xkf_wqj_d2b">historiographischen Bemerkungen</rs> er allerdings lobt.</p></abstract>
+        </profileDesc>
+    </teiHeader>
+    <TEI xmlns:ns="http://www.telota.de" xmlns:da="http://www.digitale-akademie.de" xml:id="ed_kbj_wfw_xmb" n="reference_witness" type="letter">
+    <teiHeader>
+        <fileDesc>
+            <titleStmt>
+                
+                <title type="sub">Manuskript</title>
+                <editor>
+                    <persName>Michael Weichenhan</persName>
+                </editor>
+                <respStmt>
+                    <persName>Aistė Malonytė/Pablo Toribio</persName>
+                    <resp>
+                        <note type="remarkResponsibility">Transkription</note>
+                    </resp>
+                </respStmt>
+            </titleStmt>
+            <publicationStmt>
+                <publisher>
+                    <orgName ref="https://www.jalb.de/">Johannes a Lasco Bibliothek</orgName>
+                    <settlement ref="https://sws.geonames.org/2930596">Emden</settlement>
+                </publisher>
+                <publisher>
+                    <orgName ref="https://www.adwmainz.de/">Akademie der Wissenschaften und der Literatur</orgName>
+                    <settlement ref="http://sws.geonames.org/2874225">Mainz</settlement>
+                </publisher>
+                <pubPlace ref="http://sws.geonames.org/2874225">Mainz</pubPlace>
+                <date from="2020">2020–2024</date>
+                <availability>
+                    <licence target="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International (CC-BY 4.0)</licence>
+                </availability>
+                <idno type="file">Lubieniecki_Stanislaw/Boulliau/Publikationsbereit/1665-03-06_Boulliau_Lubieniecki_Entwurf.xml</idno>
+            </publicationStmt>
+            <seriesStmt>
+                <title type="main">Die sozinianischen Briefwechsel</title>
+                <title type="sub">Zwischen Theologie, frühmoderner Naturwissenschaft und politischer Korrespondenz</title>
+                <editor ref="http://d-nb.info/gnd/135995728">Kęstutis Daugirdas</editor>
+                <editor ref="https://orcid.org/0000-0003-1020-507X">Andreas Kuczera</editor>
+                <idno>https://gepris.dfg.de/gepris/projekt/324518514</idno>
+                <idno>https://registry.text-plus.org/entity/e4dde8f1-2335-4bc6-aeab-c64c4c163ef4/</idno>
+            </seriesStmt>
+            <notesStmt>
+                <note>Die Druckfassung beschränkt sich auf den Fragen der Astronomie gewidmeten zweiten Teil.</note>
+            </notesStmt>
+            <sourceDesc>
+                <msDesc rend="concept">
+                    <msIdentifier>
+                        <repository>Bibliothèque nationale de France</repository>
+                        <idno>
+                            <idno type="shelfmark">FR. 13026, f. 285r–286r.</idno>
+                            <idno type="URLCatalogue">https://archivesetmanuscrits.bnf.fr/ark:/12148/cc439488/ca19858553</idno>
+                            <idno type="URLImages">https://gallica.bnf.fr/ark:/12148/btv1b90612192</idno>
+                            <idno type="URN">285r:
+                                https://gallica.bnf.fr/ark:/12148/btv1b90612192/f594.image</idno>
+                            <idno type="URN">285v:
+                                https://gallica.bnf.fr/ark:/12148/btv1b90612192/f595.image</idno>
+                            <idno type="URN">286r:
+                                https://gallica.bnf.fr/ark:/12148/btv1b90612192/f596.image</idno>
+                        </idno>
+                    </msIdentifier>
+                    
+                </msDesc>
+            </sourceDesc>
+        </fileDesc>
+        <profileDesc>
+            <langUsage>
+                <language ident="lat"/>
+            </langUsage>
+            <textClass>
+                <classCode scheme="http://www.deutschestextarchiv.de/doku/klassifikation#dwds1main">Gebrauchsliteratur</classCode>
+                <classCode scheme="#sbw">Brief</classCode>
+            </textClass>
+            
+            
+        </profileDesc>
+        <revisionDesc>
+            <change when="2020-10-22">Metadaten publikationsbereit</change>
+            <change when="2023-05-31">Tiefenerschließung publikationsbereit</change>
+        </revisionDesc>
+    </teiHeader>
+
+    <text><body><div type="letter"><pb facs="https://gallica.bnf.fr/ark:/12148/btv1b90612192/f594.image" n="285r"/> <opener><dateline><date when="1665-03-06" calendar="#Gregorian">Martii 6. 1665</date></dateline> <salute>Stanislao Lubienietzio de Lubienietz</salute></opener> <p>Ad binas literas tuas diebus <rs type="letter" corresp="ed_bjj_5dw_xmb">14</rs> et <rs type="letter" corresp="ed_wwh_p2w_xmb">21 decursi Februarii</rs> scriptas <del rendition="#s"/> respondeo, simulque de transmissis ad me negotiorum publicorum memoriis historicis gratias ingentes ago. Ex <subst><del rendition="#s"/> <add place="superlinear">quibus</add></subst> atque ex <subst><del rendition="#s">sententiam</del> <add place="superlinear">tua</add></subst> <rs type="place" corresp="Polen">de rerum Polonicarum statu</rs> praesenti sententia,<seg type="comment"><orig>has fluctuare atque variis contrariarum sibique adversantium partium studiis huc et illuc agi et ferri; nondumque pacatas esse satis intelligo;</orig> <note xml:id="nd14_nmz_m4b">Zu den innenpolitischen Problemen, die sich unter <rs type="person" corresp="ed_pq1_cqm_ndb">Johann II. Kasimir</rs> zugespitzt hatten und in eine sog. "Magnatenoligarchie" bzw. "Adelsanarchie" mündeten, vgl. <bibl type="ref" sameAs="zotero-2065617-MIBGRW3W">Wyczański, Adelsrepublik</bibl>, S. 320–329, <bibl type="ref" sameAs="zotero-2065617-E5H7XPTW">Rustemeyer, Jerzy Lubomirski's Rebellion</bibl>.</note></seg> capioque procellas adhuc illi <rs type="place" corresp="Polen">regno</rs> imminere quae tranquillitatem publicam, ni Deus <choice><abbr>clementiss.</abbr> <expan>clementissimus</expan></choice> <add place="superlinear">eas</add> averterit, disturbaturae funditus sunt, multaque damna gravissima illaturae. Militare foedus illud merito ab omnibus formidatur; sperandum tamen est regem <choice><abbr>Serm.</abbr> <expan>serenissimum</expan></choice> <rs type="term" corresp="Senator">Senatoresque</rs> prudentissimos aliqua, pecunia <del rendition="#s">exercita</del> numerata in fide militem retenturos; praecipuosque belli duces, ut <subst><del rendition="#s"/> <add place="superlinear">ab</add></subst> obsequio erga regem et in patriam pietate ac charitate non recedant, strenue operam daturos. <lb/>De <choice><abbr>Dni</abbr> <expan>domini</expan></choice> <choice><abbr>Ill<hi rendition="#sup">mi</hi></abbr> <expan>illustrissimi</expan></choice> <rs type="person" corresp="ed_t1z_gmm_ndb">Georgii <ref target="z2d_scc_b2b/#ngm5_b2f_lfb">Lubomiersij</ref></rs>rebus, an <add place="superlinear">rescisso tam <rs type="term" corresp="ed_ort_3gz_m4b">solemni senatus</rs> decreto</add> in <rs type="person" corresp="ed_pq1_cqm_ndb">regis <choice><abbr>Ser<hi rendition="#sup">mi</hi>.</abbr> <expan>serenissimi</expan></choice></rs>gratiam sit rediturus et in integrum restituendus nec divinare, nec dextre judicare possum. Si <del rendition="#s">notae</del> toti <rs type="place" corresp="ed_knq_nmt_rjb">Europae</rs> gravissimi illius negotii notae causae ac rationes ad conjecturam de <subst><del rendition="#s">futura</del> <add place="superlinear">iis quae</add></subst> <subst><del rendition="#s"/> <add place="superlinear">obsecutura sunt</add></subst> faciendam sufficiunt, <del rendition="#s">difficilis</del> solvendi nodi modos inventa difficillimos puto; cum <rs type="term" corresp="ed_ykm_ntz_kfb">aula</rs> ac <rs type="person" corresp="ed_t1z_gmm_ndb">Lubomiersius</rs> sibi invicem deinceps fidere vix possint, omniumque suspicionum causas de medio tollere. <rs type="person" corresp="ed_pq1_cqm_ndb">Regis</rs> <choice><abbr>Ser<hi rendition="#sup">mi</hi>.</abbr> <expan>serenissimi</expan></choice> ac <subst><del rendition="#s">Reipub.</del></subst> <rs type="term" corresp="ed_ort_3gz_m4b">senatus</rs> consilia occulta<del rendition="#s"><unclear cert="high" reason="illegible"/></del> et abstrusa mihi ignota sunt, quapropter de illis judicium <del rendition="#s"/> pronunciare meum non est.</p> <p>Video equidem plerosque Polonos <rs type="term" corresp="ed_v32_shj_mfb"><rs type="person" corresp="ed_pq1_cqm_ndb">rege vivente</rs> successoris designationem</rs> <choice><abbr>Reip.</abbr> <expan>reipublicae</expan></choice> legibus haud congruam improbare ac reijcere; <seg type="comment"><orig>alios rursus etiam scio, qui <rs type="term" corresp="ed_w1f_wgf_lfb">libertatem Polon<add place="superlinear">i</add>am intactam illaesamque</rs> volunt, nec <subst><del rendition="#s">etiam</del> <add place="superlinear">tamen</add></subst> illud <del rendition="#s"/> rege <del rendition="#s">regente</del> superstite electione <add place="superlinear">de succesoris</add> consilium <add place="superlinear">aversantur aut</add> aspernantur, aut exitiosum libertati reipublicae opinantur.</orig> <note xml:id="nm24_qsy_5qb">Laut <rs type="source" corresp="zotero-2065617-5F3Z2NC6">Hartknoch, Resp. Polon., S. 228</rs>, sei nach dem Tod des letzten Jagiellonen, <rs type="person" corresp="ed_dkk_1h2_rkb">Sigismund II. August</rs>, folgender Beschluss gefasst worden: "Reges Polonorum non debent nominare, eligere, aut electionem indicere, vel quemquam alium modum tentare, instruendi, aut designandi regis sive successoris vitae suae tempore, idque ob eam causam, ut post eorum decessum libera et illaesa electio regis, statibus et ordinibus regni semper maneat".</note></seg> <del rendition="#s">Ill</del> Ejusmodi proposito leges <add place="superlinear">quidem</add> oppositae sunt, hoc incipi vetant; at ille juris summus rigor nonne remittendus est, cum aliter ingruenti ruinae <add place="superlinear">universi</add> regni obviam ire non liceat. Quin Poloniae orbis maxima subiturus sit pericula, cladesque magnas passurus rege orbo successore<del rendition="#s">que</del> non designato, turbatis confusisque rebus, fatis concedente, nemo perspicas sagaxque futuri <del rendition="#s">nemo</del> est, qui dubitare queat.</p> <p><del rendition="#s"/> Gallos vero <del rendition="#s"/> aliis <subst><del rendition="#s"/> <add place="superlinear">regni candidatis vel <ref target="ed_j1k_5cw_xmb/#ns4h_y5q_sqb">procis</ref> esse</add></subst> immixtos <del rendition="#s">videre</del> insolens videri non debet. Neque sui <subst><del rendition="#s">causa</del> <add place="superlinear">gratia</add></subst> leges <subst><del rendition="#s">aut</del> <add place="superlinear"><choice><abbr>Reipub.</abbr> <expan>reipublicae</expan></choice></add></subst>abrogari, <add place="across">aut labefactari</add> aut illis fraudem fieri quaerunt. <rs type="term" corresp="ed_v32_shj_mfb"><rs type="term" corresp="ed_ixs_3qn_sfb">Regemque</rs> Poloniae absque Polonorum universorum consensu fieri non posse</rs> norunt, neque in id etiam incumbunt, <seg type="comment"><orig>ut vi vel <subst><del rendition="#s">fraude</del> <add place="superlinear">dolis</add></subst> <rs type="person" corresp="ed_dr3_r2y_ydb">regiae</rs> stirpis Francicae princeps solium illud occupet.</orig> <note xml:id="nfrl_34b_5qb">Zum beträchtlichen Einfluss der <rs type="person" corresp="ed_dr3_r2y_ydb">Königin</rs> auf die polnische Politik, der als anstößig galt, vgl. <rs type="person" corresp="ed_fhq_5hd_dhb">Pels</rs> an Boulliau, 5. März 1665, BnF, Fr. 13032, Correspondance [...] d'Ismaël Boulliau, vol. XIV/XV, fol. <ref target="https://gallica.bnf.fr/ark:/12148/btv1b9061712w/f231.item">112r</ref>. <rs type="person" corresp="ed_dr3_r2y_ydb">Königin Ludwika Maria, in Frankreich als Louise Marie de Gonzague geboren</rs>, favorisierte einen französischen Thronfolger. Der folgende Satz zeigt, dass Boulliau dieser Haltung zuneigte.</note></seg> Maxima commoda <choice><abbr>reip.</abbr> <expan>reipublicae</expan></choice> Polonicae <subst><del rendition="#s"/> <add place="superlinear">opumque incrementa</add></subst> ab ejusmodi principe obventura <subst><del rendition="#s">Galli atendendo partes suas agent</del> <add place="superlinear">et accessura</add></subst> ejus operam regno utilem fore, arctam Gallicae potentiae cum Polonica conjunctionem huic valde profuturam ostendendo Galli partes suas acturi sunt; an audiendi an reppellendi <del rendition="#s">Galli</del> sint nobili<add place="superlinear">ta</add>s Polonica decernet. An istud <add place="superlinear">porro</add> argumentum <add place="superlinear">in</add> viri politici <add place="sublinear">in tanto partium ardore</add> tractarint et <del rendition="#s">ad</del> <pb facs="https://gallica.bnf.fr/ark:/12148/btv1b90612192/f595.image" n="285v"/>utrique <del rendition="#s"/> scripta edita sint ignoro; utque doctiorem me reddas, et quid <subst><del rendition="#s"/> <add place="superlinear">editum</add></subst> fuerit mihi significes rogo. Eventum interea instantium comitiorum clausulamque anxii solliciteque animo expecto.</p> <p><seg type="comment"><orig><choice><abbr>Ser<hi rendition="#sup">mam</hi></abbr> <expan>Serenissimam</expan></choice> <rs type="person" corresp="ed_dr3_r2y_ydb">reginam</rs></orig> <note xml:id="nw51_sfb_5qb">Da es inhaltlich noch um <rs type="place" corresp="Polen">Polen</rs> geht, ist Königin <rs type="person" corresp="ed_dr3_r2y_ydb">Ludwika Maria</rs> gemeint. Vgl. <rs type="person" corresp="ed_fhq_5hd_dhb">Pels</rs> an Boulliau, 21. Februar 1665, BnF, Fr. 13032, Correspondance [...] d'Ismaël Boulliau, vol. XIV/XV, fol. <ref target="https://gallica.bnf.fr/ark:/12148/btv1b9061712w/f227.item">110v</ref>. Sie litt u.a. an einer schweren <rs type="term" corresp="ed_kbz_fr4_jlb">Augenerkrankung</rs>. Vgl. <rs type="source" corresp="zotero-2065617-AEGMHKGK">Diar. Europ., Bd. 12</rs>, S. 346.</note></seg> <add place="superlinear">ex morbo</add> convoluisse admodum laetor; ipsi ac regi <choice><abbr>Ser<hi rendition="#sup">mo</hi>.</abbr> <expan>serenissimo</expan></choice> solutem optimam longamque vitam voveo.</p> <p>Rebus Polonicis obmissis ad nostras <del rendition="#s">venio</del> ubique deo favente florentissimas accedo ut pauca quae <subst><del rendition="#s">in</del> <add place="superlinear">ad</add></subst> privatorum hominum <subst><del rendition="#s"/> <add place="superlinear">perveniunt</add></subst> aures tibi enarrem. <seg type="comment"><orig><del rendition="#s">Non aequa fert</del> <rs type="person" corresp="ed_q5k_vhs_52b">Regis</rs> animum perstringit de mittendis in Belgium copiis German<subst><del rendition="#s">is</del> <add place="superlinear">as</add></subst> <rs type="person" corresp="ed_rzf_5d1_j2b">Caesaris</rs> consilium <subst><del rendition="#s">quod</del> <add place="superlinear">propositamque</add></subst> ipsi suspectum ob rationes <rs type="person" corresp="ed_bpw_j3k_kfb">uxoris Reginae</rs> et <rs type="person" corresp="ed_cfc_bdc_mkb">Delfini</rs> filii sui quibus ad <rs type="place" corresp="ed_wrb_yjk_kfb">Belgii</rs> regii provinci<subst><del rendition="#s">is</del> <add place="superlinear">as</add></subst> jus <del rendition="#s">ipsis</del> <del rendition="#s">ipsi</del> ambo habere postea poterunt hac de causa militem ad fines regni destinat.</orig> <note xml:id="nm53_f53_5qb">Der Sinn dieses durch zahlreiche Änderungen sehr unübersichtlich gewordenen Satzes ist vermutlich dieser: (1.) Der König beabsichtigt, Truppen nach den <rs type="place" corresp="ed_wrb_yjk_kfb">spanischen Niederlanden</rs> zu senden ("Regis animum perstringit de mittendis in Belgium copiis"), (2.) der Vorschlag des Kaisers erscheint ihm fragwürdig ("Caesaris consilium ipsi suspectum"), und zwar (3.), damit später seine Frau und sein Sohn die Erbansprüche auf diese Provinzen geltend machen können ("ob rationes uxoris Reginae et Delfini filii sui, qui <rs type="place" corresp="ed_wrb_yjk_kfb">ad Belgii regii provincias</rs> ius habere postea possint"); eben deshalb (4.) beschließt er, Truppen an die Grenzen zu verlegen ("hac de causa militem ad fines regnis destinat"). Worin genau der Rat des <rs type="person" corresp="ed_rzf_5d1_j2b">Kaisers</rs> bestand, der ohne Zweifel den Konflikt zwischen Spanien und Frankreich vermeiden wollte, ließ sich bislang nicht feststellen. Aus dem Text geht hervor, dass er u.a. die Übertragung der <rs type="term" corresp="ed_ydg_g24_5qb">privatrechtlichen Devolutionsbestimmung</rs> in den Bereich zwischenstaatlicher Beziehungen ablehnte.</note></seg> <add place="superlinear"><rs type="person" corresp="ed_q5k_vhs_52b">Rex</rs> omnesque officiales ad <del rendition="#s">prae</del> arces et urbes quibus praefecti sunt proficisci iussit.</add> Vivente tamen <rs type="person" corresp="ed_mqm_kgk_kfb">rege Philippo</rs> <seg type="comment"><orig>quodque <rs type="person" corresp="ed_rzf_5d1_j2b">Caesaris</rs> cum secundogenita <choice><abbr>Hispaniar</abbr> <expan>Hispaniarum</expan></choice> <choice><abbr>Pripe</abbr> <expan>Principe</expan></choice> matrimonium litigiosum reddere posset</orig> <note xml:id="nb5v_sxn_5qb"><rs type="person" corresp="ed_rzf_5d1_j2b">Kaiser Leopold I.</rs> war verheiratet mit <rs type="person" corresp="ed_sxp_mgn_3jb">Margarethe Theresia von Spanien</rs>, die der zweiten Ehe des <rs type="person" corresp="ed_mqm_kgk_kfb">Königs Philipp IV</rs>. entstammte. Diese Ehe anzufechten, d.h. die Nachkommen für nicht erbberechtigt zu erklären, bedeutete für den <rs type="person" corresp="ed_q5k_vhs_52b">französischen König</rs>, der mit <rs type="person" corresp="ed_bpw_j3k_kfb">Maria Theresa</rs> verheiratet war, die der ersten Ehe <rs type="person" corresp="ed_mqm_kgk_kfb">Philipps</rs> mit der dem Hause der Bourbonen angehörenden <rs type="person" corresp="ed_yzs_ksx_qpb">Élisabeth de Bourbon bzw. Isabella</rs> entstammte, Erbansprüche auf den spanischen Besitz, konkret die spanischen Niederlande, erheben zu können. Boulliau nimmt hier auf die von <rs type="person" corresp="ed_q5k_vhs_52b">Ludwig XIV</rs>. geltend gemachte "<rs type="term" corresp="ed_ydg_g24_5qb">dévolution</rs>" Bezug, d.h. <rs type="term" corresp="ed_ydg_g24_5qb">eine dem Erbrecht von Brabant entstammende Bestimmung, wonach gegenüber den Nachkommen aus erster Ehe vom Erbe ausgeschlossen ist, wer einer zweiten Ehe entstammt</rs>. Mit Hilfe der Devolution ließen sich auch, und zwar unmittelbar die spanischen Verhältnisse betreffend, die Ansprüche des Bruders der <rs type="person" corresp="ed_sxp_mgn_3jb">Margarethe Theresia</rs>, <rs type="person" corresp="ed_ygh_q5h_5pb">Karls II.</rs>, delegitimieren. Vgl. <bibl type="ref" sameAs="zotero-2065617-EPF7CKAJ">Bérenger, Dévolution</bibl>. Der von Mai 1667 bis zum 2. Mai 1668 dauernde "<rs type="term" corresp="ed_krm_v32_f2b">Devolutionskrieg</rs>" diente der Durchsetzung der so begründeten Ansprüche Frankreichs auf Teile der <rs type="place" corresp="ed_wrb_yjk_kfb">spanischen Niederlande</rs>. Vgl. <bibl type="ref" sameAs="zotero-2065617-F3UCCKFX">Lynn, Wars of Louis XIV</bibl>, S. 105–108.</note></seg> pacem publicam integram <del rendition="#s"/> fore sperandum est.</p> <p><del rendition="#s">Legatum</del> ad <rs type="person" corresp="ed_o5n_3mc_kfb">Angliae regem</rs> legatos extraordinarios <rs type="person" corresp="ed_lgk_jbc_kfb">ducem Vernoliensem (de Verneuil)</rs> <seg type="comment"><orig>patruum naturalem <add place="superlinear">suum</add></orig> <note xml:id="ncnq_gsg_5qb"><rs type="person" corresp="ed_lgk_jbc_kfb">Henri de Bourbon</rs> ist als außerehelich gezeugter Sohn von <rs type="person" corresp="ed_etp_pgx_mjb">Heinrich IV</rs>. der natürliche Onkel von <rs type="person" corresp="ed_q5k_vhs_52b">Ludwig XIV</rs>; wenige Jahre nach seiner Geburt wurde er legitimiert.</note></seg>et <del rendition="#s"/> <choice><abbr>Dnm</abbr> <expan>dominum</expan></choice> <seg type="comment"><orig><rs type="person" corresp="ed_q5t_kmf_5gb">Courtin</rs> <rs type="person" corresp="ed_q5k_vhs_52b">rex</rs> mittere, ad <rs type="term" corresp="ed_ykr_rsy_flb">turbas inter Anglos Belgasque confoederatos ortas</rs> componendas, decrevit.</orig> <note xml:id="nc3s_1sp_5qb">Zur Gesandtschaft vgl. <rs type="source" corresp="zotero-2065617-AEGMHKGK">Diar. Europ., Bd. 12, S. 365</rs>. Dort wird als dritter Gesandter noch <rs type="person" corresp="ed_itt_2tp_5qb">Gaston Jean-Baptist de Comminges</rs> angeführt. Vgl. auch <bibl type="ref" sameAs="zotero-2065617-XF5FVTAP">Bittner/Groß</bibl>, S. 216.</note></seg> Suppetias sibi ferri <choice><abbr>foed. Belg. ordd.</abbr> <expan>foederati Belgii ordines</expan></choice> postulant et <ref target="ed_j1k_5cw_xmb/#nwsn_kdn_tqb">instante <add place="superlinear">urgenteque</add> <choice><abbr>Dno</abbr> <expan>domino</expan></choice> <rs type="person" corresp="ed_kgr_f4c_1gb">Beuninghio</rs></ref> flagtiant; sicque capita foederis interpretantur, ut et auxilia sibi ministrati <add place="superlinear">palam</add> debeant, simulque <rs type="person" corresp="ed_q5k_vhs_52b">rex</rs> in pace <del rendition="#s"/> concilianda laborare operamque navare possint. Hoc <subst><del rendition="#s"/> <add place="superlinear">aliorum</add></subst> tentare, antequam <del rendition="#s">aut</del> suppetias <rs type="place" corresp="Holland">Belgis foederatis</rs> mittat, aut <rs type="term" corresp="Krieg">aperto Marte</rs> cum eis adversus Anglos junctis viribus feratur, tutius <rs type="person" corresp="ed_q5k_vhs_52b">rex</rs> existimat <del rendition="#s">an</del> ante Pascha an <add place="superlinear">sint</add> illi legati profecturi nondum constat. Id plerisque verisimile videtur, ad pugnam<del rendition="#s">dum</del> prius deventuros <rs type="place" corresp="England">Anglos</rs> et <rs type="place" corresp="Holland">Batavos</rs>, quam pax <del rendition="#s"/> arbitro sequestro <rs type="person" corresp="ed_q5k_vhs_52b">rege</rs> ab iis ineatur; <subst><del rendition="#s">hactenus</del> <add place="superlinear">Angliae</add></subst> <rs type="person" corresp="ed_o5n_3mc_kfb">quippe rex</rs> oblatam a <rs type="person" corresp="ed_q5k_vhs_52b">rege</rs> ad <add place="superlinear">amborum partium amicos</add> controversias dirimendis operam hactenus honestis verbis admitere recusavit.</p> <p><seg type="comment"><orig>Pensiones annuas <add place="superlinear">mercedis auctae magistratibus titulo venditas</add> quas pecunia <add place="superlinear">modica</add> emptas<add place="superlinear">et magistratus ipsi et</add>multi privati <add place="superlinear">aquisierant</add> <del rendition="#s"/> rex redimere <del rendition="#s"/> decrevit, <add place="left">unde</add> multorum fortunae, quae illis proventibus annuis stabant, provolventur ac evertentur.</orig> <note xml:id="nozl_cfv_5qb">Auf welche steuerpolitische Maßnahme <rs type="person" corresp="ed_j4f_2pn_g3b">Colberts</rs> sich Boulliau hier bezieht, ließ sich bislang nicht feststellen. Vgl. dazu allgemein <bibl type="ref" sameAs="zotero-2065617-7N52EPDG">Chaline, Le Règne</bibl>, S. 509–515.</note></seg></p> <p><seg type="comment"><orig><rs type="person" corresp="Anne_von_Oesterreich">Regina mater</rs> melius nunc se habet,</orig> <note xml:id="nzzz_g5p_5qb">Zur Verbesserung des Gesundheitszustandes der Königinmutter <rs type="person" corresp="Anne_von_Oesterreich">Anne d'Autriche</rs> vgl. <rs type="source" corresp="zotero-2065617-AEGMHKGK">Diar. Europ., Bd. 12, S. 436</rs>.</note></seg> et quamvis <del rendition="#s"/> morbo vix sanabili laboret multos ad annos vitam producere poterit.</p> <p>Ad <rs type="term" corresp="ed_mjq_l43_tdb">cometam</rs> tandem venio; ad te antea me scripsisse memini <rs type="term" corresp="ed_r2v_tsk_33b">cometam unicum nobis apparuisse quem die 31 Januarii praeteriti <del rendition="#s"/> ad occasum<rs type="term" corresp="ed_ihr_wky_phb"><choice><abbr>S. P<hi rendition="#sup">i</hi></abbr> <expan>Sinistri Pedis</expan></choice> Orionis</rs>visum, aliquam <add place="superlinear">esse</add> novam stellam suspicatus fueram.</rs> Sed ab illa sententia statim recessi; unicum porro fuisse, eundemque ad ortum et occasum visum <seg type="comment"><orig>confirmant <rs type="term" corresp="Brief">literae</rs> ab Italis scriptae,</orig> <note xml:id="nz2z_tcx_5qb">Die Briefe ließen sich bislang nicht identifizieren.</note></seg> qui postremis Decembris diebus <rs type="term" corresp="ed_mjq_l43_tdb">cometam</rs> quotidie observarunt, quorum observationes cum ad me pervenerit tecum communicabo; <seg type="comment"><orig>interim et Suecos et Danos et Germanos monere debes,</orig> <note xml:id="ncmv_2fx_5qb">Lubieniecki hatte am <rs type="letter" corresp="ed_bjj_5dw_xmb">14. Februar Boulliau</rs> von dieser Meinung kurz berichtet. Die Auffassung, es handele sich um zwei verschiedene Kometen, vertrat bspw. <rs type="person" corresp="Olearius">Olearius</rs> (an Lubieniecki, <rs type="letter" corresp="yjw_qlm_zdb">15. Januar</rs> und <rs type="letter" corresp="ed_w4x_4xk_1mb">3. Februar 1665</rs>), mit gewisser Zurückhaltung <rs type="person" corresp="Curtz">Curtz</rs> (vgl. <rs type="letter" corresp="dbx_qlm_zdb">Curtz an Rautenstein, 21. Januar 1665</rs>, <rs type="letter" corresp="jbw_qlm_zdb">Lubieniecki an Curtz, 11. April 1665</rs>) und anfangs auch <rs type="person" corresp="ed_gfy_2rk_f3b">Kirsten</rs> (vgl. <rs type="letter" corresp="tcw_qlm_zdb">Lubieniecki an Bartholin, 12. Januar 1665</rs>). Vgl. <ref target="t3x_cwd_n2b/#nqww_b1h_g3b">auch</ref> <rs type="letter" corresp="t3x_cwd_n2b"><ref target="t3x_cwd_n2b/#nqww_b1h_g3b">Hevelius an Lubieniecki</ref>, 27. Januar 1665</rs>, <rs type="person" corresp="Heinsius">Heinsius</rs> an Lubieniecki, <rs type="letter" corresp="ed_djn_bwt_ppb">11. Februar 1665</rs>.</note></seg> ut <del rendition="#s">ab</del> <rs type="term" corresp="ed_r2v_tsk_33b">opinionem <add place="superlinear">de duobus visis cometis</add> conceptam</rs> <subst><del rendition="#s"/> <add place="superlinear">deponent</add></subst> nec in illum errorem <del rendition="#s">incedant</del> induci se patiantur.</p> <p>De <rs type="term" corresp="ed_ihr_s3m_g3b">cometae materia</rs> quid dicam aliud non habeo, nisi ipsam affinem esse ac <ref target="ed_j1k_5cw_xmb/#nfzk_zp5_kpb">valde similem <rs type="term" corresp="ed_awy_hqm_g3b">galaxiae</rs>, <rs type="term" corresp="ed_dmm_1hj_mfb">aetheream</rs> esse, nec unde <add place="superlinear">nisi a Galaxia</add> procedat,</ref> aut quo <add place="superlinear">ipsa</add> se recipiat sciri <del rendition="#s">non</del> posse. <rs type="term" corresp="ed_pwq_nb5_sfb">Conjecturas</rs> cunctas valde infirmas vacillantesque esse nullisque fundamentis verisimilibus eas niti; <del rendition="#s">sunt</del> et insanae arrogantiae vicinum <add place="superlinear">eum</add> esse <add place="superlinear">putandum est</add>, qui de corporeis et materialibus phantasia <add place="superlinear">sola</add> duce, non sensu, decernere audet.</p> <p>Solas <add place="superlinear">a</add> terra <rs type="term" corresp="ed_a2r_hnt_4lb">exhalationes</rs> in sublime latas hoc efficere non posse certum est, nec admittenda <del rendition="#s">mihi</del> <choice><abbr>Dni</abbr> <expan>domini</expan></choice> <rs type="person" corresp="Guericke">Gerichii</rs> sententia mihi videtur; <rs type="term" corresp="ed_zsd_s2m_b3b">cum molem elementarem aeris a procella <add place="superlinear">sic</add> convelli ac discerpi vult, ut ab ea pars avellatur, et in cometae <add place="superlinear">formam</add> transeat;</rs> ut gratis illud asseritur, gratis quoque nega<subst><del rendition="#s">tur</del> <add place="superlinear">re</add> <add place="superlinear">possemus, subiiciemus tamen hanc rationem, quod scilicet</add></subst> <del rendition="#s">cum</del> experientia et antiquorum et ultimorum temporum <pb facs="https://gallica.bnf.fr/ark:/12148/btv1b90612192/f596.image" n="286r"/>hoc demonstraris, in altissimorum montium <subst><del rendition="#s">cacuminibus</del> <add place="superlinear">jugis</add></subst> nullas procellas nullosque ventos <del rendition="#s">peru</del> pervenire aut sentiri.</p> <p><rs type="person" corresp="Guericke">Gerichii</rs> sententia ex illa <rs type="person" corresp="ed_dzg_5cl_3fb">Epigenis</rs> deducta est, sed <del rendition="#s"/> in eo ambae differunt, quod <rs type="person" corresp="ed_dzg_5cl_3fb">Epigenes</rs> intra molem elementarem et aeris confinia <subst><del rendition="#s">illos</del> <add place="superlinear">cometas</add></subst> coerceat. <subst><del rendition="#s"/> <add place="superlinear">At</add></subst> turbine in sublime eos propelli <subst><del rendition="#s">Cometas</del></subst> <rs type="person" corresp="ed_ujx_zln_xhb">Seneca</rs> negat, quod illi turbines <add place="superlinear">ab Epigene adsumptus</add> <rs type="term" corresp="ed_a2r_hnt_4lb">terrenas exhalationes</rs> supra <rs type="term" corresp="ed_xny_jxj_wfb">Lunam</rs> efferre nequeat; <del rendition="#s">ips</del> hic <seg type="comment"><orig>quippe <rs type="person" corresp="ed_ujx_zln_xhb">philosophus</rs> <rs type="term" corresp="ed_mlh_ysv_qhb">cometas supra lunam fulsisse</rs> censebat.</orig> <note xml:id="nmxg_24d_m4b">Diese Interpretation trifft ohne weiteres nicht zu. <rs type="person" corresp="ed_ujx_zln_xhb">Seneca</rs> kritisiert zwar die Auffassungen des <rs type="person" corresp="ed_dzg_5cl_3fb">Epigenes</rs> (<rs type="source" corresp="zotero-2065617-GURQXEN6">NQ VII, c. 4–10</rs>). Unsicher aber ist, ob er der Auffassung des <rs type="term" corresp="ed_pjw_ndb_mfb">in der chaldäischen Lehre</rs> unterwiesenen <rs type="person" corresp="ed_mvq_mvb_nlb">Apollonius von Myndus</rs> zugestimmt hat, der die <rs type="term" corresp="ed_mlh_ysv_qhb">Kometen zu den Planeten</rs> zählte: "multos cometas <rs type="term" corresp="ed_ctd_34g_jfb">erraticos</rs> esse" (<rs type="source" corresp="zotero-2065617-GURQXEN6">NQ VII, c. 17,1</rs>). Diese in der antiken Doxographie mit den <rs type="term" corresp="ed_wky_wcc_yhb">Pythagoräern</rs> verbundene Lehre (<rs type="source" corresp="zotero-2065617-RT5CX4WR">Diels, DG, S. 366</rs>) begegnet auch bei <rs type="person" corresp="ed_hpz_jwb_rhb">Manilius</rs> (<rs type="source" corresp="zotero-2065617-89FDMXDM">I, 867–873</rs>). Die Quelle, auf die sich <rs type="person" corresp="ed_hpz_jwb_rhb">Manilius</rs> stützt, scheint Kometen für <rs type="term" corresp="ed_ctd_34g_jfb">Planeten</rs> zu halten, die nach Art der inneren Planeten <rs type="term" corresp="ed_kvk_hsj_r2b">Merkur</rs> und <rs type="term" corresp="ed_u3y_pck_r2b">Venus</rs> die Sonne umlaufen, dabei entflammt werden und dann wieder entschwinden: "involvitque [sc.: Sol] suo flammantis igne cometas/ ac modo dimittit" (<rs type="source" corresp="zotero-2065617-89FDMXDM">v. 870f.</rs>). Mit seiner Sicht auf Senecas Auffassung von Kometen steht <rs type="person" corresp="Boulliau">Boulliau</rs> allerdings nicht allein. <rs type="person" corresp="ed_is5_r2x_c3b">Gassendi</rs> hat, unter Berufung auf Seneca, <rs type="source" corresp="zotero-2065617-GURQXEN6">NQ VII, c. 27, 4,</rs> in seinem <rs type="source" corresp="zotero-2065617-6PSBJTVA">Syntagma philosophicum (Pars physicae, s. II, l. V)</rs> notiert, <rs type="person" corresp="ed_ujx_zln_xhb">er</rs> (bzw. seine Quellen) habe sie für dauerhafte Objekte nach Art von <rs type="term" corresp="ed_ctd_34g_jfb">Planeten</rs> gehalten, die den Weltraum durchzögen: "Coniicere denique licet, qua ratione aut <rs type="person" corresp="ed_ujx_zln_xhb">Seneca</rs>, aut quos est sequutus, intelligere defendereve potuerunt censendos <rs type="term" corresp="ed_sp4_f4l_2lb">Cometas 'inter opera aeterna naturae'"</rs> (<rs type="source" corresp="zotero-2065617-6P7CUD76">Opera I, S. 710a</rs>).</note></seg> Et hic ultimus noster <rs type="term" corresp="ed_mlh_ysv_qhb">supra lunam</rs> quoque evectus est, <del rendition="#s"/> <date when="1665-01-09" calendar="#Gregorian">die saltem <date when="1665-01-09" calendar="#Gregorian">9. Januarii</date></date> <rs type="term" corresp="ed_mlh_ysv_qhb">luna longe superiorem fuisse</rs> mihi constat.</p> <p><del rendition="#s">De</del> <rs type="term" corresp="ed_cgf_bfk_hlb">Scriptis astrologicis non immoror, quamvis enim ignes illos in terrena agere non <choice><abbr>negaveri</abbr> <expan>negaverim</expan></choice> aliquid praedicere certi, <add place="superlinear">et</add> ad personas, res, vel loca <del rendition="#s">def</del> effectus ipsorum determinare, possibile mihi non videtur;</rs> <del rendition="#s">et ut adnotavit</del> utque prudenter amicus tuus Hamburgensis adnotavit, plures insignes eventus per orbem terrarum visi, non visis Cometis sunt. Ab <seg type="comment"><orig>anno 1618 ad <rs type="term" corresp="ed_rb3_cpf_5kb">1652</rs> Europa nostra <rs type="term" corresp="ed_vnp_dyc_ydb">cometam</rs> non vidit;</orig> <note xml:id="nfkv_3cn_wpb">Vgl. <bibl type="ref" sameAs="zotero-2065617-GEGHVBG9">Kronk, Cometography, Bd. 1, S. 341–361.</bibl></note></seg> <del rendition="#s">g</del> aut igitur <rs type="term" corresp="ed_wjf_m43_tdb">stupendo illi anno 18 hujus saeculi</rs> viso causae <seg type="comment"><orig>omnium bellorum cladium</orig> <note xml:id="nasb_nzm_wpb">Neben den zahlreichen Auseinandersetzungen europäischer Mächte, die zum <rs type="term" corresp="ed_xqg_dcj_qmb">Dreißigjährigen Krieg</rs> zusammengefasst werden, hat Boulliau an den <rs type="term" corresp="ed_v5d_m1n_wpb">Französisch-Spanischen Krieg</rs>, den <rs type="term" corresp="ed_pgz_vbn_wpb">Bürgerkrieg im Vereinigten Königreich</rs> und die ihm folgende Diktatur <rs type="person" corresp="ed_aty_vzq_yjb">Cromwells</rs>, den sich anbahnenden <rs type="term" corresp="ed_ykr_rsy_flb">Krieg zwischen England und den Niederlanden</rs> denken können.</note></seg>, mutationumque assignandae erunt; aut multa <del rendition="#s">praeter</del> cometarum <add place="superlinear">phasi</add> operatione cessantibus contigere posse est asserendum et ridendum proculdubio cunctis cordatioribus philosophis se praeberet, <seg type="comment"><orig>qui <rs type="term" corresp="ed_vnp_dyc_ydb">cometae</rs> unius <rs type="term" corresp="ed_cw4_pxq_y2b">effectus ad annos 34</rs> extenderet,</orig> <note xml:id="nf4z_ncn_wpb">Die Zeitspanne zwischen 1618 und 1652, in der in Europa keine Kometensichtung zu verzeichnen ist; vgl. <rs type="person" corresp="Lubieniecki_Stanislaw">Lubieniecki</rs>, <rs type="source" corresp="zotero-2065617-FEX48TX4">Historia cometarum, S. 413–425</rs>; <bibl type="ref" sameAs="zotero-2065617-GEGHVBG9">Kronk, Cometography, Bd. 1,</bibl> S. 341–361.</note></seg> <seg type="comment"><orig>cum aeternorum <add place="superlinear">corporum</add> effectus ad <add place="superlinear">tres annos</add> vix extenderint Astrologi.</orig> <note xml:id="nqnt_yrz_tqb">Diese <ref target="ed_bxs_ssg_5pb/#nmcm_vlg_wpb">Behauptung</ref> hat Lubieniecki in seine Leitsätze (n. XXI) "contra determinatam astrorum efficentiam" aufgenommen, vgl. <rs type="letter" corresp="ed_bxs_ssg_5pb">Beilage zu Lubieniecki an Hevelius, 12. April 1667</rs>.</note></seg></p> <p>Sententiam meam praeterea scire <seg type="comment"><orig>de illo scripto Gallico ante dum fere menses mihi transmisso cupis.</orig> <note xml:id="nhnx_vkd_vqb">Am <rs type="letter" corresp="ed_bjj_5dw_xmb">14. Februar</rs> hatte Lubieniecki von 'seinem' französischen Brief gesprochen: "illa mea epistola Gallica". Da Boulliau die Sorgfalt bei der Behandlung historischer Sachverhalte hervorhebt, kann es sich nicht um jenes "scriptum Gallicum" handeln, das <rs type="letter" corresp="j2r_vfw_42b">Lubieniecki am 2. Juni an Hevelius</rs> schicken wird, die <rs type="source" corresp="zotero-2065617-FNLGE3KR"><rs type="source" corresp="zotero-2065617-ICS6ZFSJ">Kometenschrift <rs type="person" corresp="ed_i5r_nld_1jb">Liberatis</rs></rs></rs>. Das Schreiben, das inhaltlich Lubienieckis Interessen an der <rs type="term" corresp="ed_xkf_wqj_d2b">Historiographie der Kometen</rs> entsprach, lässt sich auf Grund des Hinweises in der Druckfassung evtl. als <rs type="letter" corresp="gzw_qlm_zdb">Brief an Rötlin vom 30. Dezember 1664</rs> identifizieren, den Lubienicki am <rs type="letter" corresp="yb3_4yl_l2b">23. Januar auch an Guericke d. J.</rs> geschickt hat.</note></seg> <del rendition="#s">S</del> quid sentiam <del rendition="#s">jam</del> per epistolam <add place="superlinear">ne memoria me fallat jam</add> singificavi, sed denuo, quoniam jubes ingenue hic repetam. Scriptum illud ad rem astronomicam parum conducit, cum nullis observationibus nitatur author, doctus tamen et eruditus <del rendition="#s">apperet</del> in eo deprehenditur, quod <choice><abbr>viror</abbr> <expan>virorum</expan></choice> aliquot illustrium sententias et opiniones dilucide enarret ac explicet; et <rs type="term" corresp="ed_f53_msb_12b">historiarum chronologiaeque</rs> peritum se ostendat; <rs type="term" corresp="ed_xkf_wqj_d2b">Cometarumque <add place="superlinear">plurium</add> visorum tempora,</rs> et eventus illustres, qui postea secuti sunt diligenter adnotet. Nihil praeterea de illo opusculo dicendum <del rendition="#s"/> et ad quaesita respondendum habeo.</p> <closer><salute>Vale vir generosissime</salute> <dateline>Scribebam Lutetiae <choice><abbr>Parisior.</abbr> <expan>Parisiorum</expan></choice> die 6. Martii 1665.</dateline></closer></div></body></text>
+</TEI>
+    <TEI xml:id="ed_abg_zbc_nlb" corresp="ed_kbj_wfw_xmb" type="letter">
+    <teiHeader>
+        <fileDesc>
+            <titleStmt>
+                <title type="sub">Druck</title>
+                <editor>
+                    <persName>Michael Weichenhan</persName>
+                </editor>
+            </titleStmt>
+            <publicationStmt>
+                <publisher>
+                    <orgName ref="https://www.jalb.de/">Johannes a Lasco Bibliothek</orgName>
+                    <settlement ref="https://sws.geonames.org/2930596">Emden</settlement>
+                </publisher>
+                <publisher>
+                    <orgName ref="https://www.adwmainz.de/">Akademie der Wissenschaften und der Literatur</orgName>
+                    <settlement ref="http://sws.geonames.org/2874225">Mainz</settlement>
+                </publisher>
+                <pubPlace ref="http://sws.geonames.org/2874225">Mainz</pubPlace>
+                <date from="2020">2020–2024</date>
+                <availability>
+                    <licence target="https://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International (CC-BY 4.0)</licence>
+                </availability>
+                <idno type="file">Lubieniecki_Stanislaw/Boulliau/Publikationsbereit/1665-03-06_Boulliau_Lubieniecki_D_TC.xml</idno>
+            </publicationStmt>
+            <seriesStmt>
+                <title type="main">Die sozinianischen Briefwechsel</title>
+                <title type="sub">Zwischen Theologie, frühmoderner Naturwissenschaft und politischer Korrespondenz</title>
+                <editor ref="http://d-nb.info/gnd/135995728">Kęstutis Daugirdas</editor>
+                <editor ref="https://orcid.org/0000-0003-1020-507X">Andreas Kuczera</editor>
+                <idno>https://gepris.dfg.de/gepris/projekt/324518514</idno>
+                <idno>https://registry.text-plus.org/entity/e4dde8f1-2335-4bc6-aeab-c64c4c163ef4/</idno>
+            </seriesStmt>
+            <sourceDesc>
+                <bibl sameAs="zotero-2065617-5UI8LMLI">Theatrum cometicum I<biblScope unit="pages">472</biblScope>.</bibl>
+                <msDesc rend="print">
+                    <msIdentifier/>
+                </msDesc>
+            </sourceDesc>
+        </fileDesc>
+        <profileDesc>
+            <langUsage>
+                <language ident="lat"/>
+            </langUsage>
+            <textClass>
+                <classCode scheme="#sbw">Briefexzerpt</classCode>
+            </textClass>
+        </profileDesc>
+        <revisionDesc>
+            <change when="2020-10-22">Metadaten publikationsbereit</change>
+            <change when="2023-05-31">Tiefenerschließung publikationsbereit</change>
+        </revisionDesc>
+    </teiHeader>
+    <text><body><div type="letter"><pb facs="https://archive.org/details/ned-kbn-all-00001420-001/page/n594/mode/2up" n="472"/> <opener><dateline><rs type="place" corresp="Paris">Lutetia Parisiorum</rs> <rs type="place" corresp="Hamburg">Hamburgum</rs> die <date when="1665-03-06" calendar="#Gregorian">6. Martii 1665</date></dateline></opener> <p>Ad cometam venio. Ad te antea me scripsisse memini cometam unicum nobis apparuisse, quem die 31. <choice><abbr>Decemb.</abbr> <expan>Decembris</expan></choice> praeteriti ad occasum sinistri pedis Orionis visum, aliquam esse novam stellam suspicatus fueram; sed ab illa sententia statim recessi. Unicum porro fuisse eundemque ad ortum et occasum visum confirmant literae ab Italis scriptae, qui postremis Decembris diebus cometam quotidie observarunt; quorum observationes, cum ad me pervenerint, tecum communicabo. Suecos interim, Danos et Germanos monere debes, ut opinionem de duobus visis cometis conceptam deponant, nec in eum errorem induci se patiantur.</p> <p>De cometae materia quod dicam aliud non habeo, nisi ipsam affinem esse ac valde similem Galaxiae: aetheream esse, nec unde nisi a Galaxia procedat, aut quo ipsa se recipiat sciri posse. Conjecturas cunctas valde infirmas vacillantesque esse, nullisque fundamentis verisimilibus eas niti, et insanae arrogantiae vicinum eum esse putandum est, qui de corporeis et materialibus phantasia sola duce, non vero sensu, decernere audet. Solas a terra exhalationes in sublime latas cometas generare non posse certum est. Nec admittenda domini Gerichii sententia mihi videtur, cum molem elementarem aëris a procella sic convelli et discerpi vult, ut ab ea pars avellatur, et in cometae formam transeat. Ut gratis asseritur gratis quoque negare possemus: subjiciemus tamen hanc rationem, quod scilicet experientia antiquorum et ultimorum temporum demonstrarit, in altissimorum montium jugis nullas procellas nullosque ventos pervenire aut sentiri.</p> <p>Gerichii sententia ex illa Epigenis deducta est, sed in eo ambae differunt, quod Epigenes intra molem elementarum et aëris confinia cometas coërceat: at turbine in sublime eos propelli Seneca negat, quod ille ab Epigene adsumptus, terrenas exhalationes supra lunam efferre nequeat. Romanus quippe philosophus ille cometas supra lunam fulsisse censebat. Et hic ultimus noster supra lunam quoque evectus est, die saltem 9. Januarii luna longe superiorem fuisse mihi constat.</p> <p>Scriptis astrologicis non immoror: quamvis enim ignes illos in terrena agere non negaverim, aliquid praedicere certi, et ad personas, res vel loca effectus ipsorum determinare, possibile mihi non videtur, utque prudenter adnotasti plures insignes eventus per orbem terrarum visi, non conspectis cometis, sunt.</p> <p>Ab anno 1618. ad 1652. Europa nostra cometam non vidit. Aut igitur stupendo illi, anno 18. hujus seculi viso, causae omnium bellorum, cladium, mutationumque assignandae erunt, aut multa cometarum phasi et operatione cessantibus contingere posse asserendum. Ridendumque proculdubio cunctis cordatioribus philosophis se praeberet, qui cometae uni effectus ad annos 34. extenderet, cum aeternorum corporum effectus ad tres annos vix extenderint astrologi. Sententiam meam praeterea scire de illo, Hamburgo die 20. | 30. <choice><abbr>Dec.</abbr> <expan>Decembris</expan></choice> 1664. Hafniam scripto Gallico, ante duos fere menses mihi transmisso cupis, quid sentiam, ni memoria me fallat, per epistolam jam significavi; sed denuo, quoniam id rogas, ingenue repetam. Scriptum illud ad rem astronomicam parum conducit, cum nullis observationibus nitatur auctor: doctus tamen et eruditus in eo deprehenditur, quod virorum aliquot illustrium sententias et opiniones dilucide enarret ac explicet; ac historiarum chronologiaeque peritum se ostendat, cometarumque plurium visorum tempora et eventus illustres, qui postea secuti sunt diligenter adnotet. Nihil praeterea de illo opusculo dicendum, et ad quaesita respondendum habeo.</p> <p>Ad Illustrissimum dominum de Rautenstein scribendi otium non suppetit: quaeso, ut meo nomine eum officiosissime resalutes, et ut <choice><abbr>R. P.</abbr> <expan>reverendum patrem</expan></choice> Albertum Curtium quoque salutet, roges.</p> <p>Vale, vir generosissime.</p></div></body></text>
+</TEI>
+</TEI>
+</teiCorpus>

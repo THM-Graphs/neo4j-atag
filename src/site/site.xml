@@ -26,6 +26,7 @@
             <item name="Building" href="building.html"/>
             <item name="Import and export profiles" href="profiles.html"/>
             <item name="Worked example: TEI in and out" href="worked-example.html"/>
+            <item name="Worked example II: a corpus letter" href="worked-example-letter.html"/>
         </menu>
         <menu name="Procedures / Functions">
             <item name="atag.chains.characterChain" href="atag.chains.characterChain.html"/>
@@ -44,7 +45,9 @@
             <item name="atag.text.import.html" href="atag.text.import.html.html"/>
             <item name="atag.text.import.xml" href="atag.text.import.xml.html"/>
             <item name="atag.text.import.tei" href="atag.text.import.tei.html"/>
+            <item name="atag.text.import.entities" href="atag.text.import.entities.html"/>
             <item name="atag.text.xslt" href="atag.text.xslt.html"/>
+            <item name="atag.text.xpath" href="atag.text.xpath.html"/>
             <item name="atag.model.meta" href="atag.model.meta.html"/>
         </menu>
         <menu ref="reports" inherit="top"/>

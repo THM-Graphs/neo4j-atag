@@ -8,6 +8,10 @@ that concept a `(:Meta:Type)` node refining it, and the RAMEN relations become
 relationships between the concept nodes - carrying the very relationship types the
 instance data uses.
 
+The relations written are the ones the RAMEN model allows: content and collections are
+`PART_OF` a collection, and so are entities - a register belongs to the collection that
+declares it; content and annotations have annotations; annotations refer to entities.
+
 Once written, an [import or export profile](profiles.html) can refer to it with
 `model: 'meta'` instead of repeating the model in every call.
 
