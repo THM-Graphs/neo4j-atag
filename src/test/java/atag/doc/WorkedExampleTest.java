@@ -66,8 +66,14 @@ class WorkedExampleTest {
 
     private static final String PLAIN_TEXT = "Hildegard writes to Berthold. She sends greetings.";
 
-    private static final String HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-            + "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\"><teiHeader><fileDesc><titleStmt>"
+    private static final String DECLARATION = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
+
+    /** the header of the source document, which the import kept and the export writes back */
+    private static final String LETTER_HEADER = "<teiHeader><fileDesc><titleStmt><title>Letter to Berthold</title>"
+            + "</titleStmt></fileDesc></teiHeader>";
+
+    /** the placeholder header of a node that has none of its own */
+    private static final String PLACEHOLDER_HEADER = "<teiHeader><fileDesc><titleStmt>"
             + "<title>%s</title></titleStmt><publicationStmt>"
             + "<p>exported from a Neo4j property graph by neo4j-atag</p></publicationStmt>"
             + "<sourceDesc><p>born-digital graph data</p></sourceDesc></fileDesc></teiHeader>";
@@ -83,7 +89,7 @@ class WorkedExampleTest {
             + " <seg xml:id=\"l-2\" type=\"line\">sends greetings.</seg>";
 
     private static final String INLINE_STANDOFF = "<standOff><listAnnotation>"
-            + "<annotation target=\"#string-range(letter-1,30,20)\" xml:id=\"s-2\" type=\"sentence\"/>"
+            + "<annotation target=\"#string-range(atag-1,30,20)\" xml:id=\"s-2\" type=\"sentence\"/>"
             + "<annotation target=\"#p-1\" xml:id=\"c-1\" note=\"uncertain reading\" type=\"commentary\"/>"
             + "</listAnnotation>";
 
@@ -152,33 +158,34 @@ class WorkedExampleTest {
                 "an annotation targeting an annotation hangs off that annotation, not off the text");
 
         String inline = exportTei(db, "letter-1", EXPORT_PROFILE);
-        assertEquals(HEADER.formatted("ATAG export")
-                        + "<text><body><ab xml:id=\"letter-1\">" + INLINE_TEXT + "</ab></body></text>"
+        assertEquals(DECLARATION + "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\" xml:id=\"letter-1\">" + LETTER_HEADER
+                        + "<text><body><ab xml:id=\"atag-1\">" + INLINE_TEXT + "</ab></body></text>"
                         + INLINE_STANDOFF + ENTITIES,
                 inline,
                 "the second sentence crosses the first line, so it cannot be nested and moves to standOff");
 
         String standoff = exportTei(db, "letter-1", with("serialization", "standoff"));
-        assertEquals(HEADER.formatted("ATAG export")
-                        + "<text><body><ab xml:id=\"letter-1\">" + PLAIN_TEXT + "</ab></body></text>"
+        assertEquals(DECLARATION + "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\" xml:id=\"letter-1\">" + LETTER_HEADER
+                        + "<text><body><ab xml:id=\"atag-1\">" + PLAIN_TEXT + "</ab></body></text>"
                         + "<standOff><listAnnotation>"
-                        + "<annotation target=\"#string-range(letter-1,0,33)\" xml:id=\"l-1\" type=\"line\"/>"
-                        + "<annotation target=\"#string-range(letter-1,0,29)\" xml:id=\"s-1\" type=\"sentence\"/>"
-                        + "<annotation target=\"#string-range(letter-1,0,9)\" xml:id=\"p-1\" ref=\"#hildegard\" type=\"person-reference\"/>"
+                        + "<annotation target=\"#string-range(atag-1,0,33)\" xml:id=\"l-1\" type=\"line\"/>"
+                        + "<annotation target=\"#string-range(atag-1,0,29)\" xml:id=\"s-1\" type=\"sentence\"/>"
+                        + "<annotation target=\"#string-range(atag-1,0,9)\" xml:id=\"p-1\" ref=\"#hildegard\" type=\"person-reference\"/>"
                         + "<annotation target=\"#p-1\" xml:id=\"c-1\" note=\"uncertain reading\" type=\"commentary\"/>"
-                        + "<annotation target=\"#string-range(letter-1,20,8)\" xml:id=\"p-2\" ref=\"#berthold\" type=\"person-reference\"/>"
-                        + "<annotation target=\"#string-range(letter-1,30,20)\" xml:id=\"s-2\" type=\"sentence\"/>"
-                        + "<annotation target=\"#string-range(letter-1,34,16)\" xml:id=\"l-2\" type=\"line\"/>"
+                        + "<annotation target=\"#string-range(atag-1,20,8)\" xml:id=\"p-2\" ref=\"#berthold\" type=\"person-reference\"/>"
+                        + "<annotation target=\"#string-range(atag-1,30,20)\" xml:id=\"s-2\" type=\"sentence\"/>"
+                        + "<annotation target=\"#string-range(atag-1,34,16)\" xml:id=\"l-2\" type=\"line\"/>"
                         + "</listAnnotation>" + ENTITIES,
                 standoff);
 
         String fromCollection = exportTei(db, "ms-1", EXPORT_PROFILE);
-        assertEquals(HEADER.formatted("Cod. Sang. 963")
-                        + "<text><body><div xml:id=\"ms-1\" label=\"Cod. Sang. 963\">"
-                        + "<ab xml:id=\"letter-1\">" + INLINE_TEXT + "</ab></div></body></text>"
-                        + INLINE_STANDOFF + ENTITIES,
+        assertEquals(DECLARATION + "<TEI xmlns=\"http://www.tei-c.org/ns/1.0\" xml:id=\"ms-1\" label=\"Cod. Sang. 963\">"
+                        + PLACEHOLDER_HEADER.formatted("Cod. Sang. 963")
+                        + INLINE_STANDOFF + ENTITIES.replace("</TEI>", "")
+                        + "<TEI xml:id=\"letter-1\">" + LETTER_HEADER
+                        + "<text><body><ab xml:id=\"atag-1\">" + INLINE_TEXT + "</ab></body></text></TEI></TEI>",
                 fromCollection,
-                "starting at the manuscript keeps the collection as a div around its transcripts");
+                "starting at the manuscript nests the transcript, which has a header of its own, as a document of its own");
 
         db.executeTransactionally("CREATE (t:Transcript {uuid: 'letter-2', xml: $xml})", Map.of("xml", inline));
         db.executeTransactionally("""

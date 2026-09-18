@@ -12,6 +12,7 @@ import org.neo4j.procedure.Mode;
 import org.neo4j.procedure.Name;
 import org.neo4j.procedure.Procedure;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -79,6 +80,20 @@ public class Importer {
             @Name(value = "profile", defaultValue = "{}") Map<String, Object> profile) {
 
         return run(ImportPipeline.xml(log), startNode, propertyKey, ImportProfile.tei(profile, tx));
+    }
+
+    @Procedure(mode = Mode.WRITE, name = "atag.text.import.entities")
+    @Description("import the entity declarations of a TEI/XML document stored on a node property, controlled by an import profile")
+    public Stream<ResultTypes.NodeResult> importEntities(
+            @Name("startNode") Node startNode,
+            @Name("propertyKey") String propertyKey,
+            @Name(value = "profile", defaultValue = "{}") Map<String, Object> profile) {
+
+        Map<String, Object> creating = new HashMap<>(profile);
+        creating.putIfAbsent("createMissingEntities", true);
+        String source = (String) startNode.getProperty(propertyKey);
+        return ImportPipeline.xml(log).importEntities(tx, source, ImportProfile.tei(creating, tx))
+                .stream().map(ResultTypes.NodeResult::new);
     }
 
     private <D> Stream<ResultTypes.NodeResult> run(ImportPipeline<D> pipeline, Node startNode,

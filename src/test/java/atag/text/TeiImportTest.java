@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.harness.junit.extension.Neo4jExtension;
 import org.neo4j.internal.helpers.collection.Iterators;
+import org.xmlunit.assertj3.XmlAssert;
 
 import java.util.List;
 import java.util.Map;
@@ -89,6 +90,7 @@ class TeiImportTest {
         assertEquals("persName", inline.get("tag"), "the element name itself should be kept");
         assertEquals(0L, inline.get("startIndex"));
         assertEquals(9L, inline.get("endIndex"));
+        assertEquals(4L, inline.get("depth"), "TEI/text/body/ab/persName: an inline element records how deep it was nested");
 
         Map<String, Object> standoff = annotations.get(1);
         assertEquals("phrase", standoff.get("type"));
@@ -96,6 +98,79 @@ class TeiImportTest {
                 "the generic <annotation> element of the stand-off vocabulary is not a markup name to keep");
         assertEquals(5L, standoff.get("startIndex"), "a string-range pointer should resolve to a character offset");
         assertEquals(20L, standoff.get("endIndex"));
+        assertNull(standoff.get("depth"), "stand-off markup has no place in the hierarchy");
+    }
+
+    @Test
+    void theHeaderIsKeptVerbatimOnTheContentNode(GraphDatabaseService db) {
+        long id = importTei(db, TEI, PROFILE);
+
+        String header = db.executeTransactionally("MATCH (t:Text {id: $id}) RETURN t.teiHeader AS header",
+                Map.of("id", id), r -> (String) Iterators.single(r).get("header"));
+        XmlAssert.assertThat(header).and("""
+                <teiHeader xmlns="http://www.tei-c.org/ns/1.0"><fileDesc><titleStmt><title>Letter R86</title></titleStmt></fileDesc></teiHeader>""")
+                .areIdentical();
+    }
+
+    @Test
+    void anUnresolvableReferenceStaysAProperty(GraphDatabaseService db) {
+        long id = importTei(db, """
+                <TEI xmlns="http://www.tei-c.org/ns/1.0"><teiHeader/>
+                <text><body><ab><rs corresp="nobody #hildegard letter-7">Somebody</rs></ab></body></text></TEI>
+                """, Map.of("referenceAttributes", List.of("corresp")));
+
+        Map<String, Object> row = db.executeTransactionally("""
+                MATCH (t:Text {id: $id})-[:HAS_ANNOTATION]->(a:Annotation)
+                RETURN a.corresp AS corresp, count { (a)-[:REFERS_TO]->() } AS references
+                """, Map.of("id", id), Iterators::single);
+        assertEquals("nobody letter-7", row.get("corresp"),
+                "the pointers nothing in the graph answers to stay in the attribute they were written in");
+        assertEquals(1L, row.get("references"), "hildegard exists from the earlier imports");
+    }
+
+    private static final String CORPUS = """
+            <teiCorpus xmlns="http://www.tei-c.org/ns/1.0">
+              <teiHeader/>
+              <standOff>
+                <listPerson>
+                  <person xml:id="boulliau"><persName type="reg"><surname>Boulliau</surname> <forename>Ismaël</forename></persName><birth>1605</birth></person>
+                </listPerson>
+              </standOff>
+            </teiCorpus>
+            """;
+
+    private static final Map<String, Object> REGISTER_PROFILE = Map.of(
+            "rootElement", "teiCorpus",
+            "entityXPath", "//*[local-name()='listPerson']/*[local-name()='person']",
+            "entityLabelXPath", "normalize-space(*[local-name()='persName'][@type='reg'])",
+            "entitySourceProperty", "tei",
+            "model", Map.of("entity", List.of("Entity", "Person")));
+
+    @Test
+    void aRegisterIsImportedOnItsOwnAndKeptVerbatim(GraphDatabaseService db) {
+        db.executeTransactionally("CREATE (c:Corpus {id: 'register', xml: $xml})", Map.of("xml", CORPUS));
+
+        for (int run = 0; run < 2; run++) {
+            long imported = db.executeTransactionally("""
+                    MATCH (c:Corpus {id: 'register'})
+                    CALL atag.text.import.entities(c, 'xml', $profile) YIELD node
+                    RETURN count(node) AS count
+                    """, Map.of("profile", REGISTER_PROFILE), r -> (Long) Iterators.single(r).get("count"));
+            assertEquals(1, imported);
+        }
+
+        List<Map<String, Object>> entities = db.executeTransactionally("""
+                MATCH (e:Person {uuid: 'boulliau'}) RETURN properties(e) AS properties, labels(e) AS labels
+                """, Map.of(), r -> Iterators.asList(r).stream().map(row -> (Map<String, Object>) row).toList());
+        assertEquals(1, entities.size(), "a second import must reuse the entity");
+        Map<String, Object> properties = (Map<String, Object>) entities.get(0).get("properties");
+        assertEquals("person", properties.get("tag"));
+        assertEquals("Boulliau Ismaël", properties.get("label"));
+        XmlAssert.assertThat(properties.get("tei").toString()).and("""
+                <person xmlns="http://www.tei-c.org/ns/1.0" xml:id="boulliau"><persName type="reg"><surname>Boulliau</surname> <forename>Ismaël</forename></persName><birth>1605</birth></person>""")
+                .areIdentical();
+        assertNull(db.executeTransactionally("MATCH (c:Corpus {id: 'register'}) RETURN c.plainText AS text",
+                Map.of(), r -> Iterators.single(r).get("text")), "a register import writes nothing to the start node");
     }
 
     @Test

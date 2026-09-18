@@ -2,11 +2,14 @@ package atag.text.pipeline;
 
 import atag.profile.ImportProfile;
 import atag.profile.StandoffVocabulary;
+import atag.text.XmlFragments;
+import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 
 import javax.xml.xpath.XPath;
@@ -27,6 +30,9 @@ import java.util.Map;
  * Where the profile also selects stand-off annotations, their {@code @target} pointers
  * are resolved against the same plain text, so an annotation encoded inline and the same
  * annotation encoded as stand-off markup arrive at phase 3 in identical shape.
+ * <p>
+ * What the model does not describe is not thrown away: the header and, on request, the
+ * entity declarations are kept verbatim.
  */
 public class XmlStructureExtractor implements StructureExtractor<Document> {
 
@@ -43,16 +49,38 @@ public class XmlStructureExtractor implements StructureExtractor<Document> {
                 long startIndex = plainText.length();
                 elements.add(new ExtractedElement(element.getNodeName(), attributesOf(element),
                         startIndex, startIndex + textContent.length(),
-                        textContent.isEmpty() ? null : textContent));
+                        textContent.isEmpty() ? null : textContent, depthOf(element)));
             } else if (item instanceof Text text) {
                 plainText.append(text.getTextContent());
-            } else {
+            } else if (!(item instanceof Comment || item instanceof ProcessingInstruction)) {
                 throw new IllegalArgumentException("Unknown node type: " + item);
             }
         }
 
         elements.addAll(standoff(xPath, document, profile));
-        return new ExtractedStructure(plainText.toString(), elements, entities(xPath, document, profile));
+        return new ExtractedStructure(plainText.toString(), elements, extractEntities(xPath, document, profile),
+                header(xPath, document, profile));
+    }
+
+    @Override
+    public List<ExtractedEntity> extractEntities(Document document, ImportProfile profile) {
+        return extractEntities(XPathFactory.newInstance().newXPath(), document, profile);
+    }
+
+    private static long depthOf(Element element) {
+        long depth = 0;
+        for (Node ancestor = element.getParentNode(); ancestor instanceof Element; ancestor = ancestor.getParentNode()) {
+            depth++;
+        }
+        return depth;
+    }
+
+    private String header(XPath xPath, Document document, ImportProfile profile) {
+        if (profile.headerXPath().isEmpty()) {
+            return null;
+        }
+        List<Node> nodes = select(xPath, document, profile.headerXPath());
+        return nodes.isEmpty() ? null : XmlFragments.serialize(nodes.get(0));
     }
 
     private List<ExtractedElement> standoff(XPath xPath, Document document, ImportProfile profile) {
@@ -93,25 +121,39 @@ public class XmlStructureExtractor implements StructureExtractor<Document> {
     private ExtractedElement resolve(String name, Map<String, String> attributes, String target) {
         long[] range = StandoffVocabulary.parseStringRange(target);
         if (range != null) {
-            return new ExtractedElement(name, attributes, range[0], range[1], null);
+            return new ExtractedElement(name, attributes, range[0], range[1], null, null, null);
         }
         if (target.startsWith("#")) {
-            return new ExtractedElement(name, attributes, null, null, null, target.substring(1));
+            return new ExtractedElement(name, attributes, null, null, null, target.substring(1), null);
         }
         throw new IllegalArgumentException("cannot resolve stand-off target: " + target);
     }
 
-    private List<ExtractedElement> entities(XPath xPath, Document document, ImportProfile profile) {
-        List<ExtractedElement> result = new ArrayList<>();
+    private List<ExtractedEntity> extractEntities(XPath xPath, Document document, ImportProfile profile) {
+        List<ExtractedEntity> result = new ArrayList<>();
         if (profile.entityXPath().isEmpty()) {
             return result;
         }
         for (Node item : select(xPath, document, profile.entityXPath())) {
             if (item instanceof Element element) {
-                result.add(new ExtractedElement(element.getNodeName(), attributesOf(element), null, null, null, null));
+                String source = profile.entitySourceProperty() == null ? null : XmlFragments.serialize(element);
+                result.add(new ExtractedEntity(element.getNodeName(), attributesOf(element),
+                        labelOf(xPath, element, profile), source));
             }
         }
         return result;
+    }
+
+    private String labelOf(XPath xPath, Element declaration, ImportProfile profile) {
+        if (profile.entityLabelXPath().isEmpty()) {
+            return null;
+        }
+        try {
+            String label = (String) xPath.compile(profile.entityLabelXPath()).evaluate(declaration, XPathConstants.STRING);
+            return label == null || label.isBlank() ? null : label;
+        } catch (XPathExpressionException e) {
+            throw new RuntimeException("invalid xpath expression: " + profile.entityLabelXPath(), e);
+        }
     }
 
     private List<Node> select(XPath xPath, Document document, String path) {

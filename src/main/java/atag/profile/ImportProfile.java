@@ -31,11 +31,13 @@ public class ImportProfile {
             "/*[local-name()='TEI']/*[local-name()='standOff']//*[local-name()='annotation']";
     private static final String TEI_STANDOFF_ENTITIES =
             "/*[local-name()='TEI']/*[local-name()='standOff']//*[local-name()='list'][@type='entity']/*[local-name()='item']";
+    private static final String TEI_HEADER = "/*[local-name()='TEI']/*[local-name()='teiHeader']";
 
     private static final Map<String, Object> TEI_DEFAULTS = Map.of(
             "xpath", TEI_BODY,
             "standoffXPath", TEI_STANDOFF_ANNOTATIONS,
             "entityXPath", TEI_STANDOFF_ENTITIES,
+            "headerXPath", TEI_HEADER,
             "rootElement", "TEI",
             "idAttribute", "xml:id",
             "referenceAttributes", List.of("ref"));
@@ -45,6 +47,10 @@ public class ImportProfile {
     private final String xpath;
     private final String standoffXPath;
     private final String entityXPath;
+    private final String headerXPath;
+    private final String headerProperty;
+    private final String entityLabelXPath;
+    private final String entitySourceProperty;
     private final String rootElement;
     private final String idAttribute;
     private final String idProperty;
@@ -63,6 +69,10 @@ public class ImportProfile {
         this.xpath = (String) config.getOrDefault("xpath", TEI_BODY);
         this.standoffXPath = (String) config.getOrDefault("standoffXPath", "");
         this.entityXPath = (String) config.getOrDefault("entityXPath", "");
+        this.headerXPath = (String) config.getOrDefault("headerXPath", "");
+        this.headerProperty = (String) config.getOrDefault("headerProperty", "teiHeader");
+        this.entityLabelXPath = (String) config.getOrDefault("entityLabelXPath", "");
+        this.entitySourceProperty = (String) config.get("entitySourceProperty");
         this.rootElement = (String) config.getOrDefault("rootElement", "");
         this.idAttribute = (String) config.getOrDefault("idAttribute", "xml:id");
         this.idProperty = (String) config.getOrDefault("idProperty", "uuid");
@@ -115,6 +125,26 @@ public class ImportProfile {
 
     public String entityXPath() {
         return entityXPath;
+    }
+
+    /** Selects the document's header, which is kept verbatim; empty when there is none to keep. */
+    public String headerXPath() {
+        return headerXPath;
+    }
+
+    /** Property of the content node the header is stored on. */
+    public String headerProperty() {
+        return headerProperty;
+    }
+
+    /** Evaluated relative to an entity declaration to obtain its display name; empty for {@code @n}. */
+    public String entityLabelXPath() {
+        return entityLabelXPath;
+    }
+
+    /** Property an entity declaration is stored on verbatim, or {@code null} to keep only its attributes. */
+    public String entitySourceProperty() {
+        return entitySourceProperty;
     }
 
     /** Expected name of the document element, or empty when phase 1 should not check it. */

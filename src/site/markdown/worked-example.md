@@ -10,7 +10,9 @@ The three decisions it demonstrates are recorded as architecture decision record
 repository: `docs/adr/0001-profile-driven-import-export-architecture.md` (profile-driven
 pipelines), `docs/adr/0002-tei-serialization-inline-and-standoff.md` (TEI inline and
 stand-off) and `docs/adr/0003-project-model-as-meta-graph.md` (the project model as a
-meta graph).
+meta graph). A [second worked example](worked-example-letter.html) takes a letter from a
+real edition, with a corpus header, a register of entities and two witnesses, through the
+same pipeline.
 
 ## The source document
 
@@ -195,14 +197,12 @@ in the other direction: an annotation type becomes an element name again.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<TEI xmlns="http://www.tei-c.org/ns/1.0">
-  <teiHeader><fileDesc><titleStmt><title>ATAG export</title></titleStmt>
-    <publicationStmt><p>exported from a Neo4j property graph by neo4j-atag</p></publicationStmt>
-    <sourceDesc><p>born-digital graph data</p></sourceDesc></fileDesc></teiHeader>
-  <text><body><ab xml:id="letter-1"><seg xml:id="l-1" type="line"><s xml:id="s-1"><persName xml:id="p-1" ref="#hildegard">Hildegard</persName> writes to <persName xml:id="p-2" ref="#berthold">Berthold</persName>.</s> She</seg> <seg xml:id="l-2" type="line">sends greetings.</seg></ab></body></text>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="letter-1">
+  <teiHeader><fileDesc><titleStmt><title>Letter to Berthold</title></titleStmt></fileDesc></teiHeader>
+  <text><body><ab xml:id="atag-1"><seg xml:id="l-1" type="line"><s xml:id="s-1"><persName xml:id="p-1" ref="#hildegard">Hildegard</persName> writes to <persName xml:id="p-2" ref="#berthold">Berthold</persName>.</s> She</seg> <seg xml:id="l-2" type="line">sends greetings.</seg></ab></body></text>
   <standOff>
     <listAnnotation>
-      <annotation target="#string-range(letter-1,30,20)" xml:id="s-2" type="sentence"/>
+      <annotation target="#string-range(atag-1,30,20)" xml:id="s-2" type="sentence"/>
       <annotation target="#p-1" xml:id="c-1" note="uncertain reading" type="commentary"/>
     </listAnnotation>
     <list type="entity">
@@ -216,14 +216,18 @@ in the other direction: an annotation type becomes an element name again.
 (Line breaks were added outside `<text>` for readability. The exporter emits none inside
 it, for the reason given above.)
 
-Four things happened here:
+Five things happened here:
 
+* The header is the one of the source document. The import kept it verbatim on the
+  transcript, and a node that has a header is written as a `<TEI>` carrying its
+  identifier - which is why the `<ab>` holding the text got a generated `atag-1`: the
+  deferred sentence needs something to point at.
 * The lines and the first sentence nest cleanly, so they are written inline. Because the
   dictionary has no element for `line`, the lines become the neutral `<seg type="line">`
   rather than being dropped or invented as `<line>`.
 * The second sentence overlaps the first line - `l-1` ends inside `s-2` - so it cannot be
   an element. It moves into `<standOff>` and points back at the same characters with
-  `string-range(letter-1,30,20)`, that is offset 30, length 20.
+  `string-range(atag-1,30,20)`, that is offset 30, length 20.
 * The commentary, an annotation on an annotation, has no range of its own and targets
   `#p-1`.
 * `REFERS_TO` became `@ref` again, and the two entities are declared in `<standOff>`.
@@ -235,16 +239,16 @@ completely unmarked and puts every annotation into `<standOff>`. This is the ser
 to use when consumers should not have to deal with a hierarchy that was chosen for them:
 
 ```xml
-<text><body><ab xml:id="letter-1">Hildegard writes to Berthold. She sends greetings.</ab></body></text>
+<text><body><ab xml:id="atag-1">Hildegard writes to Berthold. She sends greetings.</ab></body></text>
 <standOff>
   <listAnnotation>
-    <annotation target="#string-range(letter-1,0,33)" xml:id="l-1" type="line"/>
-    <annotation target="#string-range(letter-1,0,29)" xml:id="s-1" type="sentence"/>
-    <annotation target="#string-range(letter-1,0,9)" xml:id="p-1" ref="#hildegard" type="person-reference"/>
+    <annotation target="#string-range(atag-1,0,33)" xml:id="l-1" type="line"/>
+    <annotation target="#string-range(atag-1,0,29)" xml:id="s-1" type="sentence"/>
+    <annotation target="#string-range(atag-1,0,9)" xml:id="p-1" ref="#hildegard" type="person-reference"/>
     <annotation target="#p-1" xml:id="c-1" note="uncertain reading" type="commentary"/>
-    <annotation target="#string-range(letter-1,20,8)" xml:id="p-2" ref="#berthold" type="person-reference"/>
-    <annotation target="#string-range(letter-1,30,20)" xml:id="s-2" type="sentence"/>
-    <annotation target="#string-range(letter-1,34,16)" xml:id="l-2" type="line"/>
+    <annotation target="#string-range(atag-1,20,8)" xml:id="p-2" ref="#berthold" type="person-reference"/>
+    <annotation target="#string-range(atag-1,30,20)" xml:id="s-2" type="sentence"/>
+    <annotation target="#string-range(atag-1,34,16)" xml:id="l-2" type="line"/>
   </listAnnotation>
   ...
 </standOff>
@@ -253,8 +257,9 @@ to use when consumers should not have to deal with a hierarchy that was chosen f
 ## 7. Export a whole collection
 
 Starting the traversal at the manuscript instead of one of its transcripts includes the
-collection, which becomes a `<div>` around the texts that are `PART_OF` it - and gives the
-document its title:
+collection. The manuscript has no header of its own, so it gets the placeholder header
+with its `label` as the title; the transcript, which has one, is nested into it as a
+document of its own:
 
 ```cypher
 MATCH (m:Manuscript {uuid: 'ms-1'})
@@ -263,13 +268,21 @@ RETURN value
 ```
 
 ```xml
-<titleStmt><title>Cod. Sang. 963</title></titleStmt>
-...
-<text><body><div xml:id="ms-1" label="Cod. Sang. 963"><ab xml:id="letter-1">...</ab></div></body></text>
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="ms-1" label="Cod. Sang. 963">
+  <teiHeader><fileDesc><titleStmt><title>Cod. Sang. 963</title></titleStmt>
+    <publicationStmt><p>exported from a Neo4j property graph by neo4j-atag</p></publicationStmt>
+    <sourceDesc><p>born-digital graph data</p></sourceDesc></fileDesc></teiHeader>
+  <standOff>...</standOff>
+  <TEI xml:id="letter-1">
+    <teiHeader><fileDesc><titleStmt><title>Letter to Berthold</title></titleStmt></fileDesc></teiHeader>
+    <text><body><ab xml:id="atag-1">...</ab></body></text>
+  </TEI>
+</TEI>
 ```
 
-Adding `fileName: 'letter-1.xml'` to the profile writes the result into Neo4j's import
-directory instead of returning it.
+A collection whose parts have no headers becomes a `<div>` around the `<ab>`s that are
+`PART_OF` it instead. Adding `fileName: 'letter-1.xml'` to the profile writes the result
+into Neo4j's import directory instead of returning it.
 
 ## 8. Reading the export back
 

@@ -6,6 +6,7 @@ import atag.profile.ImportProfile;
 import atag.profile.StandoffVocabulary;
 import atag.text.pipeline.MappedStructure.MappedAnnotation;
 import atag.text.pipeline.MappedStructure.MappedEntity;
+import atag.text.pipeline.MappedStructure.Reference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,11 +32,16 @@ public class StructureMapper {
         for (ExtractedElement element : structure.elements()) {
             annotations.add(mapAnnotation(element, profile));
         }
+        return new MappedStructure(structure.plainText(), annotations, mapEntities(structure.entities(), profile),
+                structure.header());
+    }
+
+    public List<MappedEntity> mapEntities(List<ExtractedEntity> declarations, ImportProfile profile) {
         List<MappedEntity> entities = new ArrayList<>();
-        for (ExtractedElement element : structure.entities()) {
-            entities.add(mapEntity(element, profile));
+        for (ExtractedEntity declaration : declarations) {
+            entities.add(mapEntity(declaration, profile));
         }
-        return new MappedStructure(structure.plainText(), annotations, entities);
+        return entities;
     }
 
     private MappedAnnotation mapAnnotation(ExtractedElement element, ImportProfile profile) {
@@ -55,9 +61,12 @@ public class StructureMapper {
         if (element.text() != null) {
             properties.put(profile.plainTextProperty(), element.text());
         }
+        if (element.depth() != null) {
+            properties.put("depth", element.depth());
+        }
 
         String id = null;
-        List<String> references = new ArrayList<>();
+        List<Reference> references = new ArrayList<>();
         for (Map.Entry<String, String> attribute : element.attributes().entrySet()) {
             String name = attribute.getKey();
             String value = attribute.getValue();
@@ -65,7 +74,9 @@ public class StructureMapper {
                 id = value;
                 properties.put(profile.idProperty(), value);
             } else if (profile.referenceAttributes().contains(name)) {
-                references.addAll(pointers(value));
+                for (String pointer : pointers(value)) {
+                    references.add(new Reference(name, pointer));
+                }
             } else {
                 properties.put(dictionary.propertyFor(name), value);
             }
@@ -75,14 +86,23 @@ public class StructureMapper {
 
     /**
      * An entity declaration carries the identifier references point at, the labels that
-     * refine the generic {@code Entity} concept, and a display name.
+     * refine the generic {@code Entity} concept, and a display name. The element it was
+     * written as is kept like an annotation's, and so is the declaration itself when the
+     * profile asks for it.
      */
-    private MappedEntity mapEntity(ExtractedElement element, ImportProfile profile) {
+    private MappedEntity mapEntity(ExtractedEntity element, ImportProfile profile) {
         Dictionary dictionary = profile.dictionary();
         List<String> labels = new ArrayList<>(profile.model().labels(Concept.ENTITY));
         Map<String, Object> properties = new LinkedHashMap<>();
         String id = null;
 
+        properties.put(dictionary.elementProperty(), element.name());
+        if (element.label() != null) {
+            properties.put("label", element.label());
+        }
+        if (element.source() != null) {
+            properties.put(profile.entitySourceProperty(), element.source());
+        }
         for (Map.Entry<String, String> attribute : element.attributes().entrySet()) {
             String name = attribute.getKey();
             String value = attribute.getValue();
@@ -94,7 +114,7 @@ public class StructureMapper {
                         .filter(label -> !labels.contains(label))
                         .forEach(labels::add);
             } else if (name.equals(StandoffVocabulary.NAME_ATTRIBUTE)) {
-                properties.put("label", value);
+                properties.putIfAbsent("label", value);
             } else {
                 properties.put(dictionary.propertyFor(name), value);
             }
@@ -107,7 +127,7 @@ public class StructureMapper {
         List<String> result = new ArrayList<>();
         for (String pointer : value.trim().split("\\s+")) {
             if (!pointer.isEmpty()) {
-                result.add(pointer.startsWith("#") ? pointer.substring(1) : pointer);
+                result.add(pointer);
             }
         }
         return result;

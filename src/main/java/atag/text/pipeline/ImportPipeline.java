@@ -5,6 +5,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.logging.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -46,5 +47,19 @@ public class ImportPipeline<D> {
         log.debug("imported {} annotations and {} entity declarations from {} characters of text",
                 annotations.size(), mapped.entities().size(), mapped.plainText().length());
         return annotations;
+    }
+
+    /**
+     * Only phases 1 to 4 for the entity declarations of a document: nothing is extracted
+     * as text and nothing is written to the start node. This is how a register that is
+     * declared once for a whole corpus enters the graph.
+     */
+    public List<Node> importEntities(Transaction tx, String source, ImportProfile profile) {
+        D document = reader.read(source, profile);
+        List<ExtractedEntity> declarations = extractor.extractEntities(document, profile);
+        List<MappedStructure.MappedEntity> mapped = mapper.mapEntities(declarations, profile);
+        List<Node> entities = new ArrayList<>(constructor.entities(tx, mapped, profile).values());
+        log.debug("imported {} of {} entity declarations", entities.size(), declarations.size());
+        return entities;
     }
 }

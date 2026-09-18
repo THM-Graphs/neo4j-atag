@@ -4,6 +4,7 @@ import atag.model.Ramen.Concept;
 import atag.profile.ImportProfile;
 import atag.text.pipeline.MappedStructure.MappedAnnotation;
 import atag.text.pipeline.MappedStructure.MappedEntity;
+import atag.text.pipeline.MappedStructure.Reference;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
@@ -21,7 +22,9 @@ import java.util.UUID;
  * Phase 4 of the import pipeline: write the mapped structures to the graph. The content
  * node receives the plain text every range refers to, each annotation becomes a node
  * attached to the content node - or to the annotation it targets - and every entity
- * reference becomes a relationship to an entity node.
+ * reference becomes a relationship to an entity node. A reference the graph cannot
+ * resolve is not dropped: it stays a property named after the attribute it was written
+ * in, so a later export writes it back exactly as it was.
  */
 public class GraphConstructor {
 
@@ -33,6 +36,9 @@ public class GraphConstructor {
 
     public List<Node> construct(Transaction tx, Node contentNode, MappedStructure structure, ImportProfile profile) {
         contentNode.setProperty(profile.plainTextProperty(), structure.plainText());
+        if (structure.header() != null) {
+            contentNode.setProperty(profile.headerProperty(), structure.header());
+        }
 
         Map<String, Node> entities = entities(tx, structure.entities(), profile);
         Label label = Label.label(profile.annotationLabel());
@@ -58,14 +64,19 @@ public class GraphConstructor {
             MappedAnnotation annotation = structure.annotations().get(i);
             Node node = annotations.get(i);
             anchorOf(annotation, byId, contentNode).createRelationshipTo(node, relationshipType);
-            for (String reference : annotation.references()) {
-                Node entity = entities.computeIfAbsent(reference, id -> find(tx, id, profile));
+            Map<String, List<String>> unresolved = new LinkedHashMap<>();
+            for (Reference reference : annotation.references()) {
+                Node entity = entities.computeIfAbsent(reference.id(), id -> find(tx, id, profile));
                 if (entity == null) {
-                    log.info("no entity with {} = {} found, reference not created", profile.entityKey(), reference);
+                    unresolved.computeIfAbsent(reference.attribute(), key -> new ArrayList<>()).add(reference.pointer());
                 } else {
                     node.createRelationshipTo(entity, profile.model().refersTo());
                 }
             }
+            unresolved.forEach((attribute, pointers) -> {
+                log.debug("no entity with {} in {} found, {} kept as property", profile.entityKey(), pointers, attribute);
+                node.setProperty(profile.dictionary().propertyFor(attribute), String.join(" ", pointers));
+            });
         }
         return annotations;
     }
@@ -81,7 +92,8 @@ public class GraphConstructor {
         return parent;
     }
 
-    private Map<String, Node> entities(Transaction tx, List<MappedEntity> declarations, ImportProfile profile) {
+    /** The declared entities by identifier: found in the graph, or created where the profile allows it. */
+    public Map<String, Node> entities(Transaction tx, List<MappedEntity> declarations, ImportProfile profile) {
         Map<String, Node> result = new LinkedHashMap<>();
         for (MappedEntity entity : declarations) {
             Node existing = find(tx, entity.id(), profile);
