@@ -113,8 +113,9 @@ public class DocumentMapper {
     private MappedEntity entity(Node node) {
         List<String> labels = new ArrayList<>();
         node.getLabels().forEach(label -> labels.add(label.name()));
+        String source = profile.entitySourceProperty() == null ? null : string(node, profile.entitySourceProperty());
         return new MappedEntity(string(node, profile.entityKey()), labels, string(node, "label"),
-                mapProperties(node));
+                string(node, profile.dictionary().elementProperty()), source, mapProperties(node));
     }
 
     private List<String> referencesOf(Node annotation) {
@@ -190,13 +191,17 @@ public class DocumentMapper {
             }
             annotationModels.sort(Comparator.comparingLong(DocumentMapper::orderOf));
 
+            // the graph does not order the parts of a collection, so the export orders them by
+            // identifier to be reproducible
             List<MappedDocument> childDocuments = new ArrayList<>();
             for (MutableAnchor child : children) {
                 childDocuments.add(child.toDocument());
             }
+            childDocuments.sort(Comparator.comparing(MappedDocument::id, Comparator.nullsLast(Comparator.naturalOrder())));
             return new MappedDocument(name, concept,
                     node == null ? null : string(node, profile.idProperty()),
                     node == null ? null : text(node),
+                    node == null ? null : string(node, profile.headerProperty()),
                     new LinkedHashMap<>(properties), annotationModels, childDocuments);
         }
 
@@ -241,7 +246,7 @@ public class DocumentMapper {
             }
             childModels.sort(Comparator.comparingLong(DocumentMapper::orderOf));
             return new MappedAnnotation(element, string(node, profile.idProperty()),
-                    number(node, "startIndex"), number(node, "endIndex"),
+                    number(node, "startIndex"), number(node, "endIndex"), number(node, "depth"),
                     new LinkedHashMap<>(properties), referencesOf(node), childModels);
         }
     }

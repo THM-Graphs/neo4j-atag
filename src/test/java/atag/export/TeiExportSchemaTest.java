@@ -52,4 +52,19 @@ class TeiExportSchemaTest {
     void aDocumentWithoutATeiHeaderIsRejected() {
         assertRejected("<TEI xmlns=\"http://www.tei-c.org/ns/1.0\"><text><body><ab>hi</ab></body></text></TEI>");
     }
+
+    @Test
+    void aNestedDocumentWithoutATeiHeaderIsRejected() {
+        assertRejected("<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">" + HEADER + """
+                <TEI xml:id="nested"><text><body><ab>hi</ab></body></text></TEI></TEI>
+                """);
+    }
+
+    @Test
+    void aStandoffWithAnUnknownListIsRejected() {
+        assertRejected("<TEI xmlns=\"http://www.tei-c.org/ns/1.0\">" + HEADER + """
+                <text><body><ab xml:id="x">hi</ab></body></text>
+                <standOff><listBibl><bibl>b</bibl></listBibl></standOff></TEI>
+                """);
+    }
 }

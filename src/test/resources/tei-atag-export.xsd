@@ -2,55 +2,40 @@
 <!--
   The contract of `atag.export.tei.*`: the TEI subset the exporter is allowed to produce.
   It is deliberately narrow where the exporter is deterministic (document structure,
-  stand-off markup, entity declarations) and open where the project's dictionary decides
-  what is written (the inline markup inside <ab>, and the attributes carrying properties).
+  stand-off markup, entity declarations made from properties) and open where the project
+  decides what is written: the inline markup inside <ab>, the attributes carrying
+  properties, and the fragments that travel through the graph verbatim (headers and
+  entity declarations).
 -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:tei="http://www.tei-c.org/ns/1.0"
            targetNamespace="http://www.tei-c.org/ns/1.0"
            elementFormDefault="qualified">
 
-    <xs:element name="TEI">
-        <xs:complexType>
-            <xs:sequence>
-                <xs:element ref="tei:teiHeader"/>
-                <xs:element ref="tei:text"/>
-                <xs:element ref="tei:standOff" minOccurs="0"/>
-            </xs:sequence>
-        </xs:complexType>
-    </xs:element>
+    <xs:element name="TEI" type="tei:document"/>
 
+    <!--
+      a document: its header, the text of a content node or the parts of a collection,
+      the stand-off markup (root only), and the documents nested into it - a collection or
+      content node that carries a header of its own
+    -->
+    <xs:complexType name="document">
+        <xs:sequence>
+            <xs:element ref="tei:teiHeader"/>
+            <xs:element ref="tei:text" minOccurs="0"/>
+            <xs:element ref="tei:standOff" minOccurs="0"/>
+            <xs:element name="TEI" type="tei:document" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:anyAttribute namespace="##any" processContents="lax"/>
+    </xs:complexType>
+
+    <!-- either the placeholder the exporter writes, or the header kept verbatim from the source -->
     <xs:element name="teiHeader">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="fileDesc">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="titleStmt">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element name="title" type="xs:string"/>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
-                            <xs:element name="publicationStmt">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element name="p" type="xs:string"/>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
-                            <xs:element name="sourceDesc">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element name="p" type="xs:string"/>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                    </xs:complexType>
-                </xs:element>
+                <xs:any namespace="##any" processContents="lax" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
+            <xs:anyAttribute namespace="##any" processContents="lax"/>
         </xs:complexType>
     </xs:element>
 
@@ -62,20 +47,21 @@
         </xs:complexType>
     </xs:element>
 
-    <!-- a collection: holds further collections and content, never text of its own -->
-    <xs:element name="div">
-        <xs:complexType>
-            <xs:complexContent>
-                <xs:extension base="tei:anchors">
-                    <xs:anyAttribute namespace="##any" processContents="lax"/>
-                </xs:extension>
-            </xs:complexContent>
-        </xs:complexType>
-    </xs:element>
+    <!--
+      a collection: holds further collections and content, never text of its own. Declared
+      locally, so that a <div> a project writes inline inside <ab> is not held to it.
+    -->
+    <xs:complexType name="collection">
+        <xs:complexContent>
+            <xs:extension base="tei:anchors">
+                <xs:anyAttribute namespace="##any" processContents="lax"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
 
     <xs:complexType name="anchors">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
-            <xs:element ref="tei:div"/>
+            <xs:element name="div" type="tei:collection"/>
             <xs:element ref="tei:ab"/>
         </xs:choice>
     </xs:complexType>
@@ -94,6 +80,11 @@
         </xs:complexType>
     </xs:element>
 
+    <!--
+      the stand-off markup: annotations that could not be written inline, then the
+      entities - verbatim declarations in the TEI list their element belongs to, and
+      declarations made from properties as <list type="entity">
+    -->
     <xs:element name="standOff">
         <xs:complexType>
             <xs:sequence>
@@ -104,21 +95,23 @@
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="list" minOccurs="0">
-                    <xs:complexType>
-                        <xs:sequence>
-                            <xs:element name="item" minOccurs="0" maxOccurs="unbounded">
-                                <xs:complexType>
-                                    <xs:anyAttribute namespace="##any" processContents="lax"/>
-                                </xs:complexType>
-                            </xs:element>
-                        </xs:sequence>
-                        <xs:attribute name="type" use="required" fixed="entity"/>
-                    </xs:complexType>
-                </xs:element>
+                <xs:element name="listPerson" type="tei:verbatim" minOccurs="0"/>
+                <xs:element name="listPlace" type="tei:verbatim" minOccurs="0"/>
+                <xs:element name="listOrg" type="tei:verbatim" minOccurs="0"/>
+                <xs:element name="listEvent" type="tei:verbatim" minOccurs="0"/>
+                <!-- verbatim <item> declarations, or <list type="entity"> made from properties, or both -->
+                <xs:element name="list" type="tei:verbatim" minOccurs="0" maxOccurs="2"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
+
+    <!-- a list of declarations: whatever the source wrote, in the TEI namespace -->
+    <xs:complexType name="verbatim">
+        <xs:sequence>
+            <xs:any namespace="##targetNamespace" processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+        <xs:anyAttribute namespace="##any" processContents="lax"/>
+    </xs:complexType>
 
     <!-- an annotation that could not be written inline; its target must be resolvable -->
     <xs:element name="annotation">

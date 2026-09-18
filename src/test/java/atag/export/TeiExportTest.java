@@ -56,6 +56,24 @@ class TeiExportTest {
                 CREATE (t)-[:HAS_ANNOTATION]->(a3)
                 CREATE (c1:Annotation {uuid: 'c-1', type: 'commentary', note: 'uncertain reading'})
                 CREATE (a1)-[:HAS_ANNOTATION]->(c1)
+
+                // a corpus whose parts carry headers, with same-range annotations that only depth tells apart
+                CREATE (corpus:Collection {uuid: 'corpus-1', teiHeader: '<teiHeader><fileDesc><titleStmt><title>Corpus</title></titleStmt></fileDesc></teiHeader>'})
+                CREATE (w1:Text {uuid: 'w-1', n: 'first', text: 'Reipub. abc', teiHeader: '<teiHeader xmlns="http://www.tei-c.org/ns/1.0"><fileDesc><titleStmt><title>Witness</title></titleStmt></fileDesc></teiHeader>'})
+                CREATE (w1)-[:PART_OF]->(corpus)
+                CREATE (w2:Text {uuid: 'w-2', text: 'plain'})
+                CREATE (w2)-[:PART_OF]->(corpus)
+                CREATE (boulliau:Entity:Person {uuid: 'boulliau', tag: 'person', tei: '<person xml:id="boulliau"><persName>Boulliau</persName></person>'})
+                CREATE (boulliau)-[:PART_OF]->(corpus)
+                CREATE (del:Annotation {tag: 'del', rendition: '#s', startIndex: 0, endIndex: 7, depth: 4})
+                CREATE (subst:Annotation {tag: 'subst', startIndex: 0, endIndex: 7, depth: 3})
+                CREATE (w1)-[:HAS_ANNOTATION]->(del)
+                CREATE (w1)-[:HAS_ANNOTATION]->(subst)
+                CREATE (rs:Annotation {tag: 'rs', corresp: 'letter-7', startIndex: 8, endIndex: 11, depth: 3})
+                CREATE (w1)-[:HAS_ANNOTATION]->(rs)
+                CREATE (rs)-[:REFERS_TO]->(boulliau)
+                CREATE (note:Annotation {tag: 'note', type: 'commentary'})
+                CREATE (rs)-[:HAS_ANNOTATION]->(note)
                 """)
             .build();
 
@@ -145,5 +163,60 @@ class TeiExportTest {
 
         tei.valueByXPath("//tei:seg[@xml:id='a-2']/@type").isEqualTo("sentence");
         tei.valueByXPath("//tei:ab").isEqualTo(TEXT);
+    }
+
+    private static final Map<String, Object> CORPUS_PROFILE = Map.of(
+            "referenceAttribute", "corresp", "entitySourceProperty", "tei");
+
+    @Test
+    void anchorsWithAHeaderBecomeNestedDocuments(GraphDatabaseService db) {
+        XmlAssert tei = exportValidTei(db, "corpus-1", CORPUS_PROFILE);
+
+        tei.valueByXPath("/tei:TEI/@xml:id").isEqualTo("corpus-1");
+        tei.valueByXPath("/tei:TEI/tei:teiHeader//tei:title").isEqualTo("Corpus");
+        tei.valueByXPath("/tei:TEI/tei:TEI/@xml:id").isEqualTo("w-1");
+        tei.valueByXPath("/tei:TEI/tei:TEI/@n").isEqualTo("first");
+        tei.valueByXPath("/tei:TEI/tei:TEI/tei:teiHeader//tei:title").isEqualTo("Witness");
+        tei.valueByXPath("/tei:TEI/tei:TEI/tei:text/tei:body/tei:ab").isEqualTo("Reipub. abc");
+        tei.doesNotHaveXPath("/tei:TEI/tei:TEI/tei:text/tei:body/tei:ab/@xml:id");
+        tei.hasXPath("/tei:TEI/tei:text/tei:body/tei:ab[@xml:id='w-2']");
+        tei.nodesByXPath("//tei:standOff").hasSize(1);
+        tei.doesNotHaveXPath("//tei:TEI//tei:teiHeader/@teiHeader");
+    }
+
+    @Test
+    void sameRangeAnnotationsNestByTheirDepth(GraphDatabaseService db) {
+        XmlAssert tei = exportValidTei(db, "corpus-1", CORPUS_PROFILE);
+
+        tei.valueByXPath("//tei:ab/tei:subst/tei:del/@rendition").isEqualTo("#s");
+        tei.doesNotHaveXPath("//tei:del/tei:subst");
+        tei.doesNotHaveXPath("//tei:listAnnotation/tei:annotation[@target = '#string-range(atag-1,0,7)']");
+    }
+
+    @Test
+    void identifiersAreOnlyWrittenWhereTheSourceHadOneOrAPointerNeedsOne(GraphDatabaseService db) {
+        XmlAssert tei = exportValidTei(db, "corpus-1", CORPUS_PROFILE);
+
+        tei.doesNotHaveXPath("//tei:subst/@xml:id");
+        tei.doesNotHaveXPath("//tei:del/@xml:id");
+        tei.valueByXPath("//tei:rs/@xml:id").isEqualTo("atag-1");
+        tei.valueByXPath("//tei:annotation[@type='commentary']/@target").isEqualTo("#atag-1");
+    }
+
+    @Test
+    void resolvedAndUnresolvedReferencesShareTheReferenceAttribute(GraphDatabaseService db) {
+        XmlAssert tei = exportValidTei(db, "corpus-1", CORPUS_PROFILE);
+
+        tei.valueByXPath("//tei:rs/@corresp").isEqualTo("#boulliau letter-7");
+        tei.doesNotHaveXPath("//tei:rs/@ref");
+    }
+
+    @Test
+    void verbatimEntityDeclarationsAreWrittenIntoTheirTeiList(GraphDatabaseService db) {
+        XmlAssert tei = exportValidTei(db, "corpus-1", CORPUS_PROFILE);
+
+        tei.valueByXPath("//tei:standOff/tei:listPerson/tei:person/@xml:id").isEqualTo("boulliau");
+        tei.valueByXPath("//tei:standOff/tei:listPerson/tei:person/tei:persName").isEqualTo("Boulliau");
+        tei.doesNotHaveXPath("//tei:standOff/tei:list");
     }
 }

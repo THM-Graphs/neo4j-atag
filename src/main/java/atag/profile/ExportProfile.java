@@ -41,6 +41,9 @@ public class ExportProfile {
     private final Serialization serialization;
     private final String entityKey;
     private final String idProperty;
+    private final String referenceAttribute;
+    private final String headerProperty;
+    private final String entitySourceProperty;
     private final String fileName;
 
     @SuppressWarnings("unchecked")
@@ -56,6 +59,9 @@ public class ExportProfile {
                 ((String) config.getOrDefault("serialization", "inline")).toUpperCase(Locale.ROOT));
         this.entityKey = (String) config.getOrDefault("entityKey", "uuid");
         this.idProperty = (String) config.getOrDefault("idProperty", "uuid");
+        this.referenceAttribute = (String) config.getOrDefault("referenceAttribute", "ref");
+        this.headerProperty = (String) config.getOrDefault("headerProperty", "teiHeader");
+        this.entitySourceProperty = (String) config.get("entitySourceProperty");
         this.fileName = (String) config.get("fileName");
     }
 
@@ -125,6 +131,21 @@ public class ExportProfile {
     }
 
     /** File in the import directory to write to, or {@code null} to return the result to Cypher. */
+    /** Attribute an entity reference is written as in TEI, e.g. {@code ref} or {@code corresp}. */
+    public String referenceAttribute() {
+        return referenceAttribute;
+    }
+
+    /** Property holding a verbatim TEI header; an anchor that has one is written as a {@code <TEI>}. */
+    public String headerProperty() {
+        return headerProperty;
+    }
+
+    /** Property holding an entity's verbatim declaration, or {@code null} to declare entities from their properties. */
+    public String entitySourceProperty() {
+        return entitySourceProperty;
+    }
+
     public String fileName() {
         return fileName;
     }

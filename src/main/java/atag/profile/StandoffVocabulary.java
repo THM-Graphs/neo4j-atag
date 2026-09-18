@@ -1,5 +1,7 @@
 package atag.profile;
 
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,6 +22,16 @@ public final class StandoffVocabulary {
     public static final String ENTITY_ITEM = "item";
     public static final String ENTITY_LIST_TYPE = "entity";
 
+    /** The TEI lists a verbatim entity declaration is written into, by declaring element. */
+    private static final Map<String, String> ENTITY_LISTS = Map.of(
+            "person", "listPerson",
+            "personGrp", "listPerson",
+            "place", "listPlace",
+            "org", "listOrg",
+            "event", "listEvent");
+    /** The order in which those lists are written. */
+    public static final List<String> ENTITY_LIST_ORDER = List.of("listPerson", "listPlace", "listOrg", "listEvent", ENTITY_LIST);
+
     public static final String TARGET_ATTRIBUTE = "target";
     /** Attribute carrying an entity's display name. */
     public static final String NAME_ATTRIBUTE = "n";
@@ -30,6 +42,11 @@ public final class StandoffVocabulary {
             Pattern.compile("#?string-range\\(\\s*([^,]*?)\\s*,\\s*(-?\\d+)\\s*,\\s*(-?\\d+)\\s*\\)");
 
     private StandoffVocabulary() {
+    }
+
+    /** The list element a declaration written as {@code declaringElement} belongs in. */
+    public static String listFor(String declaringElement) {
+        return ENTITY_LISTS.getOrDefault(declaringElement, ENTITY_LIST);
     }
 
     /**
