@@ -66,8 +66,8 @@ parser:
 ## 1. The profile of the edition
 
 Everything the pipeline needs to know about this edition is declared once and stored under
-a name: the project model, how the corpus is taken apart, where its registers are, and how
-references are read and written.
+a name with [atag.profile.write](atag.profile.html): the project model, how the corpus is
+taken apart, where its registers are, and how references are read and written.
 
 ```cypher
 CALL atag.profile.write({
@@ -141,8 +141,8 @@ XPath in a profile may use the `*:name` wildcard for "this element in any namesp
 above, or the `*[local-name()='name']` of XPath 1.0. They mean the same thing; the shorter
 form is rewritten for the phases that use the older engine.
 
-A profile that lives in version control rather than in the database is written with
-[atag.profile.parse](atag.profile.html):
+A profile that lives in version control rather than in the database is read with
+[atag.profile.parse](atag.profile.html) and [atag.text.load](atag.text.load.html):
 
 ```cypher
 CALL atag.profile.write(atag.profile.parse(atag.text.load('file:///srv/edition/sozinianer.json')))
@@ -162,8 +162,9 @@ RETURN labels(node), node.uuid, node.type, node.n
 | Witness      | ed_kbj_wfw_xmb      | letter    | reference_witness |
 | Witness      | ed_abg_zbc_nlb      | letter    | `null`            |
 
-One call does what the profile describes: it cuts the corpus into the four document nodes
-above and links each to the one it is part of, keeps every level's `<teiHeader>` verbatim
+One call of [atag.text.import.corpus](atag.text.import.corpus.html) does what the profile
+describes: it cuts the corpus into the four document nodes above and links each to the one
+it is part of, keeps every level's `<teiHeader>` verbatim
 and its attributes as properties, imports the three registers as entities of the corpus,
 and runs the text of each witness through the import - plain text, annotations, references.
 
@@ -332,13 +333,17 @@ RETURN e.uuid, e.label, labels(e)
 
 ## 6. Export
 
+The export procedures need `dbms.security.procedures.unrestricted` to be set, see
+[installation](installation.html); everything up to here runs without it.
+
 ```cypher
 MATCH (c:Corpus {uuid: 'sozinianer'})
 CALL atag.export.tei.fromNode(c, {profile: 'sozinianer'}) YIELD value
 RETURN value
 ```
 
-The same profile, read in the other direction: its `export` section writes `REFERS_TO` as
+The same profile, read in the other direction by
+[atag.export.tei.fromNode](atag.export.tei.html): its `export` section writes `REFERS_TO` as
 `@corresp` instead of the default `@ref` and builds the register from the verbatim
 declarations instead of from properties. The result, outlined:
 
@@ -388,8 +393,9 @@ the exporter how to nest the eight same-range pairs. A resolved reference is wri
 * The export validates against `src/test/resources/tei-atag-export.xsd`, the contract of
   what the exporter may produce.
 * The exported witnesses are imported again with the same profile - `rootElement` overridden
-  to `TEI`, since a witness cut out of the export is a document of its own - and the annotations
-  - element name, range, type - and the entity references are the same multiset as before.
+  to `TEI`, since a witness cut out of the export is a document of its own - and the
+  annotations (element name, range, type) and the entity references are the same multiset
+  as before.
 
 ## 8. What changed, and what did not survive
 
