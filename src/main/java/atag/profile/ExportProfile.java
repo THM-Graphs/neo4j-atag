@@ -66,12 +66,12 @@ public class ExportProfile {
     }
 
     public static ExportProfile from(Map<String, Object> config) {
-        return new ExportProfile(config, null);
+        return new ExportProfile(Profiles.resolve(config, null, Profiles.EXPORT), null);
     }
 
-    /** A profile that may take its project model from the meta graph in the database. */
+    /** A profile that may take its project model, or all of itself, from the database. */
     public static ExportProfile from(Map<String, Object> config, Transaction tx) {
-        return new ExportProfile(config, tx);
+        return new ExportProfile(Profiles.resolve(config, tx, Profiles.EXPORT), tx);
     }
 
     @SuppressWarnings("unchecked")

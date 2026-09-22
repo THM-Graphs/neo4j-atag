@@ -2,6 +2,7 @@ package atag.profile;
 
 import atag.model.ProjectModel;
 import atag.model.Ramen.Concept;
+import atag.text.XPathSyntax;
 import org.neo4j.graphdb.Transaction;
 
 import java.util.LinkedHashMap;
@@ -60,18 +61,25 @@ public class ImportProfile {
     private final String relationshipType;
     private final boolean addUuid;
     private final String entityKey;
+    private final List<String> entityLabels;
     private final boolean createMissingEntities;
+    private final List<Map<String, Object>> documents;
+    private final List<Map<String, Object>> registers;
+    private final Map<String, Object> config;
+    private final String defaultAttributePrefix;
 
     @SuppressWarnings("unchecked")
     private ImportProfile(Map<String, Object> config, String defaultAttributePrefix, Transaction tx) {
+        this.config = config;
+        this.defaultAttributePrefix = defaultAttributePrefix;
         this.model = ProjectModel.from(config, tx);
         this.dictionary = Dictionary.from(config, defaultAttributePrefix);
-        this.xpath = (String) config.getOrDefault("xpath", TEI_BODY);
-        this.standoffXPath = (String) config.getOrDefault("standoffXPath", "");
-        this.entityXPath = (String) config.getOrDefault("entityXPath", "");
-        this.headerXPath = (String) config.getOrDefault("headerXPath", "");
+        this.xpath = XPathSyntax.expand((String) config.getOrDefault("xpath", TEI_BODY));
+        this.standoffXPath = XPathSyntax.expand((String) config.getOrDefault("standoffXPath", ""));
+        this.entityXPath = XPathSyntax.expand((String) config.getOrDefault("entityXPath", ""));
+        this.headerXPath = XPathSyntax.expand((String) config.getOrDefault("headerXPath", ""));
         this.headerProperty = (String) config.getOrDefault("headerProperty", "teiHeader");
-        this.entityLabelXPath = (String) config.getOrDefault("entityLabelXPath", "");
+        this.entityLabelXPath = XPathSyntax.expand((String) config.getOrDefault("entityLabelXPath", ""));
         this.entitySourceProperty = (String) config.get("entitySourceProperty");
         this.rootElement = (String) config.getOrDefault("rootElement", "");
         this.idAttribute = (String) config.getOrDefault("idAttribute", "xml:id");
@@ -83,17 +91,20 @@ public class ImportProfile {
         this.relationshipType = (String) config.getOrDefault("relationshipType", model.hasAnnotation().name());
         this.addUuid = !Boolean.FALSE.equals(config.getOrDefault("addUuid", true));
         this.entityKey = (String) config.getOrDefault("entityKey", "uuid");
+        this.entityLabels = (List<String>) config.getOrDefault("entityLabels", List.of());
         this.createMissingEntities = Boolean.TRUE.equals(config.get("createMissingEntities"));
+        this.documents = (List<Map<String, Object>>) config.getOrDefault("documents", List.of());
+        this.registers = (List<Map<String, Object>>) config.getOrDefault("registers", List.of());
     }
 
     /** A profile for XML sources, where attribute names become property keys unchanged. */
     public static ImportProfile xml(Map<String, Object> config, Transaction tx) {
-        return new ImportProfile(config, "", tx);
+        return new ImportProfile(Profiles.resolve(config, tx, Profiles.IMPORT), "", tx);
     }
 
     /** A profile for HTML sources, where attributes are kept apart by an {@code attribute:} prefix. */
     public static ImportProfile html(Map<String, Object> config, Transaction tx) {
-        return new ImportProfile(config, "attribute:", tx);
+        return new ImportProfile(Profiles.resolve(config, tx, Profiles.IMPORT), "attribute:", tx);
     }
 
     /**
@@ -103,7 +114,7 @@ public class ImportProfile {
      */
     public static ImportProfile tei(Map<String, Object> config, Transaction tx) {
         Map<String, Object> merged = new LinkedHashMap<>(TEI_DEFAULTS);
-        merged.putAll(config);
+        merged.putAll(Profiles.resolve(config, tx, Profiles.IMPORT));
         return new ImportProfile(merged, "", tx);
     }
 
@@ -189,5 +200,30 @@ public class ImportProfile {
 
     public boolean createMissingEntities() {
         return createMissingEntities;
+    }
+
+    /** Labels added to the entities this import declares, on top of the model's. */
+    public List<String> entityLabels() {
+        return entityLabels;
+    }
+
+    /**
+     * The levels of the document hierarchy, outermost first: each one selects its parts
+     * within the fragment of the level above and says which concept they are.
+     */
+    public List<Map<String, Object>> documents() {
+        return documents;
+    }
+
+    /** The entity registers of the document, each selecting declarations of its own. */
+    public List<Map<String, Object>> registers() {
+        return registers;
+    }
+
+    /** The same profile with single keys replaced, for one level or one register. */
+    public ImportProfile derive(Map<String, Object> overrides, Transaction tx) {
+        Map<String, Object> merged = new LinkedHashMap<>(config);
+        merged.putAll(overrides);
+        return new ImportProfile(merged, defaultAttributePrefix, tx);
     }
 }

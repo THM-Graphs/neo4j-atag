@@ -29,6 +29,7 @@ public final class MetaGraph {
     public static final Label META = Label.label("Meta");
     public static final Label CONCEPT = Label.label("Concept");
     public static final Label TYPE = Label.label("Type");
+    public static final Label PROFILE = Label.label("Profile");
     private static final RelationshipType REFINES = RelationshipType.withName("REFINES");
 
     private MetaGraph() {
@@ -108,6 +109,21 @@ public final class MetaGraph {
             }
         }
         return fallback;
+    }
+
+    /**
+     * Store a profile under its name. Unlike the model, a profile is kept as one JSON
+     * string: it nests - sections, lists of maps - and a Neo4j property cannot.
+     */
+    public static void writeProfile(Transaction tx, String name, String json) {
+        Node node = merge(tx, PROFILE, "name", name);
+        node.setProperty("json", json);
+    }
+
+    /** The profile stored under that name, or {@code null} if there is none. */
+    public static String readProfileJson(Transaction tx, String name) {
+        Node node = tx.findNode(PROFILE, "name", name);
+        return node == null ? null : (String) node.getProperty("json", null);
     }
 
     private static Node merge(Transaction tx, Label label, String key, String value) {
