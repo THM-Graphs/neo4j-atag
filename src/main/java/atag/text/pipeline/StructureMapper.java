@@ -93,6 +93,7 @@ public class StructureMapper {
     private MappedEntity mapEntity(ExtractedEntity element, ImportProfile profile) {
         Dictionary dictionary = profile.dictionary();
         List<String> labels = new ArrayList<>(profile.model().labels(Concept.ENTITY));
+        profile.entityLabels().stream().filter(label -> !labels.contains(label)).forEach(labels::add);
         Map<String, Object> properties = new LinkedHashMap<>();
         String id = null;
 

@@ -39,7 +39,11 @@ public class XmlSourceReader implements SourceReader<Document> {
         }
     }
 
+    /** A fragment cut out of an already validated document is read without a profile. */
     private void validate(Document document, ImportProfile profile) {
+        if (profile == null) {
+            return;
+        }
         String expected = profile.rootElement();
         if (expected.isEmpty()) {
             return;

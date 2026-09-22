@@ -82,6 +82,16 @@ public class Importer {
         return run(ImportPipeline.xml(log), startNode, propertyKey, ImportProfile.tei(profile, tx));
     }
 
+    @Procedure(mode = Mode.WRITE, name = "atag.text.import.corpus")
+    @Description("import a TEI/XML document as the collections, texts, annotations and entities its profile describes")
+    public Stream<ResultTypes.NodeResult> importCorpus(
+            @Name("xml") String xml,
+            @Name(value = "profile", defaultValue = "{}") Map<String, Object> profile) {
+
+        return ImportPipeline.xml(log).importDocuments(tx, xml, ImportProfile.tei(profile, tx))
+                .stream().map(ResultTypes.NodeResult::new);
+    }
+
     @Procedure(mode = Mode.WRITE, name = "atag.text.import.entities")
     @Description("import the entity declarations of a TEI/XML document stored on a node property, controlled by an import profile")
     public Stream<ResultTypes.NodeResult> importEntities(

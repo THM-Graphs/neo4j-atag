@@ -50,6 +50,18 @@ public class ImportPipeline<D> {
     }
 
     /**
+     * Build the collections and content nodes the source describes, and import the text
+     * of every content node among them. This is the whole of a corpus document in one
+     * call: hierarchy, register, texts, annotations and entity references.
+     */
+    public List<Node> importDocuments(Transaction tx, String source, ImportProfile profile) {
+        List<Node> documents = new DocumentBuilder(log).build(tx, source, profile);
+        log.debug("built {} collection and content nodes from {} characters of source",
+                documents.size(), source.length());
+        return documents;
+    }
+
+    /**
      * Only phases 1 to 4 for the entity declarations of a document: nothing is extracted
      * as text and nothing is written to the start node. This is how a register that is
      * declared once for a whole corpus enters the graph.

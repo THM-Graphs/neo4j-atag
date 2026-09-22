@@ -144,7 +144,7 @@ class TeiImportTest {
             "entityXPath", "//*[local-name()='listPerson']/*[local-name()='person']",
             "entityLabelXPath", "normalize-space(*[local-name()='persName'][@type='reg'])",
             "entitySourceProperty", "tei",
-            "model", Map.of("entity", List.of("Entity", "Person")));
+            "entityLabels", List.of("Person"));
 
     @Test
     void aRegisterIsImportedOnItsOwnAndKeptVerbatim(GraphDatabaseService db) {
