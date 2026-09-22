@@ -7,7 +7,7 @@ pipelines: an import parses and validates a source document, extracts its struct
 it into the project's vocabulary and constructs the graph; an export traverses the graph,
 maps it back and serializes it as JGF, stand-off JSON/XML or TEI/XML. What a project's
 structures mean is declared in an [import or export profile](profiles.html) rather than
-built into the procedures.
+built into the procedures - stored once under a name, and referred to by every call.
 
 A complete walkthrough - declaring a project model, importing a TEI letter, querying the
 result and exporting it again in both serializations - is in the

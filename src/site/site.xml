@@ -46,9 +46,11 @@
             <item name="atag.text.import.xml" href="atag.text.import.xml.html"/>
             <item name="atag.text.import.tei" href="atag.text.import.tei.html"/>
             <item name="atag.text.import.entities" href="atag.text.import.entities.html"/>
+            <item name="atag.text.import.corpus" href="atag.text.import.corpus.html"/>
             <item name="atag.text.xslt" href="atag.text.xslt.html"/>
             <item name="atag.text.xpath" href="atag.text.xpath.html"/>
             <item name="atag.model.meta" href="atag.model.meta.html"/>
+            <item name="atag.profile" href="atag.profile.html"/>
         </menu>
         <menu ref="reports" inherit="top"/>
     </body>

@@ -56,46 +56,49 @@ class LetterExampleTest {
     /** the attributes the profile declares as entity references */
     private static final Set<String> REFERENCE_ATTRIBUTES = Set.of("corresp", "sameAs");
 
-    private static final Map<String, Object> MODEL = Map.of("model", Map.of(
-            "collection", List.of("Corpus", "Letter"),
-            "content", List.of("Witness"),
-            "annotation", List.of("Annotation"),
-            "entity", List.of("Entity")));
+    /**
+     * The profile of the edition: the project model, how the corpus is taken apart, where
+     * its registers are, and how references are read and written. Stored once, referred
+     * to by name afterwards.
+     */
+    private static final Map<String, Object> PROFILE = Map.ofEntries(
+            Map.entry("name", "sozinianer"),
+            Map.entry("model", Map.of(
+                    "collection", List.of("Corpus", "Letter"),
+                    "content", List.of("Witness"),
+                    "annotation", List.of("Annotation"),
+                    "entity", List.of("Entity"))),
+            Map.entry("documents", List.of(
+                    Map.of("xpath", "/*:teiCorpus", "concept", "collection", "label", "Corpus",
+                            "id", "sozinianer", "headerXPath", "/*:teiCorpus/*:teiHeader"),
+                    Map.of("xpath", "/*:teiCorpus/*:TEI", "concept", "collection", "label", "Letter"),
+                    Map.of("xpath", "/*:TEI/*:TEI", "concept", "content", "label", "Witness"))),
+            Map.entry("registers", List.of(
+                    Map.of("xpath", "/*:teiCorpus/*:standOff/*:listPerson/*:person", "labels", List.of("Person")),
+                    Map.of("xpath", "/*:teiCorpus/*:standOff/*:listPlace/*:place", "labels", List.of("Place")),
+                    Map.of("xpath", "/*:teiCorpus/*:standOff/*:list[@n='terms']/*:item", "labels", List.of("Term")))),
+            Map.entry("import", Map.of(
+                    "rootElement", "teiCorpus",
+                    "xpath", "/*:TEI/*:text/*:body//node()[not(self::*:ab)]",
+                    "referenceAttributes", List.of("corresp", "sameAs"),
+                    "entityLabelXPath", "normalize-space((.//*[@type='reg'])[1])",
+                    "entitySourceProperty", "tei",
+                    "addUuid", false)),
+            Map.entry("export", Map.of(
+                    "referenceAttribute", "corresp",
+                    "entitySourceProperty", "tei",
+                    "ignoreProperties", List.of("xml"))));
 
-    private static final String PERSONS = "/*[local-name()='teiCorpus']/*[local-name()='standOff']"
-            + "/*[local-name()='listPerson']/*[local-name()='person']";
-    private static final String PLACES = "/*[local-name()='teiCorpus']/*[local-name()='standOff']"
-            + "/*[local-name()='listPlace']/*[local-name()='place']";
-    private static final String TERMS = "/*[local-name()='teiCorpus']/*[local-name()='standOff']"
-            + "/*[local-name()='list'][@n='terms']/*[local-name()='item']";
-
-    private static Map<String, Object> registerProfile(String label, String xpath) {
-        return Map.of(
-                "model", Map.of("entity", List.of("Entity", label)),
-                "rootElement", "teiCorpus",
-                "entityXPath", xpath,
-                "entityLabelXPath", "normalize-space((.//*[@type='reg'])[1])",
-                "entitySourceProperty", "tei");
-    }
-
-    private static final Map<String, Object> WITNESS_PROFILE = Map.of(
-            "model", "meta",
-            "xpath", "/*[local-name()='TEI']/*[local-name()='text']/*[local-name()='body']"
-                    + "//node()[not(self::*[local-name()='ab'])]",
-            "referenceAttributes", List.of("corresp", "sameAs"),
-            "addUuid", false);
-
-    private static final Map<String, Object> EXPORT_PROFILE = Map.of(
-            "model", "meta",
-            "referenceAttribute", "corresp",
-            "entitySourceProperty", "tei",
-            "ignoreProperties", List.of("xml"));
+    /** every call refers to the stored profile, and none repeats it */
+    private static final Map<String, Object> USE_PROFILE = Map.of("profile", "sozinianer");
 
     @RegisterExtension
     static Neo4jExtension neo4j = Neo4jExtension.builder()
             .withProcedure(ModelProcedures.class)
             .withProcedure(Importer.class)
             .withProcedure(ExporterProcedures.class)
+            .withProcedure(atag.profile.ProfileProcedures.class)
+            .withFunction(atag.profile.ProfileProcedures.class)
             .withFunction(Utils.class)
             .withConfig(GraphDatabaseSettings.procedure_unrestricted, List.of("atag.*"))
             .withDisabledServer()
@@ -114,45 +117,30 @@ class LetterExampleTest {
     @Test
     @Order(1)
     void walkthrough(GraphDatabaseService db) throws Exception {
-        // 1. the project model
-        db.executeTransactionally("CALL atag.model.meta.write($config) YIELD value RETURN value",
-                Map.of("config", MODEL));
+        // 1. the profile of the edition
+        db.executeTransactionally("CALL atag.profile.write($profile) YIELD value RETURN value",
+                Map.of("profile", PROFILE));
 
-        // 2. taking the corpus apart
-        db.executeTransactionally("""
-                CREATE (c:Corpus {uuid: 'sozinianer', xml: $xml,
-                                  teiHeader: atag.text.xpath($xml, '/*:teiCorpus/*:teiHeader')[0]})
-                WITH c
-                UNWIND atag.text.xpath(c.xml, '/*:teiCorpus/*:TEI') AS letterXml
-                CREATE (l:Letter {uuid: atag.text.xpath(letterXml, '/*:TEI/@xml:id')[0],
-                                  type: atag.text.xpath(letterXml, '/*:TEI/@type')[0],
-                                  n:    atag.text.xpath(letterXml, '/*:TEI/@n')[0],
-                                  teiHeader: atag.text.xpath(letterXml, '/*:TEI/*:teiHeader')[0]})
-                CREATE (l)-[:PART_OF]->(c)
-                WITH l, letterXml
-                UNWIND atag.text.xpath(letterXml, '/*:TEI/*:TEI') AS witnessXml
-                CREATE (w:Witness {uuid: atag.text.xpath(witnessXml, '/*:TEI/@xml:id')[0],
-                                   type: atag.text.xpath(witnessXml, '/*:TEI/@type')[0],
-                                   n:    atag.text.xpath(witnessXml, '/*:TEI/@n')[0],
-                                   corresp: atag.text.xpath(witnessXml, '/*:TEI/@corresp')[0],
-                                   xml: witnessXml})
-                CREATE (w)-[:PART_OF]->(l)
-                """, Map.of("xml", xml));
-
-        assertEquals(List.of("MAIN_ed_kbj_wfw_xmb | letter | cover_letter | null",
-                        "ed_kbj_wfw_xmb | letter | reference_witness | null",
-                        "ed_abg_zbc_nlb | letter | null | ed_kbj_wfw_xmb"),
+        // 2. the corpus, in one call
+        assertEquals(List.of("Corpus | sozinianer | null | null",
+                        "Letter | MAIN_ed_kbj_wfw_xmb | letter | cover_letter",
+                        "Witness | ed_kbj_wfw_xmb | letter | reference_witness",
+                        "Witness | ed_abg_zbc_nlb | letter | null"),
                 rows(db, """
-                        MATCH (c:Corpus)<-[:PART_OF]-(l:Letter)<-[:PART_OF]-(w:Witness)
-                        WITH l, collect(w) AS witnesses
-                        UNWIND [l] + witnesses AS d
-                        RETURN d.uuid + ' | ' + d.type + ' | ' + coalesce(d.n, 'null') + ' | ' + coalesce(d.corresp, 'null') AS row
+                        CALL atag.text.import.corpus($xml, $profile) YIELD node
+                        RETURN head(labels(node)) + ' | ' + node.uuid + ' | ' + coalesce(node.type, 'null')
+                               + ' | ' + coalesce(node.n, 'null') AS row
+                        """, Map.of("xml", xml, "profile", USE_PROFILE)),
+                "the profile's documents section describes the hierarchy the import builds");
+
+        assertEquals(List.of("ed_abg_zbc_nlb | MAIN_ed_kbj_wfw_xmb | sozinianer",
+                        "ed_kbj_wfw_xmb | MAIN_ed_kbj_wfw_xmb | sozinianer"),
+                rows(db, """
+                        MATCH (w:Witness)-[:PART_OF]->(l:Letter)-[:PART_OF]->(c:Corpus)
+                        RETURN w.uuid + ' | ' + l.uuid + ' | ' + c.uuid AS row ORDER BY row
                         """));
 
-        // 3. the register
-        assertEquals(35, importRegister(db, "Person", PERSONS));
-        assertEquals(8, importRegister(db, "Place", PLACES));
-        assertEquals(40, importRegister(db, "Term", TERMS));
+        // 3. what the registers produced
         assertEquals(List.of("Boulliau | person | Boulliau Ismaël | Entity, Person",
                         "Paris | place | Paris | Entity, Place",
                         "ed_vnp_dyc_ydb | item | Komet | Entity, Term"),
@@ -163,14 +151,13 @@ class LetterExampleTest {
                         """));
         assertEquals(83, count(db, "MATCH (e:Entity)-[:PART_OF]->(:Corpus) RETURN count(e) AS count"));
 
-        // 4. the witnesses
-        assertEquals(List.of("ed_kbj_wfw_xmb | 509", "ed_abg_zbc_nlb | 23"),
+        // 4. and the texts
+        assertEquals(List.of("ed_abg_zbc_nlb | 23", "ed_kbj_wfw_xmb | 509"),
                 rows(db, """
-                        MATCH (w:Witness)
-                        CALL atag.text.import.tei(w, 'xml', $profile) YIELD node
-                        WITH w.uuid AS witness, count(node) AS annotations
-                        RETURN witness + ' | ' + annotations AS row
-                        """, Map.of("profile", WITNESS_PROFILE)));
+                        MATCH (w:Witness)-[:HAS_ANNOTATION]->(a:Annotation)
+                        WITH w.uuid AS witness, count(a) AS annotations
+                        RETURN witness + ' | ' + annotations AS row ORDER BY row
+                        """));
 
         // 5. what the graph looks like
         for (Element witness : witnesses(source)) {
@@ -257,7 +244,7 @@ class LetterExampleTest {
                 "two entities are referenced only from the header's abstract, which travels verbatim");
 
         // 6. export
-        String tei = exportTei(db, "sozinianer", EXPORT_PROFILE);
+        String tei = exportTei(db, "sozinianer", USE_PROFILE);
         assertValidTei(tei);
         Document export = parse(tei);
 
@@ -313,10 +300,10 @@ class LetterExampleTest {
                         UNWIND atag.text.xpath($tei, '/*:TEI/*:TEI/*:TEI') AS witnessXml
                         CREATE (w:Witness {uuid: 'again-' + atag.text.xpath(witnessXml, '/*:TEI/@xml:id')[0], xml: witnessXml})
                         WITH w
-                        CALL atag.text.import.tei(w, 'xml', $profile) YIELD node
+                        CALL atag.text.import.tei(w, 'xml', {profile: 'sozinianer', rootElement: 'TEI'}) YIELD node
                         WITH substring(w.uuid, 6) AS witness, count(node) AS annotations
                         RETURN witness + ' | ' + annotations AS row
-                        """, Map.of("tei", tei, "profile", WITNESS_PROFILE)));
+                        """, Map.of("tei", tei)));
         for (String id : List.of("ed_kbj_wfw_xmb", "ed_abg_zbc_nlb")) {
             assertEquals(rows(db, spans(id)), rows(db, spans("again-" + id)), "annotations of " + id);
             assertEquals(rows(db, references(id)), rows(db, references("again-" + id)), "references of " + id);
@@ -326,20 +313,11 @@ class LetterExampleTest {
     @Test
     @Order(2)
     void exportsStartedBelowTheCorpusAreValidToo(GraphDatabaseService db) {
-        assertValidTei(exportTei(db, "MAIN_ed_kbj_wfw_xmb", EXPORT_PROFILE));
-        assertValidTei(exportTei(db, "ed_abg_zbc_nlb", EXPORT_PROFILE));
+        assertValidTei(exportTei(db, "MAIN_ed_kbj_wfw_xmb", USE_PROFILE));
+        assertValidTei(exportTei(db, "ed_abg_zbc_nlb", USE_PROFILE));
     }
 
     // ---- the graph
-
-    private long importRegister(GraphDatabaseService db, String label, String xpath) {
-        return count(db, """
-                MATCH (c:Corpus {uuid: 'sozinianer'})
-                CALL atag.text.import.entities(c, 'xml', $profile) YIELD node
-                CREATE (node)-[:PART_OF]->(c)
-                RETURN count(node) AS count
-                """, Map.of("profile", registerProfile(label, xpath)));
-    }
 
     private long count(GraphDatabaseService db, String query) {
         return count(db, query, Map.of());

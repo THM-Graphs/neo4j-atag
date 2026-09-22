@@ -32,7 +32,7 @@ model's entity labels are the labels of the new nodes. The declaring element is 
 ```cypher
 MATCH (c:Corpus {uuid: 'sozinianer'})
 CALL atag.text.import.entities(c, 'xml', {
-  model: {entity: ['Entity', 'Person']},
+  entityLabels: ['Person'],
   rootElement: 'teiCorpus',
   entityXPath: "/*[local-name()='teiCorpus']/*[local-name()='standOff']/*[local-name()='listPerson']/*[local-name()='person']",
   entityLabelXPath: "normalize-space((.//*[@type='reg'])[1])",
@@ -43,6 +43,10 @@ RETURN count(node) AS persons
 ```
 
 Linking the entities `PART_OF` the collection that declares them lets an export starting at
-that collection reach the whole register, not only the entities some text refers to. The
-[second worked example](worked-example-letter.html) imports a register of persons, places
-and terms this way.
+that collection reach the whole register, not only the entities some text refers to.
+
+A document whose registers are declared in the profile does not need this procedure:
+[atag.text.import.corpus](atag.text.import.corpus.html) imports every register of its
+`registers` section and links the entities itself, which is how the
+[second worked example](worked-example-letter.html) reads a register of persons, places and
+terms. Use this procedure for a register that arrives on its own.

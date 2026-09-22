@@ -13,10 +13,12 @@ Literatur Mainz), published under CC BY 4.0 at
 [sozinianer.de/id/MAIN_ed_kbj_wfw_xmb](https://sozinianer.de/id/MAIN_ed_kbj_wfw_xmb). The
 file is in the repository as `src/test/resources/import-export/LETTER_MAIN_ed_kbj_wfw_xmb.xml`.
 
-Two decisions this example forced are recorded as architecture decision records:
+Three decisions this example forced are recorded as architecture decision records:
 `docs/adr/0004-verbatim-passthrough-and-nested-tei.md` (what the model does not describe
-travels verbatim) and `docs/adr/0005-source-nesting-depth-as-serialization-tie-break.md`
-(how two annotations over the same characters keep their order).
+travels verbatim), `docs/adr/0005-source-nesting-depth-as-serialization-tie-break.md`
+(how two annotations over the same characters keep their order) and
+`docs/adr/0006-named-profiles-and-document-decomposition.md` (a profile is one named
+artifact, and the import builds the document hierarchy).
 
 ## The source document
 
@@ -61,106 +63,124 @@ parser:
   cannot tell apart.
 * Two entities of the register are referenced only from the abstract in the letter's header.
 
-## 1. Declare the project model
+## 1. The profile of the edition
+
+Everything the pipeline needs to know about this edition is declared once and stored under
+a name: the project model, how the corpus is taken apart, where its registers are, and how
+references are read and written.
 
 ```cypher
-CALL atag.model.meta.write({
+CALL atag.profile.write({
+  name: 'sozinianer',
   model: {
     collection: ['Corpus', 'Letter'],
     content:    ['Witness'],
     annotation: ['Annotation'],
     entity:     ['Entity']
+  },
+  documents: [
+    {xpath: '/*:teiCorpus',       concept: 'collection', label: 'Corpus', id: 'sozinianer',
+                                  headerXPath: '/*:teiCorpus/*:teiHeader'},
+    {xpath: '/*:teiCorpus/*:TEI', concept: 'collection', label: 'Letter'},
+    {xpath: '/*:TEI/*:TEI',       concept: 'content',    label: 'Witness'}
+  ],
+  registers: [
+    {xpath: '/*:teiCorpus/*:standOff/*:listPerson/*:person', labels: ['Person']},
+    {xpath: '/*:teiCorpus/*:standOff/*:listPlace/*:place',   labels: ['Place']},
+    {xpath: "/*:teiCorpus/*:standOff/*:list[@n='terms']/*:item", labels: ['Term']}
+  ],
+  import: {
+    rootElement: 'teiCorpus',
+    xpath: '/*:TEI/*:text/*:body//node()[not(self::*:ab)]',
+    referenceAttributes: ['corresp', 'sameAs'],
+    entityLabelXPath: "normalize-space((.//*[@type='reg'])[1])",
+    entitySourceProperty: 'tei',
+    addUuid: false
+  },
+  export: {
+    referenceAttribute: 'corresp',
+    entitySourceProperty: 'tei',
+    ignoreProperties: ['xml']
   }
 }) YIELD value
 RETURN value
 ```
 
-The corpus and the letter are collections, a witness is a content node. There is no
-dictionary in this example: the project's vocabulary *is* TEI, so element names stay in
-`tag`, `@type` stays in `type`, and every other attribute becomes a property of the same
-name.
+The corpus and the letter are collections, a witness is a content node; writing the profile
+writes that model to the meta graph as well. There is no dictionary here: the project's
+vocabulary *is* TEI, so element names stay in `tag`, `@type` stays in `type`, and every
+other attribute becomes a property of the same name.
 
-## 2. Take the corpus apart
+What the sections say, key by key, is in [profiles](profiles.html). The ones that carry
+this edition:
 
-An import call works on one content node holding one document. The corpus therefore has to
-be cut into its parts first, which is what [atag.text.xpath](atag.text.xpath.html) is for:
-it evaluates an XPath against an XML string and returns the matched elements serialized,
-or attribute values as strings. The `*:` prefix matches an element in any namespace.
+* `documents` lists the levels of the hierarchy, outermost first. Each level selects its
+  parts *within the fragment of the level above* - the expression is absolute in that
+  fragment - and says whether they are collections or content. `id` gives the corpus the
+  identifier the source does not have; `headerXPath` overrides the TEI default for the one
+  level whose document element is not `<TEI>`.
+* `registers` says where the entity declarations are and which label each list adds.
+  `entityLabelXPath` picks the display name out of a declaration - the first child marked
+  as the regularized form, which works for persons, places and terms alike - and
+  `entitySourceProperty` keeps the declaration itself, verbatim. The model has no place for
+  `<birth>`, `<idno type="uri">` or an alternative name with a `<note>` of its own; the
+  property has.
+* `import.xpath` differs from the TEI default in one respect: it keeps `<div>`. The default
+  leaves `<div>` and `<ab>` out because the export writes those containers itself; here the
+  `<div type="letter">` is part of what the edition wrote, so it becomes an annotation like
+  any other element.
+* `referenceAttributes` names the attributes that point at entities - this edition uses
+  `@corresp` on `<rs>` and `@sameAs` on `<bibl>` - and `export.referenceAttribute` writes
+  them back as `@corresp` instead of the default `@ref`.
+* `addUuid: false` leaves annotations without an identifier of their own unidentified. The
+  source gives an `xml:id` to its 18 notes and to nothing else, and the export writes an
+  identifier only where the source had one or where a pointer needs one - so the exported
+  text is not littered with generated identifiers.
 
-```cypher
-CREATE (c:Corpus {uuid: 'sozinianer', xml: $xml,
-                  teiHeader: atag.text.xpath($xml, '/*:teiCorpus/*:teiHeader')[0]})
-WITH c
-UNWIND atag.text.xpath(c.xml, '/*:teiCorpus/*:TEI') AS letterXml
-CREATE (l:Letter {uuid: atag.text.xpath(letterXml, '/*:TEI/@xml:id')[0],
-                  type: atag.text.xpath(letterXml, '/*:TEI/@type')[0],
-                  n:    atag.text.xpath(letterXml, '/*:TEI/@n')[0],
-                  teiHeader: atag.text.xpath(letterXml, '/*:TEI/*:teiHeader')[0]})
-CREATE (l)-[:PART_OF]->(c)
-WITH l, letterXml
-UNWIND atag.text.xpath(letterXml, '/*:TEI/*:TEI') AS witnessXml
-CREATE (w:Witness {uuid: atag.text.xpath(witnessXml, '/*:TEI/@xml:id')[0],
-                   type: atag.text.xpath(witnessXml, '/*:TEI/@type')[0],
-                   n:    atag.text.xpath(witnessXml, '/*:TEI/@n')[0],
-                   corresp: atag.text.xpath(witnessXml, '/*:TEI/@corresp')[0],
-                   xml: witnessXml})
-CREATE (w)-[:PART_OF]->(l)
-```
+XPath in a profile may use the `*:name` wildcard for "this element in any namespace", as
+above, or the `*[local-name()='name']` of XPath 1.0. They mean the same thing; the shorter
+form is rewritten for the phases that use the older engine.
 
-`[0]` of an empty list is `null`, so an attribute the element does not have sets no
-property. The headers of the corpus and the letter are kept as they are, in a `teiHeader`
-property - there is nothing in the model they could be mapped to, and nothing is lost by
-keeping them verbatim (ADR 0004). The attributes of the `<TEI>` elements become properties.
-
-```cypher
-MATCH (c:Corpus)<-[:PART_OF]-(l:Letter)<-[:PART_OF]-(w:Witness)
-RETURN l.uuid, l.type, l.n, w.uuid, w.n, w.corresp
-```
-
-| uuid                | type   | n                 | corresp        |
-|---------------------|--------|-------------------|----------------|
-| MAIN_ed_kbj_wfw_xmb | letter | cover_letter      | `null`         |
-| ed_kbj_wfw_xmb      | letter | reference_witness | `null`         |
-| ed_abg_zbc_nlb      | letter | `null`            | ed_kbj_wfw_xmb |
-
-## 3. Import the register
-
-The register is declared once for the corpus, not inside a text, so it is imported with
-[atag.text.import.entities](atag.text.import.entities.html), which runs only the entity
-phases of the pipeline. One call per list, because the list decides the label:
+A profile that lives in version control rather than in the database is written with
+[atag.profile.parse](atag.profile.html):
 
 ```cypher
-MATCH (c:Corpus {uuid: 'sozinianer'})
-CALL atag.text.import.entities(c, 'xml', {
-  model: {entity: ['Entity', 'Person']},
-  rootElement: 'teiCorpus',
-  entityXPath: "/*[local-name()='teiCorpus']/*[local-name()='standOff']/*[local-name()='listPerson']/*[local-name()='person']",
-  entityLabelXPath: "normalize-space((.//*[@type='reg'])[1])",
-  entitySourceProperty: 'tei'
-}) YIELD node
-CREATE (node)-[:PART_OF]->(c)
-RETURN count(node) AS persons
+CALL atag.profile.write(atag.profile.parse(atag.text.load('file:///srv/edition/sozinianer.json')))
 ```
 
+## 2. Import the corpus
+
+```cypher
+CALL atag.text.import.corpus($xml, {profile: 'sozinianer'}) YIELD node
+RETURN labels(node), node.uuid, node.type, node.n
 ```
-persons
-35
+
+| labels(node) | node.uuid           | node.type | node.n            |
+|--------------|---------------------|-----------|-------------------|
+| Corpus       | sozinianer          | `null`    | `null`            |
+| Letter       | MAIN_ed_kbj_wfw_xmb | letter    | cover_letter      |
+| Witness      | ed_kbj_wfw_xmb      | letter    | reference_witness |
+| Witness      | ed_abg_zbc_nlb      | letter    | `null`            |
+
+One call does what the profile describes: it cuts the corpus into the four document nodes
+above and links each to the one it is part of, keeps every level's `<teiHeader>` verbatim
+and its attributes as properties, imports the three registers as entities of the corpus,
+and runs the text of each witness through the import - plain text, annotations, references.
+
+```cypher
+MATCH (w:Witness)-[:PART_OF]->(l:Letter)-[:PART_OF]->(c:Corpus)
+RETURN w.uuid, l.uuid, c.uuid
 ```
 
-The same call with `Place` and `…/listPlace/place` yields 8, with `Term` and
-`…/list[@n='terms']/item` 40. Three profile keys do the work:
+| w.uuid         | l.uuid              | c.uuid     |
+|----------------|---------------------|------------|
+| ed_kbj_wfw_xmb | MAIN_ed_kbj_wfw_xmb | sozinianer |
+| ed_abg_zbc_nlb | MAIN_ed_kbj_wfw_xmb | sozinianer |
 
-* `entityXPath` selects the declarations. The TEI default looks for the
-  `<list type="entity">` of the stand-off vocabulary; this edition uses TEI's own lists.
-* `entityLabelXPath` is evaluated relative to each declaration and produces the display
-  name - here the first child marked as the regularized form, which works for persons,
-  places and terms alike.
-* `entitySourceProperty` keeps the declaration itself, verbatim, in the named property.
-  The model has no place for `<birth>`, `<idno type="uri">` or an alternative name with a
-  `<note>` of its own; the property has.
+## 3. The register
 
-Every entity is linked `PART_OF` the corpus, so that an export starting at the corpus
-reaches the whole register - including the entities no text refers to (step 4).
+Every entity is `PART_OF` the corpus, so an export starting at the corpus reaches the whole
+register - including the entities no text refers to (step 5).
 
 ```cypher
 MATCH (e:Entity) WHERE e.uuid IN ['Boulliau', 'Paris', 'ed_vnp_dyc_ydb']
@@ -192,36 +212,17 @@ verbatim declaration is what the source wrote:
 </person>
 ```
 
-## 4. Import the witnesses
+## 4. The texts
 
 ```cypher
-MATCH (w:Witness)
-CALL atag.text.import.tei(w, 'xml', {
-  model: 'meta',
-  xpath: "/*[local-name()='TEI']/*[local-name()='text']/*[local-name()='body']//node()[not(self::*[local-name()='ab'])]",
-  referenceAttributes: ['corresp', 'sameAs'],
-  addUuid: false
-}) YIELD node
-RETURN w.uuid AS witness, count(node) AS annotations
+MATCH (w:Witness)-[:HAS_ANNOTATION]->(a:Annotation)
+RETURN w.uuid AS witness, count(a) AS annotations
 ```
 
 | witness        | annotations |
 |----------------|-------------|
 | ed_kbj_wfw_xmb | 509         |
 | ed_abg_zbc_nlb | 23          |
-
-* `xpath` differs from the TEI default in one respect: it keeps `<div>`. The default leaves
-  `<div>` and `<ab>` out because the export writes those containers itself; here the
-  `<div type="letter">` is part of what the edition wrote, so it becomes an annotation
-  like any other element.
-* `referenceAttributes` names the attributes that point at entities. The edition uses
-  `@corresp` on `<rs>` and `@sameAs` on `<bibl>`.
-* `addUuid: false` leaves annotations without an identifier of their own unidentified.
-  The source gives an `xml:id` to its 18 notes and to nothing else, and the export writes
-  an identifier only where the source had one or where a pointer needs one - so the
-  exported text is not littered with generated identifiers.
-* The header of each witness is kept on its node by the `headerXPath` default, like the
-  headers of the corpus and the letter were kept in step 2.
 
 ## 5. What the import produced
 
@@ -333,18 +334,13 @@ RETURN e.uuid, e.label, labels(e)
 
 ```cypher
 MATCH (c:Corpus {uuid: 'sozinianer'})
-CALL atag.export.tei.fromNode(c, {
-  model: 'meta',
-  referenceAttribute: 'corresp',
-  entitySourceProperty: 'tei',
-  ignoreProperties: ['xml']
-}) YIELD value
+CALL atag.export.tei.fromNode(c, {profile: 'sozinianer'}) YIELD value
 RETURN value
 ```
 
-`referenceAttribute` writes `REFERS_TO` as `@corresp` instead of the default `@ref`;
-`entitySourceProperty` writes the register from the verbatim declarations instead of
-building `<item>` elements from properties. The result, outlined:
+The same profile, read in the other direction: its `export` section writes `REFERS_TO` as
+`@corresp` instead of the default `@ref` and builds the register from the verbatim
+declarations instead of from properties. The result, outlined:
 
 ```xml
 <TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="sozinianer">
@@ -391,7 +387,8 @@ the exporter how to nest the eight same-range pairs. A resolved reference is wri
   compared.
 * The export validates against `src/test/resources/tei-atag-export.xsd`, the contract of
   what the exporter may produce.
-* The exported witnesses are imported again with the profile of step 4, and the annotations
+* The exported witnesses are imported again with the same profile - `rootElement` overridden
+  to `TEI`, since a witness cut out of the export is a document of its own - and the annotations
   - element name, range, type - and the entity references are the same multiset as before.
 
 ## 8. What changed, and what did not survive

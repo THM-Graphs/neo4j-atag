@@ -30,5 +30,11 @@ CREATE (l)-[:PART_OF]->(c)
 ```
 
 `[0]` of an empty list is `null`, so an attribute the element does not have sets no
-property. The [second worked example](worked-example-letter.html) takes a whole corpus
-apart this way.
+property.
+
+Taking a corpus apart is usually better declared than written out:
+[atag.text.import.corpus](atag.text.import.corpus.html) builds the same hierarchy from the
+`documents` section of a [profile](profiles.html), which is what the
+[second worked example](worked-example-letter.html) does. This function is for the cases
+the profile does not cover - inspecting a document, or cutting a fragment out of one for a
+purpose of its own.
