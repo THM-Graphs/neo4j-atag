@@ -9,7 +9,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <github.global.server>github</github.global.server>
-        <neo4j.version>5.26.12</neo4j.version>
+        <neo4j.version>5.26.31</neo4j.version>
         <junitJupiter.version>6.1.3</junitJupiter.version>
         <jsoup.version>1.23.2</jsoup.version>
         <saxon.version>12.7</saxon.version>
