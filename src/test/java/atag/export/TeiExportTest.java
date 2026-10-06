@@ -83,6 +83,13 @@ class TeiExportTest {
                 CREATE (n)-[:HAS_ANNOTATION]->(n2)
                 CREATE (n2)-[:REFERS_TO]->(hildegard)
 
+                // a misspelling with its correction
+                CREATE (c:Text {uuid: 'c-t', text: 'teh word'})
+                CREATE (sic:Annotation {uuid: 'c-sic', type: 'sic', subType: 'spelling', corrected: 'the', startIndex: 0, endIndex: 3})
+                CREATE (c)-[:HAS_ANNOTATION]->(sic)
+                CREATE (late:Annotation {uuid: 'c-late', type: 'additionLaterHand', corrected: '', startIndex: 4, endIndex: 8})
+                CREATE (c)-[:HAS_ANNOTATION]->(late)
+
                 // two lines of a manuscript, the second starting inside a person reference
                 CREATE (m:Text {uuid: 'm-1', text: 'Hildegard writes'})
                 CREATE (l1:Annotation {uuid: 'l-1', type: 'line', startIndex: 0, endIndex: 5})
@@ -164,6 +171,27 @@ class TeiExportTest {
         tei.doesNotHaveXPath("//tei:annotation/@type");
         tei.doesNotHaveXPath("//tei:annotation/@ref");
         tei.valueByXPath("//tei:annotation[@xml:id='n-a2']/@subType").isEqualTo("quoted");
+    }
+
+    @Test
+    void anAlternativeReadingIsWrittenAsChoice(GraphDatabaseService db) {
+        XmlAssert tei = exportValidTei(db, "c-t", Map.of(
+                "choices", Map.of("sic", Map.of("alternative", "corr", "property", "corrected")),
+                "dictionary", Map.of("elements", Map.of("sic", "sic"))));
+
+        tei.valueByXPath("//tei:ab/tei:choice/tei:sic[@xml:id='c-sic']").isEqualTo("teh");
+        tei.valueByXPath("//tei:ab/tei:choice/tei:corr").isEqualTo("the");
+        tei.valueByXPath("//tei:ab").isEqualTo("tehthe word");
+        tei.doesNotHaveXPath("//tei:sic/@corrected");
+        tei.valueByXPath("//tei:sic/@subType").isEqualTo("spelling");
+    }
+
+    @Test
+    void blankPropertiesAreOnlyLeftOutOnRequest(GraphDatabaseService db) {
+        exportValidTei(db, "c-t", Map.of()).hasXPath("//tei:seg[@xml:id='c-late']/@corrected");
+        XmlAssert omitted = exportValidTei(db, "c-t", Map.of("omitBlankProperties", true));
+        omitted.hasXPath("//tei:seg[@xml:id='c-late']");
+        omitted.doesNotHaveXPath("//tei:seg[@xml:id='c-late']/@corrected");
     }
 
     @Test

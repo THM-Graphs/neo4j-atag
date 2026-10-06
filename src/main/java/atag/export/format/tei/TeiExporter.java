@@ -432,7 +432,25 @@ public class TeiExporter extends DocumentExporter {
             MappedAnnotation annotation = placed.annotation;
             String name = elementName(annotation);
             String id = assignedId(annotation);
+            ExportProfile.Choice choice = profile.choices().get(name);
+            String alternative = choice == null ? null : propertyText(annotation, choice.property());
+            if (alternative != null) {
+                writer.writeStartElement(TEI_NS, "choice");
+            }
+            writeElement(placed, text, name, id);
+            if (alternative != null) {
+                writeTextElement(choice.alternative(), alternative);
+                writer.writeEndElement();
+            }
+        }
 
+        private static String propertyText(MappedAnnotation annotation, String property) {
+            Object value = annotation.properties().get(property);
+            return value == null || PropertyValues.asString(value).isBlank() ? null : PropertyValues.asString(value);
+        }
+
+        private void writeElement(Placed placed, String text, String name, String id) throws XMLStreamException {
+            MappedAnnotation annotation = placed.annotation;
             if (placed.nested.isEmpty() && placed.startIndex == placed.endIndex) {
                 writer.writeEmptyElement(TEI_NS, name);
                 writeAnnotationAttributes(annotation, id, true);
@@ -603,11 +621,14 @@ public class TeiExporter extends DocumentExporter {
                 writer.writeAttribute(referenceAttribute, String.join(" ", pointers));
             }
             String elementSource = inline ? typeUsedAsElement(annotation) : null;
+            ExportProfile.Choice choice = inline ? profile.choices().get(elementName(annotation)) : null;
+            String choiceProperty = choice == null ? null : choice.property();
             for (Map.Entry<String, Object> property : annotation.properties().entrySet()) {
                 String key = property.getKey();
                 boolean taken = key.equals(elementSource) || key.equals(referenceAttribute)
                         || !inline && key.equals(StandoffVocabulary.TARGET_ATTRIBUTE)
-                        || asChildren && key.equals(profile.dictionary().typeProperty());
+                        || asChildren && key.equals(profile.dictionary().typeProperty())
+                        || key.equals(choiceProperty);
                 if (!taken) {
                     writeProperty(key, property.getValue());
                 }
@@ -650,8 +671,12 @@ public class TeiExporter extends DocumentExporter {
         }
 
         private void writeProperty(String key, Object value) throws XMLStreamException {
-            if (!reserved.contains(key) && isName(key)) {
-                writer.writeAttribute(key, PropertyValues.asString(value));
+            if (reserved.contains(key) || !isName(key)) {
+                return;
+            }
+            String text = PropertyValues.asString(value);
+            if (!(profile.omitBlankProperties() && text.isBlank())) {
+                writer.writeAttribute(key, text);
             }
         }
 

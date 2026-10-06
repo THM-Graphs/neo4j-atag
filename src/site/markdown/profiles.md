@@ -143,6 +143,8 @@ The defaults above are those of [atag.text.import.tei](atag.text.import.tei.html
 | `ignoreProperties`      | properties that should not be serialized at all                   | `[]`                                      |
 | `milestones`            | element names written as empty milestones at the start of their range, e.g. `['lb']` | `[]`            |
 | `standoffNotes`         | write the type of a stand-off `<annotation>` as a child `<note type>` and its references as `<ptr target>`, which TEI allows, instead of as attributes it does not; the TEI import reads both forms | `false` |
+| `choices`               | elements written with an alternative reading as `<choice>`, e.g. `{sic: {alternative: 'corr', property: 'corrected'}}` gives `<choice><sic>teh</sic><corr>the</corr></choice>`; the import does not read the alternative back | `{}` |
+| `omitBlankProperties`   | leave out properties whose value is empty instead of writing them as empty attributes | `false` |
 | `serialization`         | `inline` or `standoff`, for TEI output                            | `inline`                                  |
 | `entityKey`             | property an entity reference points at                            | `uuid`                                    |
 | `idProperty`            | property a node is addressed by in the serialization              | `uuid`                                    |

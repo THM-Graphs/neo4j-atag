@@ -19,6 +19,16 @@ import java.util.Map;
  */
 public class ExportProfile {
 
+    /**
+     * An element whose annotation is written as one reading of a {@code <choice>}, and the
+     * property holding the other reading, e.g. {@code sic} and its {@code corrected} form.
+     *
+     * @param alternative element the other reading is written as, e.g. {@code corr}
+     * @param property    property of the annotation holding that reading
+     */
+    public record Choice(String alternative, String property) {
+    }
+
     public enum Serialization {
         INLINE,
         STANDOFF
@@ -40,6 +50,8 @@ public class ExportProfile {
     private final List<String> ignoreProperties;
     private final List<String> milestones;
     private final boolean standoffNotes;
+    private final boolean omitBlankProperties;
+    private final Map<String, Choice> choices;
     private final Map<String, String> entityElements;
     private final Map<String, String> entityIdentifiers;
     private final Serialization serialization;
@@ -60,6 +72,8 @@ public class ExportProfile {
         this.textProperties = (List<String>) config.getOrDefault("textProperties", DEFAULT_TEXT_PROPERTIES);
         this.ignoreProperties = (List<String>) config.getOrDefault("ignoreProperties", List.of());
         this.milestones = (List<String>) config.getOrDefault("milestones", List.of());
+        this.choices = choices(config.get("choices"));
+        this.omitBlankProperties = Boolean.TRUE.equals(config.get("omitBlankProperties"));
         this.standoffNotes = Boolean.TRUE.equals(config.get("standoffNotes"));
         this.entityElements = stringMap(config.get("entityElements"));
         this.entityIdentifiers = stringMap(config.get("entityIdentifiers"));
@@ -80,6 +94,18 @@ public class ExportProfile {
     /** A profile that may take its project model, or all of itself, from the database. */
     public static ExportProfile from(Map<String, Object> config, Transaction tx) {
         return new ExportProfile(Profiles.resolve(config, tx, Profiles.EXPORT), tx);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Choice> choices(Object value) {
+        Map<String, Choice> result = new java.util.LinkedHashMap<>();
+        if (value instanceof Map<?, ?> configured) {
+            configured.forEach((element, definition) -> {
+                Map<String, String> map = (Map<String, String>) definition;
+                result.put((String) element, new Choice(map.get("alternative"), map.get("property")));
+            });
+        }
+        return Map.copyOf(result);
     }
 
     @SuppressWarnings("unchecked")
@@ -145,6 +171,19 @@ public class ExportProfile {
      */
     public List<String> milestones() {
         return milestones;
+    }
+
+    /** Whether a property whose value is empty or blank is left out instead of written as an empty attribute. */
+    public boolean omitBlankProperties() {
+        return omitBlankProperties;
+    }
+
+    /**
+     * Elements written together with an alternative reading as {@code <choice>}, by element
+     * name, e.g. {@code {sic: {alternative: 'corr', property: 'corrected'}}}.
+     */
+    public Map<String, Choice> choices() {
+        return choices;
     }
 
     /**
