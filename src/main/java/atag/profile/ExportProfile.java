@@ -39,6 +39,7 @@ public class ExportProfile {
     private final List<String> textProperties;
     private final List<String> ignoreProperties;
     private final List<String> milestones;
+    private final boolean standoffNotes;
     private final Map<String, String> entityElements;
     private final Map<String, String> entityIdentifiers;
     private final Serialization serialization;
@@ -59,6 +60,7 @@ public class ExportProfile {
         this.textProperties = (List<String>) config.getOrDefault("textProperties", DEFAULT_TEXT_PROPERTIES);
         this.ignoreProperties = (List<String>) config.getOrDefault("ignoreProperties", List.of());
         this.milestones = (List<String>) config.getOrDefault("milestones", List.of());
+        this.standoffNotes = Boolean.TRUE.equals(config.get("standoffNotes"));
         this.entityElements = stringMap(config.get("entityElements"));
         this.entityIdentifiers = stringMap(config.get("entityIdentifiers"));
         this.serialization = Serialization.valueOf(
@@ -143,6 +145,15 @@ public class ExportProfile {
      */
     public List<String> milestones() {
         return milestones;
+    }
+
+    /**
+     * Whether a stand-off {@code <annotation>} carries its type as a child {@code <note type>}
+     * and its references as child {@code <ptr target>} instead of as attributes, which TEI
+     * does not allow on {@code <annotation>}.
+     */
+    public boolean standoffNotes() {
+        return standoffNotes;
     }
 
     /**

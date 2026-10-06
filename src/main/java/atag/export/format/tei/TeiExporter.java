@@ -459,14 +459,36 @@ public class TeiExporter extends DocumentExporter {
             if (!standoff.isEmpty()) {
                 writer.writeStartElement(TEI_NS, StandoffVocabulary.LIST_ANNOTATION);
                 for (Deferred deferred : standoff) {
-                    writer.writeEmptyElement(TEI_NS, StandoffVocabulary.ANNOTATION);
-                    writer.writeAttribute(StandoffVocabulary.TARGET_ATTRIBUTE, deferred.target());
-                    writeAnnotationAttributes(deferred.annotation(), assignedId(deferred.annotation()), false);
+                    writeStandoffAnnotation(deferred);
                 }
                 writer.writeEndElement();
             }
             writeEntities(identified);
             writer.writeEndElement();
+        }
+
+        private void writeStandoffAnnotation(Deferred deferred) throws XMLStreamException {
+            MappedAnnotation annotation = deferred.annotation();
+            boolean notes = profile.standoffNotes();
+            if (notes) {
+                writer.writeStartElement(TEI_NS, StandoffVocabulary.ANNOTATION);
+            } else {
+                writer.writeEmptyElement(TEI_NS, StandoffVocabulary.ANNOTATION);
+            }
+            writer.writeAttribute(StandoffVocabulary.TARGET_ATTRIBUTE, deferred.target());
+            writeAnnotationAttributes(annotation, assignedId(annotation), false);
+            if (notes) {
+                Object type = annotation.properties().get(profile.dictionary().typeProperty());
+                if (type != null) {
+                    writer.writeEmptyElement(TEI_NS, StandoffVocabulary.NOTE);
+                    writer.writeAttribute(StandoffVocabulary.TYPE_ATTRIBUTE, PropertyValues.asString(type));
+                }
+                for (String pointer : pointersOf(annotation)) {
+                    writer.writeEmptyElement(TEI_NS, StandoffVocabulary.POINTER);
+                    writer.writeAttribute(StandoffVocabulary.TARGET_ATTRIBUTE, pointer);
+                }
+                writer.writeEndElement();
+            }
         }
 
         /**
@@ -575,27 +597,34 @@ public class TeiExporter extends DocumentExporter {
                 throws XMLStreamException {
             writeId(id);
             String referenceAttribute = profile.referenceAttribute();
-            List<String> pointers = new ArrayList<>();
-            for (String reference : annotation.references()) {
-                pointers.add(pointer(reference));
-            }
-            // pointers the import could not resolve stayed in the attribute they were written in
-            Object unresolved = annotation.properties().get(referenceAttribute);
-            if (unresolved != null) {
-                pointers.addAll(Arrays.asList(PropertyValues.asString(unresolved).trim().split("\\s+")));
-            }
-            if (!pointers.isEmpty()) {
+            boolean asChildren = !inline && profile.standoffNotes();
+            List<String> pointers = pointersOf(annotation);
+            if (!pointers.isEmpty() && !asChildren) {
                 writer.writeAttribute(referenceAttribute, String.join(" ", pointers));
             }
             String elementSource = inline ? typeUsedAsElement(annotation) : null;
             for (Map.Entry<String, Object> property : annotation.properties().entrySet()) {
                 String key = property.getKey();
                 boolean taken = key.equals(elementSource) || key.equals(referenceAttribute)
-                        || !inline && key.equals(StandoffVocabulary.TARGET_ATTRIBUTE);
+                        || !inline && key.equals(StandoffVocabulary.TARGET_ATTRIBUTE)
+                        || asChildren && key.equals(profile.dictionary().typeProperty());
                 if (!taken) {
                     writeProperty(key, property.getValue());
                 }
             }
+        }
+
+        private List<String> pointersOf(MappedAnnotation annotation) {
+            List<String> pointers = new ArrayList<>();
+            for (String reference : annotation.references()) {
+                pointers.add(pointer(reference));
+            }
+            // pointers the import could not resolve stayed in the attribute they were written in
+            Object unresolved = annotation.properties().get(profile.referenceAttribute());
+            if (unresolved != null) {
+                pointers.addAll(Arrays.asList(PropertyValues.asString(unresolved).trim().split("\\s+")));
+            }
+            return pointers;
         }
 
         /**

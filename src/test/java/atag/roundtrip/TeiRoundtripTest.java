@@ -55,19 +55,23 @@ class TeiRoundtripTest {
             .build();
 
     private String roundtrip(GraphDatabaseService db) {
+        return roundtrip(db, PROFILE);
+    }
+
+    private String roundtrip(GraphDatabaseService db, Map<String, Object> profile) {
         String uuid = "reimported-" + NEXT_ID.incrementAndGet();
         String tei = db.executeTransactionally("""
                 MATCH (t:Text {uuid: 'text-1'})
                 CALL atag.export.tei.fromNode(t, $profile) YIELD value
                 RETURN value
-                """, Map.of("profile", PROFILE), r -> (String) Iterators.single(r).get("value"));
+                """, Map.of("profile", profile), r -> (String) Iterators.single(r).get("value"));
 
         db.executeTransactionally("CREATE (t:Text {uuid: $uuid, xml: $xml})", Map.of("uuid", uuid, "xml", tei));
         db.executeTransactionally("""
                 MATCH (t:Text {uuid: $uuid})
                 CALL atag.text.import.tei(t, 'xml', $profile) YIELD node
                 RETURN count(node) AS count
-                """, Map.of("uuid", uuid, "profile", PROFILE));
+                """, Map.of("uuid", uuid, "profile", profile));
         return uuid;
     }
 
@@ -119,5 +123,21 @@ class TeiRoundtripTest {
                 """, Map.of("uuid", uuid), r -> (Boolean) Iterators.single(r).get("same"));
 
         assertTrue(sameEntity, "the reference should resolve to the existing entity instead of duplicating it");
+    }
+
+    @Test
+    void standoffNotesComeBackAsTypeAndReference(GraphDatabaseService db) {
+        Map<String, Object> notes = new java.util.HashMap<>(PROFILE);
+        notes.put("standoffNotes", true);
+        String uuid = roundtrip(db, notes);
+
+        List<String> spans = db.executeTransactionally("""
+                MATCH (:Text {uuid: $uuid})-[:HAS_ANNOTATION]->(a:Annotation)
+                RETURN a.type + '[' + a.startIndex + ',' + a.endIndex + ']' AS span
+                ORDER BY a.startIndex, a.endIndex, a.type
+                """, Map.of("uuid", uuid), r -> Iterators.asList(r).stream().map(row -> (String) row.get("span")).toList());
+
+        assertEquals(List.of("person-reference[0,9]", "sentence[0,29]", "phrase[5,20]"), spans,
+                "the annotation written as stand-off with a child note should keep its type and range");
     }
 }

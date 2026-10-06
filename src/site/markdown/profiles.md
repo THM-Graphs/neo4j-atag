@@ -142,6 +142,7 @@ The defaults above are those of [atag.text.import.tei](atag.text.import.tei.html
 | `textProperties`        | properties holding the character content of a content node        | `['text', 'plainText']`                   |
 | `ignoreProperties`      | properties that should not be serialized at all                   | `[]`                                      |
 | `milestones`            | element names written as empty milestones at the start of their range, e.g. `['lb']` | `[]`            |
+| `standoffNotes`         | write the type of a stand-off `<annotation>` as a child `<note type>` and its references as `<ptr target>`, which TEI allows, instead of as attributes it does not; the TEI import reads both forms | `false` |
 | `serialization`         | `inline` or `standoff`, for TEI output                            | `inline`                                  |
 | `entityKey`             | property an entity reference points at                            | `uuid`                                    |
 | `idProperty`            | property a node is addressed by in the serialization              | `uuid`                                    |

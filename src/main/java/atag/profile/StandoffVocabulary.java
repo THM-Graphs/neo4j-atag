@@ -36,6 +36,8 @@ public final class StandoffVocabulary {
             "place", "placeName",
             "org", "orgName");
     public static final String IDNO = "idno";
+    public static final String NOTE = "note";
+    public static final String POINTER = "ptr";
     /** The order in which those lists are written. */
     public static final List<String> ENTITY_LIST_ORDER = List.of("listPerson", "listPlace", "listOrg", "listEvent", ENTITY_LIST);
 

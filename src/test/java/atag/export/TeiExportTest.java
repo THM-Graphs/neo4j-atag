@@ -75,6 +75,14 @@ class TeiExportTest {
                 CREATE (note:Annotation {tag: 'note', type: 'commentary'})
                 CREATE (rs)-[:HAS_ANNOTATION]->(note)
 
+                // two overlapping annotations, the one that has to move into standOff points at an entity
+                CREATE (n:Text {uuid: 'n-1', text: 'Hildegard writes'})
+                CREATE (n1:Annotation {uuid: 'n-a1', type: 'person-reference', startIndex: 0, endIndex: 9})
+                CREATE (n2:Annotation {uuid: 'n-a2', type: 'phrase', subType: 'quoted', startIndex: 5, endIndex: 16})
+                CREATE (n)-[:HAS_ANNOTATION]->(n1)
+                CREATE (n)-[:HAS_ANNOTATION]->(n2)
+                CREATE (n2)-[:REFERS_TO]->(hildegard)
+
                 // two lines of a manuscript, the second starting inside a person reference
                 CREATE (m:Text {uuid: 'm-1', text: 'Hildegard writes'})
                 CREATE (l1:Annotation {uuid: 'l-1', type: 'line', startIndex: 0, endIndex: 5})
@@ -144,6 +152,18 @@ class TeiExportTest {
                 .isEqualTo("Hildegard von Bingen");
         tei.valueByXPath("//tei:person[@xml:id='hildegard']/tei:idno[@type='wikidata']").isEqualTo("Q70991");
         tei.doesNotHaveXPath("//tei:list[@type='entity']");
+    }
+
+    @Test
+    void standoffNotesCarryTypeAndReferencesAsChildren(GraphDatabaseService db) {
+        XmlAssert tei = exportValidTei(db, "n-1", Map.of("standoffNotes", true, "dictionary", Map.of(
+                "elements", Map.of("persName", "person-reference"))));
+
+        tei.hasXPath("//tei:annotation[@xml:id='n-a2']/tei:note[@type='phrase']");
+        tei.hasXPath("//tei:annotation[@xml:id='n-a2']/tei:ptr[@target='#hildegard']");
+        tei.doesNotHaveXPath("//tei:annotation/@type");
+        tei.doesNotHaveXPath("//tei:annotation/@ref");
+        tei.valueByXPath("//tei:annotation[@xml:id='n-a2']/@subType").isEqualTo("quoted");
     }
 
     @Test

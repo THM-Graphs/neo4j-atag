@@ -116,6 +116,19 @@
     <!-- an annotation that could not be written inline; its target must be resolvable -->
     <xs:element name="annotation">
         <xs:complexType>
+            <!-- with the profile key standoffNotes, the type is a <note type> and the references are <ptr target> -->
+            <xs:sequence>
+                <xs:element name="note" minOccurs="0">
+                    <xs:complexType>
+                        <xs:attribute name="type" type="xs:string"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="ptr" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:attribute name="target" use="required" type="xs:string"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
             <xs:attribute name="target" use="required" type="tei:pointer"/>
             <xs:anyAttribute namespace="##any" processContents="lax"/>
         </xs:complexType>

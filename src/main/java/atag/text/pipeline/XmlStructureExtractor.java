@@ -93,6 +93,7 @@ public class XmlStructureExtractor implements StructureExtractor<Document> {
                 continue;
             }
             Map<String, String> attributes = attributesOf(element);
+            readChildren(element, attributes, profile);
             String target = attributes.remove(StandoffVocabulary.TARGET_ATTRIBUTE);
             if (target == null) {
                 throw new IllegalArgumentException(
@@ -101,6 +102,32 @@ public class XmlStructureExtractor implements StructureExtractor<Document> {
             result.add(resolve(nameOf(element), attributes, target));
         }
         return result;
+    }
+
+    /**
+     * A stand-off annotation may carry its type as a child {@code <note type>} and its
+     * references as child {@code <ptr target>}, which is how TEI allows it; both are read
+     * as if they were the attributes {@code type} and the first reference attribute.
+     */
+    private void readChildren(Element element, Map<String, String> attributes, ImportProfile profile) {
+        List<String> pointers = new ArrayList<>();
+        for (Node child = element.getFirstChild(); child != null; child = child.getNextSibling()) {
+            if (!(child instanceof Element childElement)) {
+                continue;
+            }
+            String name = childElement.getLocalName() != null ? childElement.getLocalName() : childElement.getNodeName();
+            if (StandoffVocabulary.NOTE.equals(name) && childElement.hasAttribute(StandoffVocabulary.TYPE_ATTRIBUTE)) {
+                attributes.putIfAbsent(StandoffVocabulary.TYPE_ATTRIBUTE,
+                        childElement.getAttribute(StandoffVocabulary.TYPE_ATTRIBUTE));
+            } else if (StandoffVocabulary.POINTER.equals(name)
+                    && childElement.hasAttribute(StandoffVocabulary.TARGET_ATTRIBUTE)) {
+                pointers.add(childElement.getAttribute(StandoffVocabulary.TARGET_ATTRIBUTE));
+            }
+        }
+        if (!pointers.isEmpty() && !profile.referenceAttributes().isEmpty()) {
+            attributes.merge(profile.referenceAttributes().get(0), String.join(" ", pointers),
+                    (existing, added) -> existing + " " + added);
+        }
     }
 
     /**
