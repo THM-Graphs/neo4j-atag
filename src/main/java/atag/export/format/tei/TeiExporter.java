@@ -364,7 +364,8 @@ public class TeiExporter extends DocumentExporter {
 
         /** The placeholder header of a document whose root has none of its own. */
         private void writeHeader(MappedDocument root) throws XMLStreamException {
-            Object title = root.properties().get("label");
+            Object title = root.properties().getOrDefault("label",
+                    root.properties().get(profile.dictionary().attributeFor("label")));
             writer.writeStartElement(TEI_NS, "teiHeader");
             writer.writeStartElement(TEI_NS, "fileDesc");
             writer.writeStartElement(TEI_NS, "titleStmt");
@@ -601,8 +602,11 @@ public class TeiExporter extends DocumentExporter {
                 writer.writeAttribute(StandoffVocabulary.TYPE_ATTRIBUTE, String.join(",", entity.labels()));
             }
             for (Map.Entry<String, Object> property : entity.properties().entrySet()) {
-                if (!property.getKey().equals(profile.entityKey()) && !property.getKey().equals("label")) {
-                    writeProperty(property.getKey(), property.getValue());
+                String key = property.getKey();
+                boolean name = key.equals("label") || key.equals(profile.dictionary().attributeFor("label"))
+                        || key.equals(StandoffVocabulary.NAME_ATTRIBUTE);
+                if (!key.equals(profile.entityKey()) && !(name && entity.label() != null)) {
+                    writeProperty(key, property.getValue());
                 }
             }
         }

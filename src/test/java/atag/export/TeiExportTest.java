@@ -195,6 +195,17 @@ class TeiExportTest {
     }
 
     @Test
+    void aLabelMappedToTheNameAttributeIsWrittenOnceAndTitlesTheDocument(GraphDatabaseService db) {
+        XmlAssert tei = exportValidTei(db, "letter-1", Map.of("dictionary", Map.of("attributes", Map.of("n", "label"))));
+
+        tei.valueByXPath("//tei:body/tei:div/@n").isEqualTo("Letter R86");
+        tei.valueByXPath("//tei:teiHeader//tei:title").isEqualTo("Letter R86");
+
+        XmlAssert entity = exportValidTei(db, "text-1", Map.of("dictionary", Map.of("attributes", Map.of("n", "label"))));
+        entity.valueByXPath("//tei:list[@type='entity']/tei:item/@n").isEqualTo("Hildegard von Bingen");
+    }
+
+    @Test
     void overlappingAnnotationsAreWrittenAsStandoff(GraphDatabaseService db) {
         XmlAssert tei = exportValidTei(db, "text-1", DICTIONARY);
 
