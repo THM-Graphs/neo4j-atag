@@ -127,7 +127,7 @@ public class TeiExporter extends DocumentExporter {
         private final Map<MappedDocument, String> textIds = new IdentityHashMap<>();
         private final Set<MappedDocument> teiLevel = Collections.newSetFromMap(new IdentityHashMap<>());
         private final Set<String> reserved;
-        private int generatedIds;
+        private final XmlIds xmlIds = new XmlIds();
 
         Serialization(XMLStreamWriter writer, ExportProfile profile) {
             this.writer = writer;
@@ -174,7 +174,7 @@ public class TeiExporter extends DocumentExporter {
                 return;
             }
             for (MappedAnnotation annotation : anchor.annotations()) {
-                defer(annotation, "#" + idOf(anchor, anchor.id()));
+                defer(annotation, pointer(idOf(anchor, anchor.id())));
             }
             for (MappedDocument child : anchor.children()) {
                 plan(child, asTei && child.header() != null);
@@ -269,7 +269,7 @@ public class TeiExporter extends DocumentExporter {
             }
             String id = idOf(annotation, annotation.id());
             for (MappedAnnotation child : annotation.children()) {
-                defer(child, "#" + id);
+                defer(child, pointer(id));
             }
         }
 
@@ -280,8 +280,8 @@ public class TeiExporter extends DocumentExporter {
 
         private String pointerTo(MappedAnnotation annotation, MappedDocument anchor) {
             return annotation.startIndex() == null
-                    ? "#" + idOf(anchor, anchor.id())
-                    : StandoffVocabulary.stringRange(textIdOf(anchor), annotation.startIndex(), annotation.endIndex());
+                    ? pointer(idOf(anchor, anchor.id()))
+                    : StandoffVocabulary.stringRange(xmlIds.of(textIdOf(anchor)), annotation.startIndex(), annotation.endIndex());
         }
 
         /**
@@ -524,7 +524,7 @@ public class TeiExporter extends DocumentExporter {
             String referenceAttribute = profile.referenceAttribute();
             List<String> pointers = new ArrayList<>();
             for (String reference : annotation.references()) {
-                pointers.add("#" + reference);
+                pointers.add(pointer(reference));
             }
             // pointers the import could not resolve stayed in the attribute they were written in
             Object unresolved = annotation.properties().get(referenceAttribute);
@@ -575,7 +575,7 @@ public class TeiExporter extends DocumentExporter {
 
         private void writeId(String id) throws XMLStreamException {
             if (id != null) {
-                writer.writeAttribute("xml", XMLConstants.XML_NS_URI, "id", id);
+                writer.writeAttribute("xml", XMLConstants.XML_NS_URI, "id", xmlIds.of(id));
             }
         }
 
@@ -612,7 +612,11 @@ public class TeiExporter extends DocumentExporter {
         }
 
         private String generateId() {
-            return "atag-" + (++generatedIds);
+            return xmlIds.generate();
+        }
+
+        private String pointer(String id) {
+            return "#" + xmlIds.of(id);
         }
 
         private static long order(Long value) {
