@@ -141,10 +141,13 @@ The defaults above are those of [atag.text.import.tei](atag.text.import.tei.html
 | `annotationTypes`       | allow-list of annotation types                                    | all                                       |
 | `textProperties`        | properties holding the character content of a content node        | `['text', 'plainText']`                   |
 | `ignoreProperties`      | properties that should not be serialized at all                   | `[]`                                      |
+| `milestones`            | element names written as empty milestones at the start of their range, e.g. `['lb']` | `[]`            |
 | `serialization`         | `inline` or `standoff`, for TEI output                            | `inline`                                  |
 | `entityKey`             | property an entity reference points at                            | `uuid`                                    |
 | `idProperty`            | property a node is addressed by in the serialization              | `uuid`                                    |
 | `referenceAttribute`    | attribute an entity reference is written as, for TEI output       | `ref`                                     |
 | `headerProperty`        | property holding a verbatim header; a node that has one becomes a `<TEI>` of its own | `teiHeader`    |
 | `entitySourceProperty`  | property holding a verbatim entity declaration, written back as it is | none                                  |
+| `entityElements`        | TEI element an entity is declared as, by entity label, e.g. `{Person: 'person', Place: 'place', Gruppe: 'org', Concept: 'item'}`; the entity is written with its name instead of as a generic `<item>` | `{}` |
+| `entityIdentifiers`     | entity properties written as `<idno>`, by property key to the idno's `type`, e.g. `{wikidataId: 'wikidata'}` | `{}` |
 | `fileName`              | write into the import directory instead of returning the result   | -                                         |

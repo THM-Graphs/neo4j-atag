@@ -29,6 +29,13 @@ public final class StandoffVocabulary {
             "place", "listPlace",
             "org", "listOrg",
             "event", "listEvent");
+    /** The element holding the name of an entity declared as the key, if it has one. */
+    private static final Map<String, String> NAME_ELEMENTS = Map.of(
+            "person", "persName",
+            "personGrp", "persName",
+            "place", "placeName",
+            "org", "orgName");
+    public static final String IDNO = "idno";
     /** The order in which those lists are written. */
     public static final List<String> ENTITY_LIST_ORDER = List.of("listPerson", "listPlace", "listOrg", "listEvent", ENTITY_LIST);
 
@@ -47,6 +54,11 @@ public final class StandoffVocabulary {
     /** The list element a declaration written as {@code declaringElement} belongs in. */
     public static String listFor(String declaringElement) {
         return ENTITY_LISTS.getOrDefault(declaringElement, ENTITY_LIST);
+    }
+
+    /** The element naming an entity declared as {@code declaringElement}, or {@code null} if the name is its text. */
+    public static String nameElementFor(String declaringElement) {
+        return NAME_ELEMENTS.get(declaringElement);
     }
 
     /**

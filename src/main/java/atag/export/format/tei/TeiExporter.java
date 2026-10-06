@@ -88,19 +88,21 @@ public class TeiExporter extends DocumentExporter {
         private final long endIndex;
         private final Long depth;
         private final boolean byDepth;
+        private final boolean milestone;
         private final List<Placed> nested = new ArrayList<>();
 
-        Placed(MappedAnnotation annotation, boolean byDepth) {
+        Placed(MappedAnnotation annotation, boolean byDepth, boolean milestone) {
             this.annotation = annotation;
+            this.milestone = milestone;
             this.startIndex = annotation.startIndex();
-            this.endIndex = annotation.endIndex();
+            this.endIndex = milestone ? annotation.startIndex() : annotation.endIndex();
             this.depth = annotation.depth();
             this.byDepth = byDepth;
         }
 
         boolean contains(Placed other) {
-            return startIndex <= other.startIndex && other.endIndex <= endIndex
-                    && (!byDepth || other.depth > depth);
+            return !milestone && startIndex <= other.startIndex && other.endIndex <= endIndex
+                    && (!byDepth || other.milestone || other.depth > depth);
         }
 
         boolean conflictsWith(Placed other) {
@@ -214,7 +216,8 @@ public class TeiExporter extends DocumentExporter {
             Comparator<MappedAnnotation> byStart = Comparator.comparingLong(a -> order(a.startIndex()));
             candidates.sort(byDepth
                     ? byStart.thenComparingLong(MappedAnnotation::depth).thenComparingLong(a -> order(a.endIndex()))
-                    : byStart.thenComparing(a -> order(a.endIndex()), Comparator.reverseOrder()));
+                    : byStart.thenComparing(a -> isMilestone(a) ? 0 : 1)
+                            .thenComparing(a -> order(a.endIndex()), Comparator.reverseOrder()));
 
             List<Placed> accepted = new ArrayList<>();
             for (MappedAnnotation annotation : candidates) {
@@ -222,7 +225,7 @@ public class TeiExporter extends DocumentExporter {
                     defer(annotation, pointerTo(annotation, anchor));
                     continue;
                 }
-                Placed placed = new Placed(annotation, byDepth);
+                Placed placed = new Placed(annotation, byDepth, isMilestone(annotation));
                 if (accepted.stream().anyMatch(placed::conflictsWith)) {
                     defer(annotation, pointerTo(annotation, anchor));
                 } else {
@@ -230,6 +233,10 @@ public class TeiExporter extends DocumentExporter {
                 }
             }
             return forest(accepted);
+        }
+
+        private boolean isMilestone(MappedAnnotation annotation) {
+            return profile.milestones().contains(elementName(annotation));
         }
 
         private boolean inlinable(MappedAnnotation annotation, int textLength) {
@@ -464,27 +471,33 @@ public class TeiExporter extends DocumentExporter {
 
         /**
          * An entity whose declaration was kept verbatim is written back into the TEI list
-         * its declaring element belongs to; the others are declared from their properties.
+         * its declaring element belongs to; one whose label the profile assigns an element is
+         * declared with its name and identifiers; the others are declared from their properties.
          */
         private void writeEntities(List<MappedEntity> entities) throws XMLStreamException {
-            Map<String, List<MappedEntity>> verbatim = new LinkedHashMap<>();
+            Map<String, List<MappedEntity>> grouped = new LinkedHashMap<>();
             List<MappedEntity> declared = new ArrayList<>();
             for (MappedEntity entity : entities) {
-                if (entity.source() != null) {
-                    verbatim.computeIfAbsent(StandoffVocabulary.listFor(entity.element()), key -> new ArrayList<>())
-                            .add(entity);
+                String element = declaringElement(entity);
+                if (element != null || entity.source() != null) {
+                    String list = element == null ? StandoffVocabulary.ENTITY_LIST : StandoffVocabulary.listFor(element);
+                    grouped.computeIfAbsent(list, key -> new ArrayList<>()).add(entity);
                 } else {
                     declared.add(entity);
                 }
             }
             for (String list : StandoffVocabulary.ENTITY_LIST_ORDER) {
-                if (!verbatim.containsKey(list)) {
+                if (!grouped.containsKey(list)) {
                     continue;
                 }
                 writer.writeStartElement(TEI_NS, list);
-                for (MappedEntity entity : verbatim.get(list)) {
-                    XmlFragments.copy(entity.source(), writer, TEI_NS,
-                            profile.entitySourceProperty() + " of " + entity.id());
+                for (MappedEntity entity : grouped.get(list)) {
+                    if (entity.source() != null) {
+                        XmlFragments.copy(entity.source(), writer, TEI_NS,
+                                profile.entitySourceProperty() + " of " + entity.id());
+                    } else {
+                        writeDeclaration(entity, declaringElement(entity));
+                    }
                 }
                 writer.writeEndElement();
             }
@@ -496,6 +509,46 @@ public class TeiExporter extends DocumentExporter {
                 }
                 writer.writeEndElement();
             }
+        }
+
+        /**
+         * The element an entity is declared as: the one its verbatim declaration or the
+         * import kept, or the one the profile assigns to one of its labels; {@code null}
+         * for an entity that is declared generically from its properties.
+         */
+        private String declaringElement(MappedEntity entity) {
+            if (entity.source() != null) {
+                return entity.element();
+            }
+            for (String label : entity.labels()) {
+                String element = profile.entityElements().get(label);
+                if (element != null) {
+                    return element;
+                }
+            }
+            return null;
+        }
+
+        /** A declaration with the entity's name and the identifiers the profile asks for. */
+        private void writeDeclaration(MappedEntity entity, String element) throws XMLStreamException {
+            writer.writeStartElement(TEI_NS, element);
+            writeId(entity.id());
+            String nameElement = StandoffVocabulary.nameElementFor(element);
+            if (nameElement != null && entity.label() != null) {
+                writeTextElement(nameElement, entity.label());
+            } else if (entity.label() != null) {
+                writer.writeCharacters(entity.label());
+            }
+            for (Map.Entry<String, String> identifier : profile.entityIdentifiers().entrySet()) {
+                Object value = entity.properties().get(identifier.getKey());
+                if (value != null && !PropertyValues.asString(value).isBlank()) {
+                    writer.writeStartElement(TEI_NS, StandoffVocabulary.IDNO);
+                    writer.writeAttribute(StandoffVocabulary.TYPE_ATTRIBUTE, identifier.getValue());
+                    writer.writeCharacters(PropertyValues.asString(value));
+                    writer.writeEndElement();
+                }
+            }
+            writer.writeEndElement();
         }
 
         private void writeEntity(MappedEntity entity) throws XMLStreamException {

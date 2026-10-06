@@ -74,6 +74,15 @@ class TeiExportTest {
                 CREATE (rs)-[:REFERS_TO]->(boulliau)
                 CREATE (note:Annotation {tag: 'note', type: 'commentary'})
                 CREATE (rs)-[:HAS_ANNOTATION]->(note)
+
+                // two lines of a manuscript, the second starting inside a person reference
+                CREATE (m:Text {uuid: 'm-1', text: 'Hildegard writes'})
+                CREATE (l1:Annotation {uuid: 'l-1', type: 'line', startIndex: 0, endIndex: 5})
+                CREATE (l2:Annotation {uuid: 'l-2', type: 'line', startIndex: 5, endIndex: 16})
+                CREATE (mp:Annotation {uuid: 'mp-1', type: 'person-reference', startIndex: 0, endIndex: 9})
+                CREATE (m)-[:HAS_ANNOTATION]->(l1)
+                CREATE (m)-[:HAS_ANNOTATION]->(l2)
+                CREATE (m)-[:HAS_ANNOTATION]->(mp)
                 """)
             .build();
 
@@ -109,6 +118,32 @@ class TeiExportTest {
         tei.valueByXPath("//tei:persName").isEqualTo("Hildegard");
         tei.valueByXPath("//tei:persName/@ref").isEqualTo("#hildegard");
         tei.doesNotHaveXPath("//tei:persName[@type]");
+    }
+
+    @Test
+    void milestonesAreEmptyElementsAtTheStartOfTheirRange(GraphDatabaseService db) {
+        XmlAssert tei = exportValidTei(db, "m-1", Map.of(
+                "milestones", List.of("lb"),
+                "dictionary", Map.of("elements", Map.of("persName", "person-reference", "lb", "line"))));
+
+        tei.valueByXPath("//tei:ab").isEqualTo("Hildegard writes");
+        tei.valueByXPath("count(//tei:lb)").isEqualTo(2);
+        tei.doesNotHaveXPath("//tei:lb[node()]");
+        tei.hasXPath("//tei:ab/tei:lb[@xml:id='l-1']/following-sibling::tei:persName[@xml:id='mp-1']");
+        tei.hasXPath("//tei:persName[@xml:id='mp-1']/tei:lb[@xml:id='l-2']");
+        tei.doesNotHaveXPath("//tei:standOff//tei:annotation");
+    }
+
+    @Test
+    void entitiesOfAMappedLabelAreDeclaredWithNameAndIdentifier(GraphDatabaseService db) {
+        XmlAssert tei = exportValidTei(db, "text-1", Map.of(
+                "entityElements", Map.of("Person", "person"),
+                "entityIdentifiers", Map.of("wikidataId", "wikidata")));
+
+        tei.valueByXPath("//tei:standOff/tei:listPerson/tei:person[@xml:id='hildegard']/tei:persName")
+                .isEqualTo("Hildegard von Bingen");
+        tei.valueByXPath("//tei:person[@xml:id='hildegard']/tei:idno[@type='wikidata']").isEqualTo("Q70991");
+        tei.doesNotHaveXPath("//tei:list[@type='entity']");
     }
 
     @Test

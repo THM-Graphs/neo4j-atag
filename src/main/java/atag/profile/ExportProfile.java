@@ -38,6 +38,9 @@ public class ExportProfile {
     private final List<String> annotationTypes;
     private final List<String> textProperties;
     private final List<String> ignoreProperties;
+    private final List<String> milestones;
+    private final Map<String, String> entityElements;
+    private final Map<String, String> entityIdentifiers;
     private final Serialization serialization;
     private final String entityKey;
     private final String idProperty;
@@ -55,6 +58,9 @@ public class ExportProfile {
         this.annotationTypes = (List<String>) config.get("annotationTypes");
         this.textProperties = (List<String>) config.getOrDefault("textProperties", DEFAULT_TEXT_PROPERTIES);
         this.ignoreProperties = (List<String>) config.getOrDefault("ignoreProperties", List.of());
+        this.milestones = (List<String>) config.getOrDefault("milestones", List.of());
+        this.entityElements = stringMap(config.get("entityElements"));
+        this.entityIdentifiers = stringMap(config.get("entityIdentifiers"));
         this.serialization = Serialization.valueOf(
                 ((String) config.getOrDefault("serialization", "inline")).toUpperCase(Locale.ROOT));
         this.entityKey = (String) config.getOrDefault("entityKey", "uuid");
@@ -72,6 +78,11 @@ public class ExportProfile {
     /** A profile that may take its project model, or all of itself, from the database. */
     public static ExportProfile from(Map<String, Object> config, Transaction tx) {
         return new ExportProfile(Profiles.resolve(config, tx, Profiles.EXPORT), tx);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, String> stringMap(Object value) {
+        return value instanceof Map ? Map.copyOf((Map<String, String>) value) : Map.of();
     }
 
     @SuppressWarnings("unchecked")
@@ -124,6 +135,28 @@ public class ExportProfile {
     /** Properties that should not be serialized at all, e.g. the source markup a node keeps. */
     public List<String> ignoreProperties() {
         return ignoreProperties;
+    }
+
+    /**
+     * Element names written as empty milestones at the start of their range, e.g. {@code lb}:
+     * the text they mark stays flat instead of being wrapped by them.
+     */
+    public List<String> milestones() {
+        return milestones;
+    }
+
+    /**
+     * The TEI element an entity is declared as, by entity label, e.g. {@code Person} to
+     * {@code person}. Entities that match, and have no verbatim declaration, are declared
+     * with their name and identifiers instead of as a generic {@code <item>}.
+     */
+    public Map<String, String> entityElements() {
+        return entityElements;
+    }
+
+    /** Entity properties written as {@code <idno>}, by property key, to the {@code @type} of the idno. */
+    public Map<String, String> entityIdentifiers() {
+        return entityIdentifiers;
     }
 
     public Serialization serialization() {
