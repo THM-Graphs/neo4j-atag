@@ -385,7 +385,10 @@ the exporter how to nest the eight same-range pairs. A resolved reference is wri
   document order and compared pairwise: same element name, same text content, same
   attributes - 509 and 23 of them. Attribute order and namespace declarations are
   ignored, a pointer is the same with or without its leading `#`, and an identifier the
-  export had to invent is not held against it (it invented none).
+  export had to invent is not held against it (it invented none). Every identifier of the
+  edition is already an NCName, so the export's `xml:id` rewriting
+  (`docs/adr/0007-xml-id-compliance-in-tei-export.md`) leaves all of them unchanged -
+  which the comparison of the `xml:id` attributes proves.
 * The four headers are compared with XMLUnit, ignoring whitespace.
 * The 83 entity declarations are compared the same way, matched by `xml:id`.
 * The `xml:id`, `type`, `n` and `corresp` attributes of the letter and the witnesses are

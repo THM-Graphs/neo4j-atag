@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * The walkthrough of <em>src/site/markdown/worked-example.md</em>, executed: a project
@@ -217,6 +218,27 @@ class WorkedExampleTest {
         assertValidTei(exportTei(db, "letter-3", EXPORT_PROFILE));
         assertValidTei(exportTei(db, "letter-3", with("serialization", "standoff")));
         assertValidTei(exportTei(db, "ms-2", EXPORT_PROFILE));
+    }
+
+    @Test
+    void identifiersThatAreNoNcNamesAreRewrittenConsistently(GraphDatabaseService db) {
+        db.executeTransactionally("CALL atag.model.meta.write($config) YIELD value RETURN value",
+                Map.of("config", MODEL));
+        db.executeTransactionally("""
+                CREATE (t:Transcript {uuid: '3 letter', plainText: 'Hildegard writes.'})
+                CREATE (a:Annotation {uuid: 'urn:a 1', type: 'person-reference', startIndex: 0, endIndex: 9})
+                CREATE (n:Annotation {uuid: '2nd note', type: 'commentary', note: 'uncertain reading'})
+                CREATE (t)-[:HAS_ANNOTATION]->(a)
+                CREATE (a)-[:HAS_ANNOTATION]->(n)
+                """);
+
+        String tei = exportTei(db, "3 letter", EXPORT_PROFILE);
+
+        assertTrue(tei.contains("xml:id=\"_3_letter\""), tei);
+        assertTrue(tei.contains("<persName xml:id=\"urn_a_1\">Hildegard</persName>"), tei);
+        assertTrue(tei.contains("target=\"#urn_a_1\" xml:id=\"_2nd_note\""),
+                "the pointer to a rewritten identifier is rewritten the same way: " + tei);
+        assertValidTei(tei);
     }
 
     private void assertValidTei(String tei) {

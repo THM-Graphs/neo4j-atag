@@ -232,6 +232,23 @@ Five things happened here:
   `#p-1`.
 * `REFERS_TO` became `@ref` again, and the two entities are declared in `<standOff>`.
 
+Identifiers of the graph are not constrained, but `xml:id` is: it has to be an NCName. The
+export therefore rewrites every identifier that is none - a space, a colon or any other
+character outside letters, digits, `_`, `-` and `.` becomes `_`, and a leading digit or
+`-` gets a `_` in front - and does the same in every pointer to it. A transcript
+`'3 letter'` with an annotation `'urn:a 1'` and a commentary `'2nd note'` on it comes out as
+
+```xml
+<TEI xmlns="http://www.tei-c.org/ns/1.0" xml:id="_3_letter"> ...
+<persName xml:id="urn_a_1">Hildegard</persName> ...
+<annotation target="#urn_a_1" xml:id="_2nd_note" note="uncertain reading" type="commentary"/>
+```
+
+The rewriting is silent, deterministic, and leaves valid identifiers alone. Two identifiers
+that would collapse into one value are told apart with a `_2`, `_3` suffix, and the
+generated `atag-N` identifiers never take a value that is already in use. The graph itself
+is not changed (`docs/adr/0007-xml-id-compliance-in-tei-export.md`).
+
 ## 6. Export as pure stand-off markup
 
 The same graph, with `serialization: 'standoff'` added to the profile, keeps the text
