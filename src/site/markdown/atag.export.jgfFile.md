@@ -33,7 +33,9 @@ The file `myExport.json` will be placed in the import folder and contains the gr
 ## Features
 
 - Exports nodes and relationships with all properties and labels.
-- Supports various property types (String, Integer, Long, Double, Boolean, LocalDate).
+- Supports the property types String, Integer, Long, Double, Boolean, LocalDate, `Point`
+  and arrays of String, Long, Integer, Double and Boolean. A `Point` is written as
+  `{"type": "Point", "srid": 4326, "coordinates": [x, y]}`; any other type makes the export fail.
 - Filename must not contain path separators.
 
 ## Typical Usage

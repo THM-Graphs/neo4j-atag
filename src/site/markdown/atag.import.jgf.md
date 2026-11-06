@@ -50,3 +50,11 @@ CALL atag.import.jgf('
 }
 ') YIELD nodeCount, relationshipCount
 ```
+
+## Property types
+
+Values are restored by their JSON form: strings that parse as an ISO date become dates,
+integers, decimals and booleans keep their type, and an object
+`{"type": "Point", "srid": ..., "coordinates": [...]}` becomes a `Point`. An array of
+integers becomes a `long[]`, of numbers a `double[]`, of booleans a `boolean[]`; any other
+array, including an empty one, becomes a `String[]`.

@@ -1,5 +1,6 @@
 package atag.importer;
 
+import atag.export.format.PropertyValues;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -9,6 +10,9 @@ import org.neo4j.graphdb.*;
 import org.neo4j.kernel.internal.GraphDatabaseAPI;
 import org.neo4j.logging.Log;
 import org.neo4j.procedure.*;
+import org.neo4j.values.storable.CoordinateReferenceSystem;
+import org.neo4j.values.storable.PointValue;
+import org.neo4j.values.storable.Values;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -20,6 +24,7 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class ImportProcedures {
 
@@ -190,11 +195,47 @@ public class ImportProcedures {
             } else if (value.isBoolean()) {
                 entity.setProperty(key, value.asBoolean());
             } else if (value.isArray()) {
-                List<String> list = new ArrayList<>();
-                value.elements().forEachRemaining(element -> list.add(element.asText()));
-                entity.setProperty(key, list.toArray(new String[0]));
+                entity.setProperty(key, toArray(value));
+            } else if (isPoint(value)) {
+                entity.setProperty(key, toPoint(value));
             }
         });
+    }
+
+    private boolean isPoint(JsonNode value) {
+        return value.isObject()
+                && PropertyValues.POINT_TYPE.equals(value.path(PropertyValues.POINT_TYPE_KEY).asText())
+                && value.path(PropertyValues.POINT_COORDINATES_KEY).isArray();
+    }
+
+    private PointValue toPoint(JsonNode value) {
+        double[] coordinates = StreamSupport.stream(value.get(PropertyValues.POINT_COORDINATES_KEY).spliterator(), false)
+                .mapToDouble(JsonNode::asDouble).toArray();
+        int srid = value.path(PropertyValues.POINT_SRID_KEY).asInt();
+        return Values.pointValue(CoordinateReferenceSystem.get(srid), coordinates);
+    }
+
+    /**
+     * Arrays keep their element type: all integers give {@code long[]}, numbers with a
+     * fraction {@code double[]}, booleans {@code boolean[]}; anything else, including an
+     * empty array, is stored as {@code String[]}.
+     */
+    private Object toArray(JsonNode array) {
+        List<JsonNode> elements = StreamSupport.stream(array.spliterator(), false).toList();
+        if (!elements.isEmpty() && elements.stream().allMatch(JsonNode::isIntegralNumber)) {
+            return elements.stream().mapToLong(JsonNode::asLong).toArray();
+        }
+        if (!elements.isEmpty() && elements.stream().allMatch(JsonNode::isNumber)) {
+            return elements.stream().mapToDouble(JsonNode::asDouble).toArray();
+        }
+        if (!elements.isEmpty() && elements.stream().allMatch(JsonNode::isBoolean)) {
+            boolean[] booleans = new boolean[elements.size()];
+            for (int i = 0; i < booleans.length; i++) {
+                booleans[i] = elements.get(i).asBoolean();
+            }
+            return booleans;
+        }
+        return elements.stream().map(JsonNode::asText).toArray(String[]::new);
     }
 }
 
