@@ -19,7 +19,7 @@
         <build-plugin.release.version>3.3.1</build-plugin.release.version>
         <versions-maven-plugin.version>2.18.0</versions-maven-plugin.version>
         <maven-scm-publish-plugin.version>3.3.0</maven-scm-publish-plugin.version>
-        <maven-site-plugin.version>4.0.0-M13</maven-site-plugin.version>
+        <maven-site-plugin.version>4.0.0-M16</maven-site-plugin.version>
         <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
         <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
     </properties>
