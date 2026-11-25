@@ -2,12 +2,11 @@ package atag.export;
 
 import apoc.convert.Json;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SpecVersion;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
+import com.networknt.schema.InputFormat;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SpecificationVersion;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.neo4j.configuration.GraphDatabaseSettings;
@@ -16,11 +15,9 @@ import org.neo4j.harness.junit.extension.Neo4jExtension;
 import org.neo4j.internal.helpers.collection.Iterators;
 
 import javax.ws.rs.ProcessingException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -52,11 +49,10 @@ class ExporterProceduresTest {
                 """, Collections.emptyMap(), r -> Iterators.single(r).get("json").toString());
 //        System.out.println(json);
 
-        final JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
-        URI uri = ExporterProceduresTest.class.getResource("/json-graph-schema.json").toURI();
-        final JsonSchema schema = factory.getSchema(uri);
-        JsonNode jsonNode = new ObjectMapper().readTree(json);
-        Set<ValidationMessage> validationMessages = schema.validate(jsonNode);
+        final SchemaRegistry registry = SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
+        final Schema schema = registry.getSchema(
+                ExporterProceduresTest.class.getResourceAsStream("/json-graph-schema.json"), InputFormat.JSON);
+        List<Error> validationMessages = schema.validate(json, InputFormat.JSON);
         validationMessages.forEach(validationMessage -> System.out.println(validationMessage.getMessage()));
 
         // Then
