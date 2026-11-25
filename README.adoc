@@ -20,3 +20,5 @@ configuration.
 See the https://thm-graphs.github.io/neo4j-atag/[documentation] for the procedure
 reference and a worked example.
 
+A release is made by pushing a tag `vX.Y.Z`; see "Building & Deployment" in the documentation.
+
