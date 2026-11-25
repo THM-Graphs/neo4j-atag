@@ -28,6 +28,7 @@
             <item name="Worked example: TEI in and out" href="worked-example.html"/>
             <item name="Worked example II: a corpus letter" href="worked-example-letter.html"/>
             <item name="Worked example III: a register sample" href="worked-example-regesta.html"/>
+            <item name="Import/Export for Regesta Imperii" href="regesta-imperii-import-export.html"/>
         </menu>
         <menu name="Procedures / Functions">
             <item name="atag.chains.characterChain" href="atag.chains.characterChain.html"/>
