@@ -158,7 +158,65 @@
         </header>
         <main id="bodyColumn" class="span10">
 <section><a id="Building_.26_Deployment"></a>
-<h1>Building &amp; Deployment</h1></section>
+<h1>Building &amp; Deployment</h1><section><a id="Building"></a>
+<h2>Building</h2>
+
+<pre><code class="language-bash">mvn clean verify                   # compile, test, package
+mvn clean package -DskipTests      # faster, no tests
+mvn clean verify -P coverage       # with JaCoCo, report in target/site/jacoco/index.html
+</code></pre>
+<p>The plugin JAR is <code>target/neo4j-atag-&lt;version&gt;.jar</code>; Jsoup and Saxon-HE are shaded into it.
+The site is built with <code>mvn site site:stage</code>.</p></section><section><a id="Continuous_integration"></a>
+<h2>Continuous integration</h2>
+<table class="table table-striped">
+<thead>
+<tr class="a">
+<th>Workflow</th>
+<th>Trigger</th>
+<th>Purpose</th></tr></thead><tbody>
+<tr class="b">
+<td><code>build.yml</code></td>
+<td>push to <code>main</code>, pull requests</td>
+<td>build and tests on Java 17 and 21, site build, dependency review and conventional-commit title check for pull requests; uploads the JAR and the coverage report, and the test reports if the build fails</td></tr>
+<tr class="a">
+<td><code>codeql.yml</code></td>
+<td>push to <code>main</code>, pull requests, weekly</td>
+<td>CodeQL code scanning</td></tr>
+<tr class="b">
+<td><code>release.yml</code></td>
+<td>push of a tag <code>vX.Y.Z</code></td>
+<td>release, see below</td></tr>
+<tr class="a">
+<td><code>publish-docs.yml</code></td>
+<td>called by <code>release.yml</code>, or by hand</td>
+<td>publishes this site to <code>gh-pages</code></td></tr></tbody>
+</table>
+
+<p>All actions are pinned to commit SHAs; Dependabot updates them and the Maven dependencies
+(monthly, plugins and test libraries grouped).</p></section><section><a id="Releasing"></a>
+<h2>Releasing</h2>
+<p>A release is started by pushing a tag. Make sure the commit to release is on <code>main</code> and green,
+then:</p>
+
+<pre><code class="language-bash">git checkout main &amp;&amp; git pull
+git tag v0.5.5
+git push origin v0.5.5
+</code></pre>
+<p>The tag must look like <code>vX.Y.Z</code>. The workflow <code>release.yml</code> then</p>
+<ol style="list-style-type: decimal;">
+
+<li>checks that the tagged commit is reachable from <code>main</code> and runs the full build,</li>
+<li>sets the Maven version to the tag, deploys the package to GitHub Packages and creates
+the GitHub release (generated release notes, plugin JAR attached),</li>
+<li>publishes the documentation site.</li>
+</ol>
+<p>Nothing is committed back to <code>main</code>; the version in <code>pom.xml</code> is only changed inside the
+workflow run, so it can be stale on <code>main</code> between releases. Only one release runs at a time.</p>
+<p>If a release fails, nothing is published before the checks have passed. Fix the problem,
+delete the tag (<code>git push --delete origin v0.5.5 &amp;&amp; git tag -d v0.5.5</code>) and push it again.</p>
+<p>The decision is recorded in <code>docs/adr/0009-tag-driven-release.md</code>.</p>
+<p>Maintainers should restrict who may create <code>v*</code> tags (repository settings, rules, tag ruleset),
+because every pushed tag releases.</p></section></section>
         </main>
       </div>
     </div>
